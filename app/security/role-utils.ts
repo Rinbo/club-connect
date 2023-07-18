@@ -1,6 +1,6 @@
 import { ClubRole } from '@prisma/client';
-import { CLUB_ROLES_HIERARCHY } from '~/security/authorization.server';
 
+export const CLUB_ROLES_HIERARCHY: ClubRole[] = [ClubRole.CLUB_USER, ClubRole.CLUB_WEBMASTER, ClubRole.CLUB_ADMIN, ClubRole.CLUB_OWNER];
 export function isClubAdmin(clubRoleMap: Map<string, ClubRole[]>, clubId: string): boolean {
   return hasRoleOrHigher(getOrDefault(clubRoleMap, clubId), ClubRole.CLUB_ADMIN);
 }

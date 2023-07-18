@@ -1,7 +1,5 @@
 import { findClubUserByUserId } from '~/models/club-user.server';
-import { ClubRole } from '@prisma/client';
-
-export const CLUB_ROLES_HIERARCHY: ClubRole[] = [ClubRole.CLUB_USER, ClubRole.CLUB_WEBMASTER, ClubRole.CLUB_ADMIN, ClubRole.CLUB_OWNER];
+import type { ClubRole } from '@prisma/client';
 
 type UserRoles = {
   clubRoles: Map<string, ClubRole[]>;

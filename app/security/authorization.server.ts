@@ -25,7 +25,6 @@ export async function getUserRoles(userId: string) {
   const cachedRoles = authorizationCache.get(userId);
   if (cachedRoles) return cachedRoles;
 
-  // TODO fetch team and parent roles when available
   const clubRoleMap = await getClubUserRoles(userId);
 
   const roles: UserRoles = {

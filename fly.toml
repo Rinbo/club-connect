@@ -9,6 +9,7 @@ kill_signal = "SIGINT"
 kill_timeout = "5s"
 
 [experimental]
+  allowed_public_ports = [ ]
   auto_rollback = true
 
 [deploy]
@@ -20,7 +21,7 @@ kill_timeout = "5s"
 
 [[services]]
   protocol = "tcp"
-  internal_port = 3000
+  internal_port = 8_080
   processes = ["app"]
 
   [[services.ports]]
@@ -50,6 +51,8 @@ kill_timeout = "5s"
     method = "get"
     path = "/healthcheck"
     protocol = "http"
+    tls_skip_verify = false
+    headers = { }
 
 [metrics]
   port = 8081

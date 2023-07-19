@@ -1,28 +1,17 @@
 import { findClubUserByUserId } from '~/models/club-user.server';
 import type { ClubRole } from '@prisma/client';
+import { cache as authorizationCache } from '~/security/cache.server';
 
 type UserRoles = {
   clubRoles: Map<string, ClubRole[]>;
   teamRoles: Map<string, string[]>;
   parentRoles: Map<string, string[]>;
-  expires: number;
 };
 
-type AuthorizationCache = Map<string, UserRoles>;
+const MAX_TTL_SECONDS = 60;
 
-const authorizationCache: AuthorizationCache = new Map<string, UserRoles>();
-
-setInterval(() => {
-  const now = new Date().getTime();
-  for (let [key, value] of authorizationCache.entries()) {
-    if (value.expires < now) {
-      authorizationCache.delete(key);
-    }
-  }
-}, 5 * 60 * 1000);
-
-export async function getUserRoles(userId: string) {
-  const cachedRoles = authorizationCache.get(userId);
+export async function getUserRoles(userId: string): Promise<UserRoles> {
+  const cachedRoles = authorizationCache.get<UserRoles>(userId);
   if (cachedRoles) return cachedRoles;
 
   const clubRoleMap = await getClubUserRoles(userId);
@@ -30,16 +19,15 @@ export async function getUserRoles(userId: string) {
   const roles: UserRoles = {
     clubRoles: clubRoleMap,
     teamRoles: new Map<string, string[]>(),
-    parentRoles: new Map<string, string[]>(),
-    expires: new Date().getTime() + 300 * 1000
+    parentRoles: new Map<string, string[]>()
   };
 
-  authorizationCache.set(userId, roles);
+  authorizationCache.set<UserRoles>(userId, roles, MAX_TTL_SECONDS);
   return roles;
 }
 
 export function invalidateAuthorizationCache(userId: string) {
-  authorizationCache.delete(userId);
+  authorizationCache.del(userId);
 }
 
 async function getClubUserRoles(userId: string) {

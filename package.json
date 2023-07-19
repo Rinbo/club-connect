@@ -50,6 +50,7 @@
     "express": "^4.18.2",
     "isbot": "^3.6.12",
     "morgan": "^1.10.0",
+    "node-cache": "^5.1.2",
     "prom-client": "^14.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

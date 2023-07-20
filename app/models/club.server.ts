@@ -5,6 +5,10 @@ export async function findClubByName(name: Club['name']) {
   return prisma.club.findUnique({ where: { name } });
 }
 
+export async function findClubs(limit: number) {
+  return prisma.club.findMany({ take: limit });
+}
+
 export async function findClubById(id: Club['id']) {
   return prisma.club.findUnique({ where: { id } });
 }

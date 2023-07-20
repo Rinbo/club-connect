@@ -30,6 +30,11 @@ export default function Dashboard() {
           </Link>
         ))}
       </div>
+      <div>
+        <Link to="/notes" className="m-2 rounded-md bg-blue-500 px-4 py-3 font-medium text-white hover:bg-blue-600">
+          Notes
+        </Link>
+      </div>
     </div>
   );
 }

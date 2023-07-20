@@ -23,7 +23,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 export const action = async ({ request }: ActionArgs) => {
   const formData = await request.formData();
-  const redirectTo = safeRedirect(formData.get('redirectTo'), '/');
+  const redirectTo = safeRedirect(formData.get('redirectTo'), '/dashboard');
 
   const validation = signupSchema.safeParse(Object.fromEntries(formData));
 

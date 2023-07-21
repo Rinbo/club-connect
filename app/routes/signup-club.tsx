@@ -8,6 +8,8 @@ import { createUserSession, redirectIfSignedIn } from '~/session.server';
 import { findClubByName } from '~/models/club.server';
 import Divider from '~/components/misc/divider';
 import DropDown from '~/components/form/dropdown';
+import useCustomToast from '~/hooks/useCustomToast';
+import { errorFlash } from '~/utils';
 
 const clubCreateSchema = object({
   name: string().min(2).max(60).trim(),
@@ -30,22 +32,32 @@ export const loader = async ({ request }: LoaderArgs) => {
   return json({});
 };
 
+function resourceExists(field: string, message: string) {
+  return json(
+    {
+      errors: { ...nullErrors, [field]: [message] },
+      flash: errorFlash(message)
+    },
+    { status: 409 }
+  );
+}
+
 export const action = async ({ request }: ActionArgs) => {
   const formData = await request.formData();
   const validation = clubCreateSchema.safeParse(Object.fromEntries(formData));
 
   if (!validation.success) {
-    return json({ errors: validation.error.flatten().fieldErrors }, { status: 400 });
+    return json({ errors: validation.error.flatten().fieldErrors, flash: errorFlash('Form is invalid') }, { status: 400 });
   }
 
   const { email, name, password, clubName, clubType } = validation.data;
 
   if (await getUserByEmail(email)) {
-    return json({ errors: { ...nullErrors, email: ['User already exists'] } }, { status: 409 });
+    return resourceExists('email', 'User already exists');
   }
 
   if (await findClubByName(clubName)) {
-    return json({ errors: { ...nullErrors, clubName: ['Club name already exists'] } }, { status: 409 });
+    return resourceExists('clubName', 'Club name already exists');
   }
 
   const owner = await createOwner(name, email, password, clubName, clubType);
@@ -61,6 +73,7 @@ export const action = async ({ request }: ActionArgs) => {
 
 export default function CreateClub() {
   const actionData = useActionData<typeof action>();
+  useCustomToast(actionData?.flash);
 
   return (
     <div className="flex min-h-full flex-col justify-center">

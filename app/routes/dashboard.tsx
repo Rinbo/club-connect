@@ -2,8 +2,9 @@ import type { LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { requireUserId } from '~/session.server';
 import { findAllClubsByUserId } from '~/models/club.server';
-import { Link, useLoaderData } from '@remix-run/react';
+import { Form, Link, useLoaderData } from '@remix-run/react';
 import LogoutButton from '~/components/misc/logout-button';
+import toast from 'react-hot-toast';
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request);
@@ -20,8 +21,14 @@ export default function Dashboard() {
         <div className={'text-lg text-slate-300'}>Dashboard nav</div>
         <LogoutButton />
       </div>
+      <button onClick={() => toast('hello')}>Click me</button>
 
       {clubs.length === 0 && <div>You have no clubs :(</div>}
+      <Form method={'post'}>
+        <label htmlFor={'name'}>Write a name</label>
+        <input name={'name'} className={'m-1 block border p-2'} />
+        <button type={'submit'}>Submit</button>
+      </Form>
 
       <div className={'my-2 p-2'}>
         {clubs.map((club, index) => (

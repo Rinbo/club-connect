@@ -65,6 +65,10 @@ export function useOptionalUser(): User | undefined {
   return data.user;
 }
 
+export function errorFlash(message: string) {
+  return { message, type: 'error' };
+}
+
 export function useUser(): User {
   const maybeUser = useOptionalUser();
   if (!maybeUser) {

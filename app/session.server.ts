@@ -1,4 +1,4 @@
-import { createCookieSessionStorage, redirect } from '@remix-run/node';
+import { createCookieSessionStorage, json, redirect } from '@remix-run/node';
 import type { User, UserWithRoles } from '~/models/user.server';
 import { getUserById } from '~/models/user.server';
 
@@ -7,8 +7,18 @@ import { isClubAdmin, isClubUser, isClubWebmaster } from '~/security/role-utils'
 import { getUserRoles, invalidateAuthorizationCache } from '~/security/authorization.server';
 
 invariant(process.env.SESSION_SECRET, 'SESSION_SECRET must be set');
+const USER_ID_KEY = 'userId';
 
-export const sessionStorage = createCookieSessionStorage({
+type SessionData = {
+  userId: string | undefined;
+};
+
+export type SessionFlashData = {
+  message: string | undefined;
+  type: 'error' | 'success' | undefined;
+};
+
+const sessionStorage = createCookieSessionStorage<SessionData, SessionFlashData>({
   cookie: {
     name: '__session',
     httpOnly: true,
@@ -19,11 +29,22 @@ export const sessionStorage = createCookieSessionStorage({
   }
 });
 
-const USER_ID_KEY = 'userId';
+export const { commitSession } = sessionStorage;
 
 export async function getSession(request: Request) {
   const cookie = request.headers.get('Cookie');
   return sessionStorage.getSession(cookie);
+}
+
+export async function flashJson<Data>(request: Request, data: Data, flash: SessionFlashData) {
+  const session = await getSession(request);
+  session.flash('message', flash.message);
+  session.flash('type', flash.type);
+  return json(data, {
+    headers: {
+      'Set-Cookie': await commitSession(session)
+    }
+  });
 }
 
 export async function getUserId(request: Request): Promise<User['id'] | undefined> {
@@ -120,7 +141,7 @@ export async function createUserSession({
 export async function logout(request: Request) {
   const session = await getSession(request);
   const userId = session.get(USER_ID_KEY);
-  invalidateAuthorizationCache(userId);
+  if (userId) invalidateAuthorizationCache(userId);
 
   return redirect('/', {
     headers: {

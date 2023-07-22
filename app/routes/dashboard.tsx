@@ -1,47 +1,14 @@
-import type { LoaderArgs } from '@remix-run/node';
-import { json } from '@remix-run/node';
-import { requireUserId } from '~/session.server';
-import { findAllClubsByUserId } from '~/models/club.server';
-import { Form, Link, useLoaderData } from '@remix-run/react';
+import { Outlet } from '@remix-run/react';
 import LogoutButton from '~/components/misc/logout-button';
-import toast from 'react-hot-toast';
-
-export const loader = async ({ request }: LoaderArgs) => {
-  const userId = await requireUserId(request);
-  const clubs = await findAllClubsByUserId(userId);
-  return json({ clubs });
-};
 
 export default function Dashboard() {
-  const { clubs } = useLoaderData<typeof loader>();
-
   return (
     <div className={'h-full'}>
-      <div className={'flex items-center justify-between bg-teal-600'}>
+      <div className={'flex items-center justify-between bg-teal-600 p-2'}>
         <div className={'text-lg text-slate-300'}>Dashboard nav</div>
         <LogoutButton />
       </div>
-      <button onClick={() => toast('hello')}>Click me</button>
-
-      {clubs.length === 0 && <div>You have no clubs :(</div>}
-      <Form method={'post'}>
-        <label htmlFor={'name'}>Write a name</label>
-        <input name={'name'} className={'m-1 block border p-2'} />
-        <button type={'submit'}>Submit</button>
-      </Form>
-
-      <div className={'my-2 p-2'}>
-        {clubs.map((club, index) => (
-          <Link key={index} to={`/clubs/${club.id}`} className={'inline-flex rounded bg-teal-600 p-2 text-slate-200'}>
-            {club.name}
-          </Link>
-        ))}
-      </div>
-      <div>
-        <Link to="/notes" className="m-2 rounded-md bg-blue-500 px-4 py-3 font-medium text-white hover:bg-blue-600">
-          Notes
-        </Link>
-      </div>
+      <Outlet />
     </div>
   );
 }

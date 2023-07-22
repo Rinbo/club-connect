@@ -1,0 +1,32 @@
+import { Link, useLoaderData } from '@remix-run/react';
+import type { LoaderArgs } from '@remix-run/node';
+import { json } from '@remix-run/node';
+import { requireUserId } from '~/session.server';
+import { findAllClubsByUserId } from '~/models/club.server';
+
+export const loader = async ({ request }: LoaderArgs) => {
+  const userId = await requireUserId(request);
+  const clubs = await findAllClubsByUserId(userId);
+  return json({ clubs });
+};
+
+export default function () {
+  const { clubs } = useLoaderData<typeof loader>();
+  return (
+    <div>
+      {clubs.length === 0 && <div>You have no clubs :(</div>}
+      <div className={'my-2 p-2'}>
+        {clubs.map((club, index) => (
+          <Link key={index} to={`/clubs/${club.id}`} className={'inline-flex rounded bg-teal-600 p-2 text-slate-200'}>
+            {club.name}
+          </Link>
+        ))}
+      </div>
+      <div>
+        <Link to="/notes" className="m-2 rounded-md bg-blue-500 px-4 py-3 font-medium text-white hover:bg-blue-600">
+          Notes
+        </Link>
+      </div>
+    </div>
+  );
+}

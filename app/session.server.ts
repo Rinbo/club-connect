@@ -1,4 +1,4 @@
-import { createCookieSessionStorage, json, redirect } from '@remix-run/node';
+import { createCookieSessionStorage, redirect } from '@remix-run/node';
 import type { User, UserWithRoles } from '~/models/user.server';
 import { getUserById } from '~/models/user.server';
 
@@ -34,17 +34,6 @@ export const { commitSession } = sessionStorage;
 export async function getSession(request: Request) {
   const cookie = request.headers.get('Cookie');
   return sessionStorage.getSession(cookie);
-}
-
-export async function flashJson<Data>(request: Request, data: Data, flash: SessionFlashData) {
-  const session = await getSession(request);
-  session.flash('message', flash.message);
-  session.flash('type', flash.type);
-  return json(data, {
-    headers: {
-      'Set-Cookie': await commitSession(session)
-    }
-  });
 }
 
 export async function getUserId(request: Request): Promise<User['id'] | undefined> {

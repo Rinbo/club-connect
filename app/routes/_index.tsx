@@ -35,7 +35,7 @@ export default function Index() {
                 <span className="block uppercase text-blue-500 drop-shadow-md">Club Connect</span>
               </h1>
               <p className="mx-auto mt-6 max-w-lg text-center text-xl text-white sm:max-w-3xl">
-                Manage your clubs and club members with no hassle
+                Manage your clubs and members with zero hassle
               </p>
               <div className="mx-auto mt-16 max-w-sm sm:flex sm:max-w-none sm:justify-center">
                 {user ? (

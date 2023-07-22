@@ -4,6 +4,8 @@ import { json } from '@remix-run/node';
 import { requireUserId } from '~/session.server';
 import { findAllClubsByUserId } from '~/models/club.server';
 
+export { ErrorBoundary } from '~/error-boundry';
+
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request);
   const clubs = await findAllClubsByUserId(userId);
@@ -13,19 +15,21 @@ export const loader = async ({ request }: LoaderArgs) => {
 export default function () {
   const { clubs } = useLoaderData<typeof loader>();
   return (
-    <div>
-      {clubs.length === 0 && <div>You have no clubs :(</div>}
-      <div className={'my-2 p-2'}>
-        {clubs.map((club, index) => (
-          <Link key={index} to={`/clubs/${club.id}`} className={'inline-flex rounded bg-teal-600 p-2 text-slate-200'}>
-            {club.name}
+    <div className={'container mx-auto p-2 sm:p-4'}>
+      <div className={'card sm:w-64'}>
+        <div className={'flex flex-col gap-2'}>
+          {clubs.length === 0 && <div>You have no clubs :(</div>}
+
+          {clubs.map((club, index) => (
+            <Link key={index} to={`/clubs/${club.id}`} className={'btn'}>
+              {club.name}
+            </Link>
+          ))}
+
+          <Link to="/notes" className="btn">
+            Notes
           </Link>
-        ))}
-      </div>
-      <div>
-        <Link to="/notes" className="m-2 rounded-md bg-blue-500 px-4 py-3 font-medium text-white hover:bg-blue-600">
-          Notes
-        </Link>
+        </div>
       </div>
     </div>
   );

@@ -31,7 +31,9 @@ export default function Dashboard() {
           <UserCircle />
         </div>
       </div>
-      <Outlet />
+      <div className={'p-2'}>
+        <Outlet />
+      </div>
     </div>
   );
 }

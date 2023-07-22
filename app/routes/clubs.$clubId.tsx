@@ -1,33 +1,87 @@
+import { Link, Outlet, useLoaderData } from '@remix-run/react';
+import { IoAppsOutline } from 'react-icons/io5';
+import { FaRegNewspaper, FaUsers } from 'react-icons/fa';
+import { RiTeamLine } from 'react-icons/ri';
+import { GrSchedules } from 'react-icons/gr';
+import UserCircle from '~/components/user/user-circle';
 import type { LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
-import { requireClubUser } from '~/session.server';
-import { getUserById } from '~/models/user.server';
-import { Link, useLoaderData } from '@remix-run/react';
-import { findClubById } from '~/models/club.server';
 import invariant from 'tiny-invariant';
+import { findClubById } from '~/models/club.server';
+import { useRef } from 'react';
 
-export const loader = async ({ params, request }: LoaderArgs) => {
-  const clubId = params.clubId;
-  invariant(clubId, 'clubId not found');
+export { ErrorBoundary } from '~/error-boundry';
 
-  const userId = await requireClubUser(request, clubId);
+export const loader = async ({ request, params }: LoaderArgs) => {
+  invariant(params.clubId, 'clubId missing on route');
+  const club = await findClubById(params.clubId);
 
-  const club = await findClubById(clubId);
-  const user = await getUserById(userId);
-  return json({ user, club });
+  // TODO need to get a new type for club user data which exposes boolean functions for the roles that the user has in this club
+
+  if (!club) throw new Response('Club does not exist', { status: 404 });
+
+  return json({ club });
 };
+export default function ClubLayout() {
+  const divRef = useRef<HTMLDivElement>(null);
+  const {
+    club: { name, id }
+  } = useLoaderData<typeof loader>();
 
-export default function Club() {
-  const { user, club } = useLoaderData<typeof loader>();
+  function handleClick() {
+    divRef.current?.classList.toggle(':dropdown-open');
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  }
+
   return (
-    <div className={'my-4 p-2'}>
-      <Link to={'/dashboard'} className={'inline-flex rounded bg-indigo-500 p-2 text-slate-200'}>
-        Dashboard
-      </Link>
-      <div className={'my-4'}>
-        <pre>USER: {JSON.stringify(user, null, 2)}</pre>
-        <hr className={'my-4'} />
-        <pre>CLUB: {JSON.stringify(club, null, 2)}</pre>
+    <div className="h-full">
+      <div className={'navbar bg-base-300'}>
+        <div className="flex-1">
+          <Link to={`/clubs/${id}`} className="btn btn-ghost text-xl normal-case">
+            {name}
+          </Link>
+        </div>
+        <div className="flex-none">
+          <div className="dropdown dropdown-end" ref={divRef}>
+            <label tabIndex={0} className="btn btn-circle btn-ghost ">
+              <div className="indicator">
+                <IoAppsOutline size={30} />
+              </div>
+            </label>
+            <div tabIndex={0} className="card dropdown-content card-compact z-[1] mt-3 w-64 bg-base-200 shadow sm:w-80 md:w-96">
+              <div className="card-body">
+                <span className="text-lg font-bold">{name}</span>
+                <div className="divider text-info">User Actions</div>
+                <div className="card-actions">
+                  <Link to={`/clubs/${id}/news`} className="btn btn-info" onClick={handleClick}>
+                    <FaRegNewspaper />
+                  </Link>
+                  <Link to={`/clubs/${id}/users`} className="btn btn-primary" onClick={handleClick}>
+                    <FaUsers />
+                  </Link>
+                  <Link to={`/clubs/${id}/teams`} className="btn btn-secondary" onClick={handleClick}>
+                    <RiTeamLine />
+                  </Link>
+                  <Link to={`/clubs/${id}/schedules`} className="btn btn-accent" onClick={handleClick}>
+                    <GrSchedules />
+                  </Link>
+                </div>
+                <div className="divider text-info">Admin</div>
+                <div className="card-actions">
+                  <Link to={`/clubs/${id}/admin/users`} className="btn btn-primary" onClick={handleClick}>
+                    <FaUsers />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+          <UserCircle />
+        </div>
+      </div>
+      <div className={'p-2'}>
+        <Outlet />
       </div>
     </div>
   );

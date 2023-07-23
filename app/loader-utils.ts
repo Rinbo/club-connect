@@ -2,6 +2,7 @@ import { useMatches } from '@remix-run/react';
 import { useMemo } from 'react';
 
 import type { User } from '~/models/user.server';
+import type { Club } from '@prisma/client';
 
 export type PromiseType<T extends Promise<any>> = T extends Promise<infer U> ? U : never;
 
@@ -38,25 +39,6 @@ export function useMatchesData(id: string): Record<string, unknown> | undefined 
   return route?.data;
 }
 
-function isUser(user: any): user is User {
-  return user && typeof user === 'object' && typeof user.email === 'string';
-}
-
-export function getStringInitials(clubName: string): string {
-  const words = clubName.split(' ');
-  const initials = words.map(word => word[0]).join('');
-  return initials.toUpperCase();
-}
-
-export function getColorForString(str: string): string {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const hue = hash % 360;
-  return `hsl(${hue}, 60%, 75%)`;
-}
-
 export function useOptionalUser(): User | undefined {
   const data = useMatchesData('root');
   if (!data || !isUser(data.user)) {
@@ -69,14 +51,28 @@ export function errorFlash(message: string) {
   return { message, type: 'error' };
 }
 
+export function useClub(): Club {
+  const data = useMatchesData('routes/clubs.$clubId');
+
+  if (!data || !isClub(data.club)) {
+    throw new Error('Club data is missing in club root loader');
+  }
+
+  return data.club;
+}
+
 export function useUser(): User {
   const maybeUser = useOptionalUser();
   if (!maybeUser) {
-    throw new Error('No user found in root loader, but user is required by useUser. If user is optional, try useOptionalUser instead.');
+    throw new Error('No user found in root loader');
   }
   return maybeUser;
 }
 
-export function validateEmail(email: unknown): email is string {
-  return typeof email === 'string' && email.length > 3 && email.includes('@');
+function isUser(user: any): user is User {
+  return user && typeof user === 'object' && typeof user.email === 'string';
+}
+
+function isClub(club: any): club is Club {
+  return club && typeof club === 'object';
 }

@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 
 import { verifyLogin } from '~/models/user.server';
 import { createUserSession, redirectIfSignedIn } from '~/session.server';
-import { safeRedirect } from '~/utils';
+import { safeRedirect } from '~/loader-utils';
 import { string, z } from 'zod';
 import FieldInput from '~/components/form/field-input';
 import CheckBox from '~/components/form/checkbox';

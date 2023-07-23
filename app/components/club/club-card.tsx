@@ -1,5 +1,5 @@
 import React from 'react';
-import { getColorForString, getStringInitials } from '~/utils';
+import { getColorForString, getStringInitials } from '~/misc-utils';
 import { Link } from '@remix-run/react';
 
 type ClubProps = {

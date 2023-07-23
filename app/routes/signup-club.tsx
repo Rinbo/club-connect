@@ -9,7 +9,7 @@ import { findClubByName } from '~/models/club.server';
 import Divider from '~/components/misc/divider';
 import DropDown from '~/components/form/dropdown';
 import useCustomToast from '~/hooks/useCustomToast';
-import { errorFlash } from '~/utils';
+import { errorFlash } from '~/loader-utils';
 
 const clubCreateSchema = object({
   name: string().min(2).max(60).trim(),

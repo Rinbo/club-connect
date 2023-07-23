@@ -1,23 +1,10 @@
-import { Link, useLoaderData } from '@remix-run/react';
-import { json, LoaderArgs } from '@remix-run/node';
-import invariant from 'tiny-invariant';
-import { requireClubUser } from '~/session.server';
-import { findClubById } from '~/models/club.server';
-import { getUserById } from '~/models/user.server';
-
-export const loader = async ({ params, request }: LoaderArgs) => {
-  const clubId = params.clubId;
-  invariant(clubId, 'clubId not found');
-
-  const userId = await requireClubUser(request, clubId);
-
-  const club = await findClubById(clubId);
-  const user = await getUserById(userId);
-  return json({ user, club });
-};
+import { Link } from '@remix-run/react';
+import { useClub, useUser } from '~/loader-utils';
 
 export default function Club() {
-  const { user, club } = useLoaderData<typeof loader>();
+  const club = useClub();
+  const user = useUser();
+
   return (
     <div>
       <Link to={'/dashboard'} className={'inline-flex rounded bg-indigo-500 p-2 text-slate-200'}>

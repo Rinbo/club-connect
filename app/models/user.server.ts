@@ -3,7 +3,7 @@ import { ClubRole } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 import { prisma } from '~/db.server';
-import type { PromiseType } from '~/utils';
+import type { PromiseType } from '~/loader-utils';
 
 export type { User } from '@prisma/client';
 export type UserWithRoles =

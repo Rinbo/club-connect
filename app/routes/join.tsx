@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 
 import { createUser, getUserByEmail } from '~/models/user.server';
 import { createUserSession, getUserId } from '~/session.server';
-import { safeRedirect } from '~/utils';
+import { safeRedirect } from '~/loader-utils';
 import { string, z } from 'zod';
 import FieldInput from '~/components/form/field-input';
 

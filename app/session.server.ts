@@ -3,7 +3,7 @@ import type { User, UserWithRoles } from '~/models/user.server';
 import { getUserById } from '~/models/user.server';
 
 import invariant from 'tiny-invariant';
-import { isClubAdmin, isClubUser, isClubWebmaster } from '~/security/role-utils';
+import { isClubAdmin, isClubOwner, isClubUser, isClubWebmaster } from '~/security/role-utils';
 import { getUserRoles, invalidateAuthorizationCache } from '~/security/authorization.server';
 
 invariant(process.env.SESSION_SECRET, 'SESSION_SECRET must be set');
@@ -43,7 +43,7 @@ export async function getUserId(request: Request): Promise<User['id'] | undefine
 
 export async function getUser(request: Request) {
   const userId = await getUserId(request);
-  if (userId === undefined) return null;
+  if (!userId) return null;
 
   const user = await getUserById(userId);
   if (user) return user;
@@ -60,8 +60,13 @@ export async function requireUserId(request: Request, redirectTo: string = new U
   }
   return userId;
 }
-
-export async function requireClubUser(request: Request, clubId: string) {
+interface ClubUserRoles {
+  isUser: boolean;
+  isWebmaster: boolean;
+  isAdmin: boolean;
+  isOwner: boolean;
+}
+export async function requireClubUser(request: Request, clubId: string): Promise<ClubUserRoles> {
   const userId = await requireUserId(request);
   const userRoles = await getUserRoles(userId);
 
@@ -69,7 +74,12 @@ export async function requireClubUser(request: Request, clubId: string) {
     throw redirect(`/dashboard`);
   }
 
-  return userId;
+  return {
+    isUser: isClubUser(userRoles.clubRoles, clubId),
+    isWebmaster: isClubWebmaster(userRoles.clubRoles, clubId),
+    isAdmin: isClubAdmin(userRoles.clubRoles, clubId),
+    isOwner: isClubOwner(userRoles.clubRoles, clubId)
+  };
 }
 
 export async function requireClubAdmin(request: Request, clubId: string) {

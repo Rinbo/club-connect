@@ -1,17 +1,17 @@
 import { json, LoaderArgs } from '@remix-run/node';
 import invariant from 'tiny-invariant';
-import { requireClubAdmin } from '~/session.server';
+import { requireClubUser } from '~/session.server';
 import { findClubUsersByClubId } from '~/models/club-user.server';
 import { useLoaderData } from '@remix-run/react';
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.clubId, 'clubId not present in route');
-  await requireClubAdmin(request, params.clubId);
+  await requireClubUser(request, params.clubId);
   const clubUsers = await findClubUsersByClubId(params.clubId);
   return json({ clubUsers });
 };
 
-export default function AdminUsers() {
+export default function ClubUsers() {
   const { clubUsers } = useLoaderData<typeof loader>();
 
   return (

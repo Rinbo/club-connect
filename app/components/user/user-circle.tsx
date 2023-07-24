@@ -20,7 +20,7 @@ export default function UserCircle() {
           <AiOutlineUser size={30} />
         </div>
       </label>
-      <ul tabIndex={0} className="menu dropdown-content rounded-box menu-sm z-[1] mt-3 w-52 bg-base-200 p-2 shadow">
+      <ul tabIndex={0} className="menu dropdown-content rounded-box menu-sm z-20 mt-3 w-52 bg-base-200 p-2 shadow">
         <li>
           <Link to={'/dashboard/profile'} onClick={handleClick}>
             Profile

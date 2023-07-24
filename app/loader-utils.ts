@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 
 import type { User } from '~/models/user.server';
 import type { Club } from '@prisma/client';
+import type { ClubUserRoles } from '~/session.server';
 
 export type PromiseType<T extends Promise<any>> = T extends Promise<infer U> ? U : never;
 
@@ -61,6 +62,16 @@ export function useClub(): Club {
   return data.club;
 }
 
+export function useClubUserRoles(): ClubUserRoles {
+  const data = useMatchesData('routes/clubs.$clubId');
+
+  if (!data || !isClubUserRoles(data.clubUserRoles)) {
+    throw new Error('Club data is missing in club root loader');
+  }
+
+  return data.clubUserRoles;
+}
+
 export function useUser(): User {
   const maybeUser = useOptionalUser();
   if (!maybeUser) {
@@ -73,6 +84,9 @@ function isUser(user: any): user is User {
   return user && typeof user === 'object' && typeof user.email === 'string';
 }
 
+function isClubUserRoles(clubUserRoles: any): clubUserRoles is ClubUserRoles {
+  return clubUserRoles && typeof clubUserRoles === 'object';
+}
 function isClub(club: any): club is Club {
   return club && typeof club === 'object';
 }

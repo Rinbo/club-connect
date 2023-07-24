@@ -61,6 +61,7 @@ export async function createOwner(ownerName: string, email: string, password: st
                 clubType
               }
             },
+            // TODO, given role hierarchies, only save ClubRole.CLUB_OWNER here?
             clubRoles: [ClubRole.CLUB_USER, ClubRole.CLUB_ADMIN, ClubRole.CLUB_OWNER]
           }
         ]

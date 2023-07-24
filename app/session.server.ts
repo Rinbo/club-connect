@@ -18,6 +18,13 @@ export type SessionFlashData = {
   type: 'error' | 'success' | undefined;
 };
 
+export interface ClubUserRoles {
+  isUser: boolean;
+  isWebmaster: boolean;
+  isAdmin: boolean;
+  isOwner: boolean;
+}
+
 const sessionStorage = createCookieSessionStorage<SessionData, SessionFlashData>({
   cookie: {
     name: '__session',
@@ -59,12 +66,6 @@ export async function requireUserId(request: Request, redirectTo: string = new U
     throw redirect(`/login?${searchParams}`);
   }
   return userId;
-}
-interface ClubUserRoles {
-  isUser: boolean;
-  isWebmaster: boolean;
-  isAdmin: boolean;
-  isOwner: boolean;
 }
 export async function requireClubUser(request: Request, clubId: string): Promise<ClubUserRoles> {
   const userId = await requireUserId(request);

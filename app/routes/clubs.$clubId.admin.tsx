@@ -27,7 +27,7 @@ function AdminMenu() {
   const { clubId } = useParams();
 
   return (
-    <ul className="no-scrollbar menu rounded-box menu-horizontal menu-xs mb-2 w-full flex-nowrap gap-1 overflow-x-auto bg-base-200 sm:menu-md sm:justify-center">
+    <ul className="menu-animate-right no-scrollbar menu rounded-box menu-horizontal menu-xs z-10 mb-1 w-full flex-nowrap gap-1 overflow-x-auto bg-base-200 sm:menu-md sm:justify-center">
       <li>
         <NavLink to={`/clubs/${clubId}/admin`} end>
           {({ isActive, isPending }) => (

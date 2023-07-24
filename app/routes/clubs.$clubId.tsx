@@ -119,7 +119,7 @@ export default function ClubLayout() {
           <UserCircle />
         </div>
       </div>
-      <div className={'p-2'}>
+      <div className={'container mx-auto p-2'}>
         <Outlet />
       </div>
     </div>

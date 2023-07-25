@@ -173,7 +173,7 @@ function ClubMenu() {
         <NavLink to={`/clubs/${clubId}/users`}>
           {({ isActive, isPending }) => (
             <div className={'flex flex-col items-center gap-0'}>
-              <RiTeamLine size={ICON_SIZE} />
+              <FaUsers size={ICON_SIZE} />
               <span className={`text-xs ${isActive ? 'active' : ''}`}>Members</span>
             </div>
           )}

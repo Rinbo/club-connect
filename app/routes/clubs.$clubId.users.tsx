@@ -1,39 +1,5 @@
-import { Link, Outlet, useParams } from '@remix-run/react';
-import { IoMdAddCircleOutline } from 'react-icons/io';
-import { AiOutlineMail } from 'react-icons/ai';
-import { useClubUserRoles } from '~/loader-utils';
+import { Outlet } from '@remix-run/react';
 
-export default function UsersLayout() {
-  const clubUserRoles = useClubUserRoles();
-  return (
-    <div>
-      {clubUserRoles.isAdmin && <AdminUsersMenu />}
-      <Outlet />
-    </div>
-  );
-}
-
-function AdminUsersMenu() {
-  const { clubId } = useParams();
-
-  return (
-    <ul className="menu-animate-down no-scrollbar menu rounded-box menu-horizontal menu-xs mb-2 w-full flex-nowrap gap-2 overflow-x-auto bg-base-200 py-0 sm:justify-center">
-      <li>
-        <Link to={`/clubs/${clubId}/admin/users/new`}>
-          <div className={'flex flex-col items-center gap-0'}>
-            <IoMdAddCircleOutline size={20} />
-            <span className={`text-xs `}>Add</span>
-          </div>
-        </Link>
-      </li>
-      <li>
-        <Link to={`/clubs/${clubId}/admin/users/notify`}>
-          <div className={'flex flex-col items-center gap-0'}>
-            <AiOutlineMail size={20} />
-            <span className={`text-xs`}>Notify</span>
-          </div>
-        </Link>
-      </li>
-    </ul>
-  );
+export default function ClubUsersLayout() {
+  return <Outlet />;
 }

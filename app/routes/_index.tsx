@@ -18,7 +18,7 @@ export default function Index() {
   const { clubs } = useLoaderData<typeof loader>();
 
   return (
-    <main className="relative min-h-screen bg-white sm:flex sm:items-center sm:justify-center">
+    <main className="relative min-h-screen sm:flex sm:items-center sm:justify-center">
       <div className="relative sm:pb-16 sm:pt-8">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="relative h-screen shadow-xl sm:h-full sm:overflow-hidden sm:rounded-2xl">
@@ -28,25 +28,37 @@ export default function Index() {
             </div>
             <div className="relative h-full px-4 pb-8 pt-16 sm:px-6 sm:pb-14 sm:pt-24 lg:px-8 lg:pb-20 lg:pt-32">
               <h1 className="text-center text-6xl font-extrabold tracking-tight sm:text-8xl lg:text-9xl">
-                <span className="block uppercase text-primary drop-shadow-md">Club Connect</span>
+                <span className="block uppercase text-[rgb(75,195,117)] drop-shadow-md">Club Connect</span>
               </h1>
               <p className="mx-auto mt-6 max-w-lg text-center text-xl text-white sm:max-w-3xl">
                 Manage your clubs and members with zero hassle
               </p>
               <div className="mx-auto mt-16 max-w-sm sm:flex sm:max-w-none sm:justify-center">
                 {user ? (
-                  <Link to="/dashboard" className="btn flex items-center justify-center">
+                  <Link
+                    to="/dashboard"
+                    className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-black shadow-sm hover:bg-green-50 sm:px-8"
+                  >
                     Dashboard for {user.name}
                   </Link>
                 ) : (
                   <div className="space-y-4 sm:mx-auto sm:inline-grid sm:grid-cols-3 sm:gap-5 sm:space-y-0">
-                    <Link to="/signup-club" className="btn flex items-center  justify-center">
+                    <Link
+                      to="/signup-club"
+                      className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-black shadow-sm hover:bg-green-50 sm:px-8"
+                    >
                       Create a club
                     </Link>
-                    <Link to="/join" className="btn flex items-center justify-center ">
-                      Join a club
+                    <Link
+                      to="/join"
+                      className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-black shadow-sm hover:bg-green-50 sm:px-8"
+                    >
+                      Join
                     </Link>
-                    <Link to="/login" className="btn btn-primary flex items-center justify-center ">
+                    <Link
+                      to="/login"
+                      className="btn btn-ghost flex items-center justify-center bg-[rgb(75,195,117)] text-[#233e31] hover:bg-[rgb(75,180,117)] "
+                    >
                       Log In
                     </Link>
                   </div>

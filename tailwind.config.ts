@@ -7,7 +7,20 @@ export default {
   },
   plugins: [require('daisyui')],
   daisyui: {
-    themes: true,
-    darkTheme: 'light'
+    themes: [
+      {
+        light: {
+          ...require('daisyui/src/theming/themes')['[data-theme=light]'],
+          primary: '#4BC375',
+          'primary-content': '#233e31'
+        },
+        dark: {
+          ...require('daisyui/src/theming/themes')['[data-theme=dark]'],
+          primary: '#4BC375',
+          'primary-content': '#233e31'
+        }
+      },
+      'emerald'
+    ]
   }
 } satisfies Config;

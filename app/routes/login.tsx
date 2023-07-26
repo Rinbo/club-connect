@@ -9,6 +9,7 @@ import { safeRedirect } from '~/loader-utils';
 import { string, z } from 'zod';
 import FieldInput from '~/components/form/field-input';
 import CheckBox from '~/components/form/checkbox';
+import AppLogo from '~/components/logo';
 
 const loginSchema = z.object({
   email: string().email().trim().toLowerCase(),
@@ -62,6 +63,12 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-full flex-col justify-center">
+      <Link to={'/'}>
+        <div className={'mb-16 flex items-center justify-center'}>
+          <AppLogo />
+          <div className={'font-mono text-2xl text-base-content'}>Club Connect</div>
+        </div>
+      </Link>
       <div className="mx-auto w-full max-w-md px-8">
         <Form method="post" className="space-y-6">
           <FieldInput
@@ -89,7 +96,7 @@ export default function LoginPage() {
           </button>
           <div className="flex items-center justify-between">
             <CheckBox label={'Remember me'} id={'remember'} name={'remember'} />
-            <div className="text-center text-sm text-gray-500">
+            <div className="text-center text-sm text-base-content">
               Don't have an account?{' '}
               <Link
                 className="btn btn-link"

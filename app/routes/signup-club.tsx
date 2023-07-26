@@ -1,4 +1,4 @@
-import { Form, useActionData } from '@remix-run/react';
+import { Form, Link, useActionData } from '@remix-run/react';
 import FieldInput from '~/components/form/field-input';
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
@@ -6,10 +6,10 @@ import { object, string } from 'zod';
 import { createOwner, getUserByEmail } from '~/models/user.server';
 import { createUserSession, redirectIfSignedIn } from '~/session.server';
 import { findClubByName } from '~/models/club.server';
-import Divider from '~/components/misc/divider';
 import DropDown from '~/components/form/dropdown';
 import useCustomToast from '~/hooks/useCustomToast';
 import { errorFlash } from '~/loader-utils';
+import AppLogo from '~/components/logo';
 
 const clubCreateSchema = object({
   name: string().min(2).max(60).trim(),
@@ -76,10 +76,16 @@ export default function CreateClub() {
   useCustomToast(actionData?.flash);
 
   return (
-    <div className="flex min-h-full flex-col justify-center">
+    <div className="flex min-h-full flex-col justify-center py-6">
+      <Link to={'/'}>
+        <div className={'mb-4 flex items-center justify-center sm:mb-16'}>
+          <AppLogo />
+          <div className={'font-mono text-2xl text-base-content'}>Club Connect</div>
+        </div>
+      </Link>
       <div className="mx-auto w-full max-w-md px-8">
         <Form method="post" className="space-y-6">
-          <Divider text={'User information'} />
+          <div className={'divider'}>User Information</div>
           <FieldInput label={'Name'} id={'name'} name={'name'} errors={actionData?.errors?.name} />
           <FieldInput
             label={'Email'}
@@ -91,7 +97,7 @@ export default function CreateClub() {
             placeholder={'bob@example.com'}
           />
           <FieldInput label={'Password'} id={'password'} name={'password'} type={'password'} errors={actionData?.errors?.password} />
-          <Divider text={'Club details'} />
+          <div className={'divider'}>Club Details</div>
           <FieldInput label={'Club Name'} id={'clubName'} name={'clubName'} errors={actionData?.errors?.clubName} />
           <DropDown
             options={['SPORT', 'MUSIC', 'OTHER']}
@@ -100,7 +106,7 @@ export default function CreateClub() {
             label={'Club Type'}
             errors={actionData?.errors?.clubType}
           />
-          <button type={'submit'} className="w-full rounded bg-indigo-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400">
+          <button type={'submit'} className="btn btn-primary w-full">
             Submit
           </button>
         </Form>

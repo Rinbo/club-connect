@@ -8,6 +8,7 @@ import { createUserSession, getUserId } from '~/session.server';
 import { safeRedirect } from '~/loader-utils';
 import { string, z } from 'zod';
 import FieldInput from '~/components/form/field-input';
+import AppLogo from '~/components/logo';
 
 const signupSchema = z.object({
   name: string().min(3).max(50),
@@ -79,6 +80,12 @@ export default function Join() {
 
   return (
     <div className="flex min-h-full flex-col justify-center">
+      <Link to={'/'}>
+        <div className={'mb-16 flex items-center justify-center'}>
+          <AppLogo />
+          <div className={'font-mono text-2xl text-base-content'}>Club Connect</div>
+        </div>
+      </Link>
       <div className="mx-auto w-full max-w-md px-8">
         <Form method="post" className="space-y-6">
           <FieldInput
@@ -109,14 +116,14 @@ export default function Join() {
           />
 
           <input type="hidden" name="redirectTo" value={redirectTo} />
-          <button type="submit" className="w-full rounded bg-indigo-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400">
+          <button type="submit" className="btn btn-primary w-full">
             Create Account
           </button>
           <div className="flex items-center justify-center">
             <div className="text-center text-sm text-gray-500">
               Already have an account?{' '}
               <Link
-                className="text-blue-500 underline"
+                className="btn btn-link"
                 to={{
                   pathname: '/login',
                   search: searchParams.toString()

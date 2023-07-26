@@ -71,7 +71,7 @@ function ClubNav({ name, id, clubUserRoles }: { name: string; id: string; clubUs
                 {name}
               </Link>
 
-              <div className="card-actions gap-3">
+              <div className="card-actions gap-2">
                 <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
                   <Link to={`/clubs/${id}`} className="btn btn-accent" onClick={handleClick}>
                     <FaHome />
@@ -107,7 +107,7 @@ function ClubNav({ name, id, clubUserRoles }: { name: string; id: string; clubUs
               {clubUserRoles.isAdmin && (
                 <>
                   <div className="divider m-0 text-info">Admin</div>
-                  <div className="card-actions">
+                  <div className="card-actions gap-2">
                     <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
                       <Link to={`/clubs/${id}/settings`} className="btn btn-primary" onClick={handleClick}>
                         <FiSettings />
@@ -119,7 +119,7 @@ function ClubNav({ name, id, clubUserRoles }: { name: string; id: string; clubUs
               )}
 
               <div className="divider m-0 text-info">Personal</div>
-              <div className="card-actions">
+              <div className="card-actions gap-2">
                 <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
                   <Link to={'/dashboard'} className="btn btn-accent" onClick={handleClick}>
                     <LuLayoutDashboard />

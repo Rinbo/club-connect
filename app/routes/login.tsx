@@ -84,7 +84,7 @@ export default function LoginPage() {
           />
 
           <input type="hidden" name="redirectTo" value={redirectTo} />
-          <button type="submit" className="w-full rounded bg-indigo-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400">
+          <button type="submit" className="btn btn-primary w-full">
             Log in
           </button>
           <div className="flex items-center justify-between">
@@ -92,7 +92,7 @@ export default function LoginPage() {
             <div className="text-center text-sm text-gray-500">
               Don't have an account?{' '}
               <Link
-                className="text-blue-500 underline"
+                className="btn btn-link"
                 to={{
                   pathname: '/join',
                   search: searchParams.toString()

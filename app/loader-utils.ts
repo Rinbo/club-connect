@@ -62,6 +62,16 @@ export function useClub(): Club {
   return data.club;
 }
 
+export function useClubs(): Club[] {
+  const data = useMatchesData('routes/dashboard');
+
+  if (!data || !isClubs(data.clubs)) {
+    throw new Error('Clubs data is missing in dashboard root loader');
+  }
+
+  return data.clubs;
+}
+
 export function useClubUserRoles(): ClubUserRoles {
   const data = useMatchesData('routes/clubs.$clubId');
 
@@ -89,4 +99,8 @@ function isClubUserRoles(clubUserRoles: any): clubUserRoles is ClubUserRoles {
 }
 function isClub(club: any): club is Club {
   return club && typeof club === 'object';
+}
+
+function isClubs(clubs: any): clubs is Club[] {
+  return clubs && Array.isArray(clubs);
 }

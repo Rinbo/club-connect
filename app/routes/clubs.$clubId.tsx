@@ -120,7 +120,7 @@ function ClubNav({ name, id, clubUserRoles }: { name: string; id: string; clubUs
 
               <div className="divider m-0 text-info">Personal</div>
               <div className="card-actions gap-2">
-                <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
+                <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1 pl-0'}>
                   <Link to={'/dashboard'} className="btn btn-accent" onClick={handleClick}>
                     <LuLayoutDashboard />
                   </Link>

@@ -5,6 +5,18 @@ export async function findClubByName(name: Club['name']) {
   return prisma.club.findUnique({ where: { name } });
 }
 
+export async function findClubByNameContains(clubQuery: string) {
+  return prisma.club.findMany({
+    where: {
+      name: {
+        contains: clubQuery,
+        mode: 'insensitive'
+      }
+    },
+    take: 10
+  });
+}
+
 export async function findClubs(limit: number) {
   return prisma.club.findMany({ take: limit });
 }

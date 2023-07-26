@@ -1,9 +1,15 @@
 import type { Config } from 'tailwindcss';
 
+const defaultTheme = require('tailwindcss/defaultTheme');
+
 export default {
   content: ['./app/**/*.{js,jsx,ts,tsx}'],
   theme: {
-    extend: {}
+    extend: {},
+    screens: {
+      xs: '322px',
+      ...defaultTheme.screens
+    }
   },
   plugins: [require('daisyui')],
   daisyui: {

@@ -1,19 +1,11 @@
-import { Link, useLoaderData } from '@remix-run/react';
-import type { LoaderArgs } from '@remix-run/node';
-import { json } from '@remix-run/node';
-import { requireUserId } from '~/session.server';
-import { findAllClubsByUserId } from '~/models/club.server';
+import { Link } from '@remix-run/react';
+import { useClubs } from '~/loader-utils';
 
 export { ErrorBoundary } from '~/error-boundry';
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const userId = await requireUserId(request);
-  const clubs = await findAllClubsByUserId(userId);
-  return json({ clubs });
-};
-
 export default function () {
-  const { clubs } = useLoaderData<typeof loader>();
+  const clubs = useClubs();
+
   return (
     <div className={'container mx-auto p-2 sm:p-4'}>
       <div className={'card sm:w-64'}>

@@ -1,10 +1,22 @@
-import { Link, Outlet, useNavigate, useParams } from '@remix-run/react';
+import { Link, Outlet, useLoaderData, useNavigate, useParams } from '@remix-run/react';
 import { IoIosArrowBack } from 'react-icons/io';
 import { AiOutlineEdit, AiOutlineMail } from 'react-icons/ai';
 import { useClubUserRoles } from '~/loader-utils';
+import { json, LoaderArgs } from '@remix-run/node';
+import invariant from 'tiny-invariant';
+import { requireClubUser } from '~/session.server';
+import { findClubUserByClubIdAndUserId } from '~/models/club-user.server';
 
-export default function ClubUser() {
-  const clubUserRoles = useClubUserRoles();
+export const loader = async ({ request, params: { userId, clubId } }: LoaderArgs) => {
+  invariant(userId, 'userId missing in route');
+  invariant(clubId, 'clubId missing in route');
+  await requireClubUser(request, clubId);
+
+  const clubUser = await findClubUserByClubIdAndUserId(clubId, userId);
+  return json({ clubUser });
+};
+export default function ClubUserLayout() {
+  const clubUserRoles = useClubUserRoles()
 
   return (
     <div>

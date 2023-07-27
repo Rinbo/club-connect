@@ -21,7 +21,7 @@ export default function ClubUsers() {
   return (
     <div>
       {clubUserRoles.isAdmin && <AdminUsersMenu />}
-      <div className={'mt-4 flex gap-2'}>
+      <div className={'mt-4 flex flex-wrap gap-2'}>
         {clubUsers.map(clubUser => (
           <Link to={`/clubs/${clubUser.clubId}/users/${clubUser.userId}`} key={clubUser.id} className={'btn-ghost rounded-2xl'}>
             <pre className={'rounded-2xl border p-4'}>{JSON.stringify(clubUser.user, null, 2)}</pre>

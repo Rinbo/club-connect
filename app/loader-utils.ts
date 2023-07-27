@@ -2,7 +2,7 @@ import { useMatches } from '@remix-run/react';
 import { useMemo } from 'react';
 
 import type { User } from '~/models/user.server';
-import type { Club } from '@prisma/client';
+import type { Club, ClubUser } from '@prisma/client';
 import type { ClubUserRoles } from '~/session.server';
 
 export type PromiseType<T extends Promise<any>> = T extends Promise<infer U> ? U : never;
@@ -72,6 +72,16 @@ export function useClubs(): Club[] {
   return data.clubs;
 }
 
+export function useClubUser(): ClubUser & { user: User } {
+  const data = useMatchesData('routes/clubs.$clubId.users.$userId');
+
+  if (!data || !isClubUser(data.clubUser)) {
+    throw new Error('Clubs data is missing in dashboard root loader');
+  }
+
+  return data.clubUser;
+}
+
 export function useClubUserRoles(): ClubUserRoles {
   const data = useMatchesData('routes/clubs.$clubId');
 
@@ -92,6 +102,10 @@ export function useUser(): User {
 
 function isUser(user: any): user is User {
   return user && typeof user === 'object' && typeof user.email === 'string';
+}
+
+function isClubUser(clubUser: any): clubUser is ClubUser & { user: User } {
+  return clubUser && typeof clubUser === 'object' && typeof clubUser.userId === 'string';
 }
 
 function isClubUserRoles(clubUserRoles: any): clubUserRoles is ClubUserRoles {

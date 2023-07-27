@@ -3,10 +3,11 @@ type Props = {
   name: string;
   id: string;
   label: string;
+  defaultValue?: string;
   errors: string[] | null | undefined;
 };
 
-export default function DropDown({ options, name, label, id, errors }: Props) {
+export default function DropDown({ options, name, label, id, defaultValue, errors }: Props) {
   return (
     <div>
       <label htmlFor={id} className="block text-xs uppercase text-gray-600">
@@ -15,6 +16,7 @@ export default function DropDown({ options, name, label, id, errors }: Props) {
       <select
         id={id}
         name={name}
+        defaultValue={defaultValue}
         className="mt-1 block h-9 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
       >
         {options.map(option => (

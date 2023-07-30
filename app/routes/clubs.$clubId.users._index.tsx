@@ -1,4 +1,5 @@
-import { json, LoaderArgs } from '@remix-run/node';
+import type { LoaderArgs } from '@remix-run/node';
+import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import { requireClubUser } from '~/session.server';
 import { findClubUsersByClubId } from '~/models/club-user.server';

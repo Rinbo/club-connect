@@ -5,7 +5,8 @@ import { useRef } from 'react';
 import { LuLayoutDashboard } from 'react-icons/lu';
 import { MdOutlineJoinInner } from 'react-icons/md';
 import AppLogo from '~/components/logo';
-import { json, LoaderArgs } from '@remix-run/node';
+import type { LoaderArgs } from '@remix-run/node';
+import { json } from '@remix-run/node';
 import { requireUserId } from '~/session.server';
 import { findAllClubsByUserId } from '~/models/club.server';
 

@@ -1,4 +1,4 @@
-import { errorFlash, useClubUser } from '~/loader-utils';
+import { errorFlash, useClubUser, useClubUserRoles } from '~/loader-utils';
 import { Form, useActionData } from '@remix-run/react';
 import DropDown from '~/components/form/dropdown';
 import type { ActionArgs } from '@remix-run/node';
@@ -8,7 +8,9 @@ import invariant from 'tiny-invariant';
 import { updateClubUser } from '~/models/club-user.server';
 import useCustomToast from '~/hooks/useCustomToast';
 import type { ClubRole } from '@prisma/client';
-import { ClubRole as Roles } from '@prisma/client';
+import { ClubRole as ClubRoles } from '@prisma/client';
+import { HiOutlineMail } from 'react-icons/hi';
+import { useMemo } from 'react';
 
 const CLUB_USER_ID = 'clubUserId';
 const ROLE = 'role';
@@ -30,20 +32,42 @@ export const action = async ({ request, params: { userId, clubId } }: ActionArgs
     return json({ flash: errorFlash('Update failed') }, { status: 500 });
   }
 
-  return redirect(`/clubs/${clubId}/users/${userId}`);
+  return redirect(`/clubs/${clubId}/users/${userId}`, 303);
 };
+
+/**
+ * This contrived logic ensures that only an owner can change the roles of a user to an owner,
+ * and only an owner con demote an owner.
+ */
 export default function EditClubUser() {
   const clubUser = useClubUser();
   const actionData = useActionData<typeof action>();
+  const roles = useClubUserRoles();
   useCustomToast(actionData?.flash);
 
+  const selectableRoles = useMemo(() => {
+    if (roles.isOwner) return Object.values(ClubRoles);
+    return Object.values(ClubRoles).filter(role => role !== ClubRoles.CLUB_OWNER);
+  }, [roles]);
+
+  const resourceIsOwner = useMemo(() => clubUser.clubRoles.includes(ClubRoles.CLUB_OWNER), [clubUser]);
+
   return (
-    <Form method={'post'} className={'mx-auto flex max-w-md flex-col gap-2'}>
-      <div>{clubUser.user.name}</div>
-      <div>{clubUser.user.email}</div>
-      <input hidden name={CLUB_USER_ID} readOnly value={clubUser.id} />
-      <DropDown defaultValue={clubUser.clubRoles[0]} options={Object.values(Roles)} name={ROLE} id={ROLE} label={'Role'} errors={null} />
-      <button className={'btn btn-primary'}>Save</button>
+    <Form method={'post'} className={'mx-auto mt-2 flex max-w-md flex-col gap-2'}>
+      <div className={'text-2xl'}>{clubUser.user.name}</div>
+      <a href={`mailto:${clubUser.user.email}`} className={'flex items-center gap-2'}>
+        <HiOutlineMail size={30} />
+        <div className={'align-baseline'}>{clubUser.user.email}</div>
+      </a>
+      {resourceIsOwner && !roles.isOwner ? (
+        <div>Only owners can edit owner roles</div>
+      ) : (
+        <>
+          <input hidden name={CLUB_USER_ID} readOnly value={clubUser.id} />
+          <DropDown defaultValue={clubUser.clubRoles[0]} options={selectableRoles} name={ROLE} id={ROLE} label={'Role'} errors={null} />
+          <button className={'btn btn-primary'}>Save</button>{' '}
+        </>
+      )}
     </Form>
   );
 }

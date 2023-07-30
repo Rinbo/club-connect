@@ -9,16 +9,11 @@ type Props = {
 
 export default function DropDown({ options, name, label, id, defaultValue, errors }: Props) {
   return (
-    <div>
-      <label htmlFor={id} className="block text-xs uppercase text-gray-600">
-        {label}
+    <div className={'form-control'}>
+      <label htmlFor={id} className="label">
+        <span>{label}</span>
       </label>
-      <select
-        id={id}
-        name={name}
-        defaultValue={defaultValue}
-        className="mt-1 block h-9 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
-      >
+      <select id={id} name={name} defaultValue={defaultValue} className="select select-bordered w-full">
         {options.map(option => (
           <option key={option}>{option}</option>
         ))}

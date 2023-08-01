@@ -36,7 +36,7 @@ export default function Dashboard() {
           </Link>
         </div>
         <div className="flex-none">
-          <div className="dropdown dropdown-end" ref={divRef}>
+          <div className="dropdown-end dropdown" ref={divRef}>
             <label tabIndex={0} className="btn btn-circle btn-ghost ">
               <div className="indicator">
                 <IoAppsOutline size={30} />
@@ -71,7 +71,7 @@ export default function Dashboard() {
           <UserCircle />
         </div>
       </div>
-      <div className={'container mx-auto py-2'}>
+      <div className={'container mx-auto py-4'}>
         <Outlet />
       </div>
     </div>

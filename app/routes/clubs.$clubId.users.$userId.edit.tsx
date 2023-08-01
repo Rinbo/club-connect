@@ -9,8 +9,8 @@ import { updateClubUser } from '~/models/club-user.server';
 import useCustomToast from '~/hooks/useCustomToast';
 import type { ClubRole } from '@prisma/client';
 import { ClubRole as ClubRoles } from '@prisma/client';
-import { HiOutlineMail } from 'react-icons/hi';
 import { useMemo } from 'react';
+import Email from '~/components/misc/email';
 
 const CLUB_USER_ID = 'clubUserId';
 const ROLE = 'role';
@@ -55,10 +55,8 @@ export default function EditClubUser() {
   return (
     <Form method={'post'} className={'mx-auto mt-2 flex max-w-md flex-col gap-2'}>
       <div className={'text-2xl'}>{clubUser.user.name}</div>
-      <a href={`mailto:${clubUser.user.email}`} className={'flex items-center gap-2'}>
-        <HiOutlineMail size={30} />
-        <div className={'align-baseline'}>{clubUser.user.email}</div>
-      </a>
+      {/*TODO this should be in the 'showUser' component, not here*/}
+      <Email email={clubUser.user.email} />
       {resourceIsOwner && !roles.isOwner ? (
         <div>Only owners can edit owner roles</div>
       ) : (

@@ -8,9 +8,10 @@ generator client {
 }
 
 model User {
-  id    String @id @default(cuid())
-  email String @unique
-  name  String
+  id       String  @id @default(cuid())
+  email    String  @unique
+  name     String
+  imageUrl String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -33,6 +34,7 @@ model Club {
   name      String     @unique
   clubUsers ClubUser[]
   clubType  String
+  logoUrl   String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

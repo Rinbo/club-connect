@@ -34,7 +34,7 @@ export default function ClubLayout() {
   return (
     <div className="h-full">
       <ClubNav name={club.name} id={club.id} clubUserRoles={clubUserRoles} />
-      <div className={'container mx-auto p-2'}>
+      <div className={'container mx-auto py-2'}>
         <ClubMenu />
         <Outlet />
       </div>

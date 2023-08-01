@@ -6,6 +6,7 @@ import { requireUserId } from '~/session.server';
 import { errorFlash, useClubs } from '~/loader-utils';
 import { createClubUser } from '~/models/club-user.server';
 import useCustomToast from '~/hooks/useCustomToast';
+import { invalidateAuthorizationCache } from '~/security/authorization.server';
 
 export const loader = async ({ request }: LoaderArgs) => {
   await requireUserId(request);
@@ -27,6 +28,7 @@ export const action = async ({ request }: ActionArgs) => {
 
   try {
     await createClubUser(clubId, userId);
+    invalidateAuthorizationCache(userId);
   } catch (e) {
     return json({ flash: errorFlash('Unable to join club. Try again later') }, { status: 500 });
   }

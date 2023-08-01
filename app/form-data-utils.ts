@@ -16,6 +16,7 @@ export async function parseAndProcessFormData(request: Request, uploadHandler: F
 
   for await (let part of fileParts) {
     if (part.done) break;
+    console.log(part, 'PART');
     if (!IMAGE_PATTERN.test(part.contentType)) throw new Error('File must be an image');
     if (typeof part.filename === 'string') part.filename = part.filename.split(/[/\\]/).pop();
 

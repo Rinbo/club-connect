@@ -21,6 +21,13 @@ export async function findClubs(limit: number) {
   return prisma.club.findMany({ take: limit });
 }
 
+export async function updateClubLogo(logoUrl: string, clubId: string) {
+  return prisma.club.update({
+    where: { id: clubId },
+    data: { logoUrl }
+  });
+}
+
 export async function findClubById(id: Club['id']) {
   return prisma.club.findUnique({ where: { id } });
 }

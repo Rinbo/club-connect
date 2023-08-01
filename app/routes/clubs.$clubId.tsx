@@ -7,8 +7,7 @@ import type { LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import { findClubById } from '~/models/club.server';
-import { useRef } from 'react';
-import type { ClubUserRoles } from '~/session.server';
+import React, { useRef } from 'react';
 import { requireClubUser } from '~/session.server';
 import { AiOutlineSchedule } from 'react-icons/ai';
 import { LuLayoutDashboard } from 'react-icons/lu';
@@ -29,20 +28,10 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 };
 
 export default function ClubLayout() {
-  const { club, clubUserRoles } = useLoaderData<typeof loader>();
-
-  return (
-    <div className="h-full">
-      <ClubNav name={club.name} id={club.id} clubUserRoles={clubUserRoles} />
-      <div className={'container mx-auto py-2'}>
-        <ClubMenu />
-        <Outlet />
-      </div>
-    </div>
-  );
-}
-
-function ClubNav({ name, id, clubUserRoles }: { name: string; id: string; clubUserRoles: ClubUserRoles }) {
+  const {
+    club: { id, name, logoUrl },
+    clubUserRoles
+  } = useLoaderData<typeof loader>();
   const divRef = useRef<HTMLDivElement>(null);
 
   function handleClick() {
@@ -51,92 +40,102 @@ function ClubNav({ name, id, clubUserRoles }: { name: string; id: string; clubUs
       document.activeElement.blur();
     }
   }
+
   return (
-    <div className={'navbar bg-base-300'}>
-      <div className="flex-1">
-        <Link to={`/clubs/${id}`} className="btn btn-ghost text-xl normal-case">
-          {name}
-        </Link>
-      </div>
-      <div className="flex-none">
-        <div className="dropdown dropdown-end" ref={divRef}>
-          <label tabIndex={0} className="btn btn-circle btn-ghost ">
-            <div className="indicator">
-              <IoAppsOutline size={30} />
-            </div>
-          </label>
-          <div tabIndex={0} className="card dropdown-content card-compact z-20 mt-3 w-64 bg-base-200 shadow sm:w-80 md:w-96">
-            <div className="card-body">
-              <Link to={`/clubs/${id}`} className="btn btn-ghost text-lg font-bold">
-                {name}
-              </Link>
-
-              <div className="card-actions gap-2">
-                <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
-                  <Link to={`/clubs/${id}`} className="btn btn-accent" onClick={handleClick}>
-                    <FaHome />
-                  </Link>
-                  <div className={'text-center text-xs'}>Home</div>
-                </div>
-                <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
-                  <Link to={`/clubs/${id}/news`} className="btn btn-info" onClick={handleClick}>
-                    <FaRegNewspaper />
-                  </Link>
-                  <div className={'text-center text-xs'}>News</div>
-                </div>
-                <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
-                  <Link to={`/clubs/${id}/users`} className="btn btn-primary" onClick={handleClick}>
-                    <FaUsers />
-                  </Link>
-                  <div className={'text-center text-xs'}>Members</div>
-                </div>
-                <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
-                  <Link to={`/clubs/${id}/teams`} className="btn btn-secondary" onClick={handleClick}>
-                    <RiTeamLine />
-                  </Link>
-                  <div className={'text-center text-xs'}>Teams</div>
-                </div>
-                <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
-                  <Link to={`/clubs/${id}/schedules`} className="btn btn-accent" onClick={handleClick}>
-                    <AiOutlineSchedule />
-                  </Link>
-                  <div className={'text-center text-xs'}>Schedule</div>
-                </div>
+    <div className="h-full">
+      <div className={'navbar bg-base-300'}>
+        <div className="flex-1">
+          <Link to={`/clubs/${id}`} className="text-md btn btn-ghost normal-case xs:text-xl">
+            {logoUrl && <img className="inline-block h-10 w-10 rounded-full ring-2 ring-white" src={logoUrl} alt={name} />}
+            {name}
+          </Link>
+        </div>
+        <div className="flex-none">
+          <div className="dropdown-end dropdown" ref={divRef}>
+            <label tabIndex={0} className="btn btn-circle btn-ghost ">
+              <div className="indicator">
+                <IoAppsOutline size={30} />
               </div>
+            </label>
+            <div tabIndex={0} className="card dropdown-content card-compact z-20 mt-3 w-64 bg-base-200 shadow sm:w-80 md:w-96">
+              <div className="card-body">
+                <Link to={`/clubs/${id}`} className="btn btn-ghost text-lg font-bold">
+                  {name}
+                </Link>
 
-              {clubUserRoles.isAdmin && (
-                <>
-                  <div className="divider m-0 text-info">Admin</div>
-                  <div className="card-actions gap-2">
-                    <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
-                      <Link to={`/clubs/${id}/settings`} className="btn btn-primary" onClick={handleClick}>
-                        <FiSettings />
-                      </Link>
-                      <div className={'text-center text-xs'}>Settings</div>
-                    </div>
+                <div className="card-actions gap-2">
+                  <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
+                    <Link to={`/clubs/${id}`} className="btn btn-accent" onClick={handleClick}>
+                      <FaHome />
+                    </Link>
+                    <div className={'text-center text-xs'}>Home</div>
                   </div>
-                </>
-              )}
-
-              <div className="divider m-0 text-info">Personal</div>
-              <div className="card-actions gap-2">
-                <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1 pl-0'}>
-                  <Link to={'/dashboard'} className="btn btn-accent" onClick={handleClick}>
-                    <LuLayoutDashboard />
-                  </Link>
-                  <div className={'text-center text-xs'}>Dashboard</div>
+                  <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
+                    <Link to={`/clubs/${id}/news`} className="btn btn-info" onClick={handleClick}>
+                      <FaRegNewspaper />
+                    </Link>
+                    <div className={'text-center text-xs'}>News</div>
+                  </div>
+                  <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
+                    <Link to={`/clubs/${id}/users`} className="btn btn-primary" onClick={handleClick}>
+                      <FaUsers />
+                    </Link>
+                    <div className={'text-center text-xs'}>Members</div>
+                  </div>
+                  <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
+                    <Link to={`/clubs/${id}/teams`} className="btn btn-secondary" onClick={handleClick}>
+                      <RiTeamLine />
+                    </Link>
+                    <div className={'text-center text-xs'}>Teams</div>
+                  </div>
+                  <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
+                    <Link to={`/clubs/${id}/schedules`} className="btn btn-accent" onClick={handleClick}>
+                      <AiOutlineSchedule />
+                    </Link>
+                    <div className={'text-center text-xs'}>Schedule</div>
+                  </div>
                 </div>
-                <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
-                  <Link to={`/clubs/${id}/personal/teams`} className="btn btn-secondary" onClick={handleClick}>
-                    <RiTeamLine />
-                  </Link>
-                  <div className={'text-center text-xs'}>My Teams</div>
+
+                {clubUserRoles.isAdmin && (
+                  <>
+                    <div className="divider m-0 text-info">Admin</div>
+                    <div className="card-actions gap-2">
+                      <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
+                        <Link to={`/clubs/${id}/settings`} className="btn btn-primary" onClick={handleClick}>
+                          <FiSettings />
+                        </Link>
+                        <div className={'text-center text-xs'}>Settings</div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <div className="divider m-0 text-info">Personal</div>
+                <div className="card-actions gap-2">
+                  <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1 pl-0'}>
+                    <Link to={'/dashboard'} className="btn btn-accent" onClick={handleClick}>
+                      <LuLayoutDashboard />
+                    </Link>
+                    <div className={'text-center text-xs'}>Dashboard</div>
+                  </div>
+                  <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
+                    <Link to={`/clubs/${id}/personal/teams`} className="btn btn-secondary" onClick={handleClick}>
+                      <RiTeamLine />
+                    </Link>
+                    <div className={'text-center text-xs'}>My Teams</div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          <UserCircle />
         </div>
-        <UserCircle />
+      </div>
+      <div className={'container mx-auto py-2'}>
+        <ClubMenu />
+        <div className={'px-2 xs:px-0'}>
+          <Outlet />
+        </div>
       </div>
     </div>
   );

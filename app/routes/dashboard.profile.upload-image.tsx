@@ -1,4 +1,5 @@
-import { ActionArgs, json } from '@remix-run/node';
+import type { ActionArgs } from '@remix-run/node';
+import { json } from '@remix-run/node';
 import { requireUserId } from '~/session.server';
 import { createS3ResizeImageUploadHandler } from '~/s3-utils';
 import { parseAndProcessFormData } from '~/form-data-utils';

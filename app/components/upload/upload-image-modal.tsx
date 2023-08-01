@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useFetcher } from '@remix-run/react';
+import { BsCardImage } from 'react-icons/bs';
 
 type FetcherData = {
   ok: boolean;
@@ -23,7 +24,8 @@ export default function UploadImageModal({ action }: { action: string }) {
   return (
     <React.Fragment>
       <button className="btn btn-primary" onClick={() => modalRef.current?.showModal()}>
-        Upload Profile Image
+        <BsCardImage />
+        Upload Image
       </button>
       <dialog id="modal" ref={modalRef} className="modal">
         <div className="modal-box">

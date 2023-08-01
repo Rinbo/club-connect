@@ -1,7 +1,5 @@
 import crypto from 'crypto';
 
-import Jimp from 'jimp';
-
 export function getStringInitials(clubName: string): string {
   const words = clubName.split(' ');
   const initials = words.map(word => word[0]).join('');
@@ -15,12 +13,6 @@ export function getColorForString(str: string): string {
   }
   const hue = hash % 360;
   return `hsl(${hue}, 60%, 75%)`;
-}
-
-export async function resizeImage(data: ArrayBuffer) {
-  const image = await Jimp.read(data as any);
-  image.cover(50, 50);
-  return image.getBufferAsync(Jimp.MIME_JPEG);
 }
 
 export function getDataUrl(buffer: Buffer) {

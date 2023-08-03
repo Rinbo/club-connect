@@ -3,10 +3,11 @@ import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import { requireClubUser } from '~/session.server';
 import { findClubUsersByClubId } from '~/models/club-user.server';
-import { Link, useLoaderData, useNavigate, useParams } from '@remix-run/react';
-import { IoIosArrowBack, IoMdAddCircleOutline } from 'react-icons/io';
+import { Link, useLoaderData, useParams } from '@remix-run/react';
+import { IoMdAddCircleOutline } from 'react-icons/io';
 import { AiOutlineMail } from 'react-icons/ai';
 import { useClubUserRoles } from '~/loader-utils';
+import ResourceContextMenu from '~/components/nav/resource-context-menu';
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.clubId, 'clubId not present in route');
@@ -35,18 +36,9 @@ export default function ClubUsers() {
 
 function AdminUsersMenu() {
   const { clubId } = useParams();
-  const navigate = useNavigate();
 
   return (
-    <ul className="menu-animate-down no-scrollbar menu rounded-box menu-horizontal menu-xs mb-2 w-full flex-nowrap gap-2 overflow-x-auto bg-base-200 py-0 sm:justify-center">
-      <li className={'border-r-base-base-300 border-r-2 pr-2'}>
-        <button onClick={() => navigate(-1)}>
-          <div className={'flex flex-col items-center gap-0'}>
-            <IoIosArrowBack size={20} />
-            <span className={`text-xs `}>Back</span>
-          </div>
-        </button>
-      </li>
+    <ResourceContextMenu>
       <li className={'disabled'}>
         <Link to={`/clubs/${clubId}/users/new`}>
           <div className={'flex flex-col items-center gap-0'}>
@@ -64,6 +56,6 @@ function AdminUsersMenu() {
           </div>
         </Link>
       </li>
-    </ul>
+    </ResourceContextMenu>
   );
 }

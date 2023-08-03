@@ -33,6 +33,7 @@ model Club {
   id        String     @id @default(cuid())
   name      String     @unique
   clubUsers ClubUser[]
+  ClubNews  ClubNews[]
   clubType  String
   logoUrl   String?
 
@@ -52,6 +53,7 @@ model ClubUser {
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   club      Club       @relation(fields: [clubId], references: [id], onDelete: Cascade)
   clubRoles ClubRole[]
+  ClubNews  ClubNews[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -60,6 +62,31 @@ model ClubUser {
   clubId String
 
   @@unique([userId, clubId])
+}
+
+model ClubNews {
+  id                String              @id @default(cuid())
+  title             String
+  body              String
+  isPublic          Boolean             @default(false)
+  ClubNewsImageUrls ClubNewsImageUrls[]
+
+  club   Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  author ClubUser? @relation(fields: [clubUserId], references: [id])
+
+  clubId     String
+  clubUserId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ClubNewsImageUrls {
+  id  String @id @default(cuid())
+  url String
+
+  clubNews   ClubNews @relation(fields: [clubNewsId], references: [id], onDelete: Cascade)
+  clubNewsId String
 }
 
 model Note {

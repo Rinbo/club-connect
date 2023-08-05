@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 
-type Flash = { message: string; type: string } | null | undefined;
+export type Flash = { message: string; type: string } | null | undefined;
 
 export default function useCustomToast(flash: Flash) {
   useEffect(() => {

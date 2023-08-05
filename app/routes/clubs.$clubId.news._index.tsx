@@ -8,9 +8,11 @@ import { useClubUserRoles } from '~/loader-utils';
 import { IoMdAddCircleOutline } from 'react-icons/io';
 import { AiOutlineMail } from 'react-icons/ai';
 import ResourceContextMenu from '~/components/nav/resource-context-menu';
+import { requireClubUser } from '~/session.server';
 
 export const loader = async ({ request, params: { clubId } }: LoaderArgs) => {
   invariant(clubId, 'clubId missing from route');
+  await requireClubUser(request, clubId);
   const clubNews = await findClubNewsByClubId(clubId, 0, 20);
 
   return json({ clubNews });
@@ -23,10 +25,25 @@ export default function ClubNews() {
   return (
     <React.Fragment>
       {clubUserRoles.isWebmaster && <AdminClubNewsMenu />}
-      <div className={'flex flex-wrap gap-2 '}>
+      <div className={'flex flex-wrap justify-center gap-3'}>
         {clubNews.map(newsItem => (
-          <div className={'border'} key={newsItem.id}>
-            {JSON.stringify(newsItem, null, 2)}
+          <div key={newsItem.id} className="card bg-base-100 shadow-xl lg:card-side lg:w-2/3">
+            {newsItem.imageUrls[0] && (
+              <figure>
+                <img src={newsItem.imageUrls[0].url} alt="news-item" className={'lg:object-fit lg:h-64 lg:w-72'} />
+              </figure>
+            )}
+            <div className="card-body h-64 lg:w-72">
+              <h2 className="card-title">{newsItem.title}</h2>
+              <span className={'text-xs'}>{newsItem.author?.user.name}</span>
+              <span className={'text-xs italic'}>{new Date(newsItem.createdAt).toDateString()}</span>
+              <p className={'multi-line-truncate'}>{newsItem.body}</p>
+              <div className="card-actions justify-end">
+                <Link to={`/clubs/${newsItem.clubId}/news/${newsItem.id}`} className="btn btn-link">
+                  Read more
+                </Link>
+              </div>
+            </div>
           </div>
         ))}
       </div>

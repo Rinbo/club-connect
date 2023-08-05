@@ -7,7 +7,7 @@ import { createUser, getUserByEmail } from '~/models/user.server';
 import { createUserSession, getUserId } from '~/session.server';
 import { safeRedirect } from '~/loader-utils';
 import { string, z } from 'zod';
-import FieldInput from '~/components/form/field-input';
+import TextInput from '~/components/form/text-input';
 import AppLogo from '~/components/logo';
 
 const signupSchema = z.object({
@@ -88,7 +88,7 @@ export default function Join() {
       </Link>
       <div className="mx-auto w-full max-w-md px-8">
         <Form method="post" className="space-y-6">
-          <FieldInput
+          <TextInput
             label={'Name'}
             id={'name'}
             name={'name'}
@@ -96,7 +96,7 @@ export default function Join() {
             errors={actionData?.errors?.name}
             reactRef={nameRef}
           />
-          <FieldInput
+          <TextInput
             label={'Email'}
             id={'email'}
             name={'email'}
@@ -106,7 +106,7 @@ export default function Join() {
             placeholder={'bob@example.com'}
             reactRef={emailRef}
           />
-          <FieldInput
+          <TextInput
             label={'Password'}
             id={'password'}
             name={'password'}

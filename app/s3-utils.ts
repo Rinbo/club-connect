@@ -3,6 +3,7 @@ import { PassThrough, Readable } from 'stream';
 import { writeAsyncIterableToWritable } from '@remix-run/node';
 import AWS from 'aws-sdk';
 import type { UploadHandlerPart } from '@remix-run/server-runtime/dist/formData';
+import type { ResizeOptions } from 'sharp';
 import sharp from 'sharp';
 
 export type FileUploader = (part: UploadHandlerPart) => Promise<string>;
@@ -14,11 +15,17 @@ if (!(AWS_ACCESS_KEY && AWS_SECRET_ACCESS_KEY && AWS_BUCKET_NAME)) {
   throw new Error(`Storage is missing required configuration.`);
 }
 
-export function createS3ResizeImageUploadHandler(folderPath: string): FileUploader {
+export function createS3StandardImageUploadHandler(folderPath: string) {
+  const resizeStrategy: ResizeOptions = { width: 840 };
+  return createS3ResizeImageUploadHandler(folderPath, resizeStrategy);
+}
+export function createS3SquareImageUploadHandler(folderPath: string) {
+  const resizeStrategy: ResizeOptions = { width: 100, height: 100, fit: 'cover', position: sharp.strategy.attention };
+  return createS3ResizeImageUploadHandler(folderPath, resizeStrategy);
+}
+function createS3ResizeImageUploadHandler(folderPath: string, resizeStrategy: ResizeOptions): FileUploader {
   return async ({ filename, contentType, name, data }: UploadHandlerPart) => {
-    const transformer = sharp()
-      .resize({ width: 100, height: 100, fit: 'cover', position: sharp.strategy.attention })
-      .jpeg({ mozjpeg: true, quality: 80 });
+    const transformer = sharp().resize(resizeStrategy).jpeg({ mozjpeg: true, quality: 80 });
 
     const passThrough = new PassThrough();
     asyncIterableToStream(data).pipe(transformer).pipe(passThrough);

@@ -7,7 +7,7 @@ import { verifyLogin } from '~/models/user.server';
 import { createUserSession, redirectIfSignedIn } from '~/session.server';
 import { safeRedirect } from '~/loader-utils';
 import { string, z } from 'zod';
-import FieldInput from '~/components/form/field-input';
+import TextInput from '~/components/form/text-input';
 import CheckBox from '~/components/form/checkbox';
 import AppLogo from '~/components/logo';
 
@@ -71,7 +71,7 @@ export default function LoginPage() {
       </Link>
       <div className="mx-auto w-full max-w-md px-8">
         <Form method="post" className="space-y-6">
-          <FieldInput
+          <TextInput
             label={'Email'}
             id={'email'}
             name={'email'}
@@ -81,7 +81,7 @@ export default function LoginPage() {
             placeholder={'bob@example.com'}
             reactRef={emailRef}
           />
-          <FieldInput
+          <TextInput
             label={'Password'}
             id={'password'}
             name={'password'}

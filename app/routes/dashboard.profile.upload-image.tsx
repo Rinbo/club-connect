@@ -1,17 +1,17 @@
 import type { ActionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { requireUserId } from '~/session.server';
-import { createS3ResizeImageUploadHandler } from '~/s3-utils';
-import { parseAndProcessFormData } from '~/form-data-utils';
+import { createS3SquareImageUploadHandler } from '~/s3-utils';
+import { parseAndProcessImageFormData } from '~/form-data-utils';
 import { updateProfileImage } from '~/models/user.server';
 import { getMessageOrDefault } from '~/misc-utils';
 
 export const action = async ({ request }: ActionArgs) => {
   const userId = await requireUserId(request);
-  const uploadHandler = createS3ResizeImageUploadHandler(`profile-image/${userId}`);
+  const uploadHandler = createS3SquareImageUploadHandler(`profile-image/${userId}`);
 
   try {
-    const urls = await parseAndProcessFormData(request, uploadHandler);
+    const urls = await parseAndProcessImageFormData(request, uploadHandler);
     await updateProfileImage(urls[0], userId);
   } catch (e) {
     console.error(e);

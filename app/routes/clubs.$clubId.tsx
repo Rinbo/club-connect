@@ -51,7 +51,7 @@ export default function ClubLayout() {
           </Link>
         </div>
         <div className="flex-none">
-          <div className="dropdown-end dropdown" ref={divRef}>
+          <div className="dropdown dropdown-end" ref={divRef}>
             <label tabIndex={0} className="btn btn-circle btn-ghost ">
               <div className="indicator">
                 <IoAppsOutline size={30} />
@@ -158,7 +158,7 @@ function ClubMenu() {
       </li>
 
       <li>
-        <NavLink to={`/clubs/${clubId}/news`} end>
+        <NavLink to={`/clubs/${clubId}/news`}>
           {({ isActive, isPending }) => (
             <div className={'flex flex-col items-center gap-0'}>
               <FaRegNewspaper size={ICON_SIZE} />

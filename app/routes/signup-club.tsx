@@ -1,5 +1,5 @@
 import { Form, Link, useActionData } from '@remix-run/react';
-import FieldInput from '~/components/form/field-input';
+import TextInput from '~/components/form/text-input';
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { object, string } from 'zod';
@@ -86,8 +86,8 @@ export default function CreateClub() {
       <div className="mx-auto w-full max-w-md px-8">
         <Form method="post" className="space-y-6">
           <div className={'divider'}>User Information</div>
-          <FieldInput label={'Name'} id={'name'} name={'name'} errors={actionData?.errors?.name} />
-          <FieldInput
+          <TextInput label={'Name'} id={'name'} name={'name'} errors={actionData?.errors?.name} />
+          <TextInput
             label={'Email'}
             id={'email'}
             name={'email'}
@@ -96,9 +96,9 @@ export default function CreateClub() {
             type={'email'}
             placeholder={'bob@example.com'}
           />
-          <FieldInput label={'Password'} id={'password'} name={'password'} type={'password'} errors={actionData?.errors?.password} />
+          <TextInput label={'Password'} id={'password'} name={'password'} type={'password'} errors={actionData?.errors?.password} />
           <div className={'divider'}>Club Details</div>
-          <FieldInput label={'Club Name'} id={'clubName'} name={'clubName'} errors={actionData?.errors?.clubName} />
+          <TextInput label={'Club Name'} id={'clubName'} name={'clubName'} errors={actionData?.errors?.clubName} />
           <DropDown
             options={['SPORT', 'MUSIC', 'OTHER']}
             name={'clubType'}

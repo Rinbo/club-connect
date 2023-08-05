@@ -1,4 +1,6 @@
-export type Prop = {
+import React from 'react';
+
+export type Props = {
   label: string;
   id?: string;
   name?: string;
@@ -10,7 +12,7 @@ export type Prop = {
   reactRef?: React.RefObject<HTMLInputElement>;
 };
 
-export default function FieldInput({ label, id, name, type, placeholder, required, autoComplete, errors, reactRef }: Prop) {
+export default function TextInput({ label, id, name, type, placeholder, required, autoComplete, errors, reactRef }: Props) {
   return (
     <div>
       <label htmlFor={id} className="block text-xs uppercase text-gray-600">

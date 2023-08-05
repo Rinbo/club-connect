@@ -51,7 +51,7 @@ export default function ClubLayout() {
           </Link>
         </div>
         <div className="flex-none">
-          <div className="dropdown dropdown-end" ref={divRef}>
+          <div className="dropdown-end dropdown" ref={divRef}>
             <label tabIndex={0} className="btn btn-circle btn-ghost ">
               <div className="indicator">
                 <IoAppsOutline size={30} />
@@ -131,11 +131,9 @@ export default function ClubLayout() {
           <UserCircle />
         </div>
       </div>
-      <div className={'container mx-auto py-2'}>
+      <div className={'container mx-auto px-2 py-2 xs:px-0'}>
         <ClubMenu />
-        <div className={'px-2 xs:px-0'}>
-          <Outlet />
-        </div>
+        <Outlet />
       </div>
     </div>
   );

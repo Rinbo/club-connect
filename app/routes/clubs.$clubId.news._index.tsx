@@ -25,9 +25,9 @@ export default function ClubNews() {
   return (
     <React.Fragment>
       {clubUserRoles.isWebmaster && <AdminClubNewsMenu />}
-      <div className={'mt-4 flex flex-wrap justify-center gap-3'}>
+      <div className={'my-4 flex flex-wrap justify-center gap-3'}>
         {clubNews.map(newsItem => (
-          <div key={newsItem.id} className="card bg-base-100 shadow-xl lg:card-side lg:w-full">
+          <div key={newsItem.id} className="card bg-base-100 shadow-xl lg:card-side lg:w-3/4">
             {newsItem.imageUrls[0] && (
               <figure>
                 <img src={newsItem.imageUrls[0].url} alt="news-item" className={'lg:object-fit lg:h-64 lg:w-72'} />

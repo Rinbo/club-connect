@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import type { User } from '~/models/user.server';
 import type { Club, ClubUser } from '@prisma/client';
 import type { ClubUserRoles } from '~/session.server';
+import { ClubNewsItem } from '~/models/club-news.server';
 
 export type PromiseType<T extends Promise<any>> = T extends Promise<infer U> ? U : never;
 
@@ -92,6 +93,16 @@ export function useClubUserRoles(): ClubUserRoles {
   return data.clubUserRoles;
 }
 
+export function useClubNewsItem(): ClubNewsItem {
+  const data = useMatchesData('routes/clubs.$clubId.news.$newsId');
+
+  if (!data || !isClubNewsItem(data.newsItem)) {
+    throw new Error('Clubs news data is missing in club news root loader');
+  }
+
+  return data.newsItem;
+}
+
 export function useUser(): User {
   const maybeUser = useOptionalUser();
   if (!maybeUser) {
@@ -113,6 +124,10 @@ function isClubUserRoles(clubUserRoles: any): clubUserRoles is ClubUserRoles {
 }
 function isClub(club: any): club is Club {
   return club && typeof club === 'object';
+}
+
+function isClubNewsItem(clubNewsItem: any): clubNewsItem is ClubNewsItem {
+  return clubNewsItem && typeof clubNewsItem === 'object';
 }
 
 function isClubs(clubs: any): clubs is Club[] {

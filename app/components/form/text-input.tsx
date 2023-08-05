@@ -7,12 +7,13 @@ export type Props = {
   type?: string;
   placeholder?: string;
   required?: boolean;
+  defaultValue?: string;
   autoComplete?: string;
   errors?: string[] | null;
   reactRef?: React.RefObject<HTMLInputElement>;
 };
 
-export default function TextInput({ label, id, name, type, placeholder, required, autoComplete, errors, reactRef }: Props) {
+export default function TextInput({ label, id, name, type, placeholder, required, defaultValue, autoComplete, errors, reactRef }: Props) {
   return (
     <div>
       <label htmlFor={id} className="block text-xs uppercase text-gray-600">
@@ -25,6 +26,7 @@ export default function TextInput({ label, id, name, type, placeholder, required
         required={required}
         placeholder={placeholder}
         autoComplete={autoComplete}
+        defaultValue={defaultValue}
         aria-invalid={errors ? true : undefined}
         aria-describedby={`${name}-error`}
         ref={reactRef}

@@ -22,7 +22,7 @@ export async function findClubNewsById(id: string) {
   });
 }
 
-export async function updateClubNews(id: string, title: string, body: string, isPublic: boolean, imageUrls: string[], clubId: string) {
+export async function updateClubNews(id: string, title: string, body: string, isPublic: boolean, clubId: string) {
   return prisma.clubNews.update({
     where: { id },
     data: {
@@ -51,5 +51,12 @@ export async function createClubNews(title: string, body: string, isPublic: bool
         })
       }
     }
+  });
+}
+
+export async function deleteClubNewsImages(ids: string[]) {
+  console.log('DB', ids);
+  return prisma.clubNewsImageUrls.deleteMany({
+    where: { id: { in: ids } }
   });
 }

@@ -13,19 +13,19 @@ export default function ClubNewsItems() {
     <React.Fragment>
       <NewsItemContextMenu isWebmaster={clubUserRoles.isWebmaster} />
       <div className={'my-4 flex justify-center'}>
-        <div className="card card-compact bg-base-100 shadow-xl lg:max-w-4xl">
+        <div className="card card-compact w-full bg-base-100 shadow-xl lg:max-w-4xl">
           {newsItem.imageUrls[0] && (
             <figure>
-              <img src={newsItem.imageUrls[0].url} alt="news-item" className={'rounded-t-lg'} />
+              <img src={newsItem.imageUrls[0].url} alt="news-item" className={'h-96 w-full rounded-t-lg object-cover'} />
             </figure>
           )}
           <div className="card-body">
-            <div className={'flex flex-row items-center justify-between'}>
-              <h2 className="card-title">{newsItem.title}</h2>
+            <div className={'flex flex-row flex-wrap items-center justify-between'}>
+              <h2 className="card-title text-3xl">{newsItem.title}</h2>
               <div className={'badge badge-neutral'}>{newsItem.isPublic ? 'Public' : 'Private'}</div>
             </div>
             <span className={'text-xs text-accent-content'}>{newsItem.author?.user.name}</span>
-            <span className={'text-xs italic text-neutral-content'}>{new Date(newsItem.createdAt).toDateString()}</span>
+            <span className={'mb-2 text-xs italic'}>{new Date(newsItem.createdAt).toDateString()}</span>
             <p className={'whitespace-pre-line'}>{newsItem.body}</p>
             <div className={'card-actions mt-4'}>
               {newsItem.imageUrls.map(imageUrl => (

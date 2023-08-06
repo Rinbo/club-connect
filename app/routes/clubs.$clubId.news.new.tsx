@@ -1,4 +1,4 @@
-import { Form, useActionData } from '@remix-run/react';
+import { Form, useActionData, useNavigate } from '@remix-run/react';
 import TextInput from '~/components/form/text-input';
 import React from 'react';
 import TextArea from '~/components/form/text-area';
@@ -51,15 +51,19 @@ export const action = async ({ request, params: { clubId } }: ActionArgs) => {
 
 export default function CreateClubNews() {
   const actionData = useActionData<ActionData>();
+  const navigate = useNavigate();
   useCustomToast(actionData?.flash);
 
   return (
     <div className={'flex justify-center py-4'}>
-      <Form method={'post'} className={'w-full max-w-xl'} encType="multipart/form-data">
+      <Form method={'post'} className={'w-full max-w-4xl'} encType="multipart/form-data">
         <TextInput label={'Title'} name={'title'} id={'title'} type={'text'} errors={actionData?.errors?.title} />
         <TextArea label={'Body'} name={'body'} id={'body'} errors={actionData?.errors?.body} />
         <Toggle label={'Publicly viewable'} name={'isPublic'} id={'isPublic'} />
         <FileInput label={'Select images'} name={'img'} id={'img-field'} accept={'image/*'} multiple={true} />
+        <button onClick={() => navigate(-1)} type={'button'} className={'btn float-left mt-2'}>
+          Cancel
+        </button>
         <button type={'submit'} className={'btn btn-primary float-right mt-2'}>
           Submit
         </button>

@@ -12,7 +12,7 @@ export default function Toggle({ label, id, name, defaultChecked = false }: Prop
     <div className="form-control">
       <label className="label cursor-pointer">
         <span className="label-text">{label}</span>
-        <input id={id} name={name} type="checkbox" className="toggle" readOnly defaultChecked={defaultChecked} />
+        <input id={id} name={name} type="checkbox" className="toggle toggle-primary" readOnly defaultChecked={defaultChecked} />
       </label>
     </div>
   );

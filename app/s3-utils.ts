@@ -15,6 +15,14 @@ if (!(AWS_ACCESS_KEY && AWS_SECRET_ACCESS_KEY && AWS_BUCKET_NAME)) {
   throw new Error(`Storage is missing required configuration.`);
 }
 
+const s3 = new AWS.S3({
+  credentials: {
+    accessKeyId: AWS_ACCESS_KEY,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY
+  },
+  region: EU_NORTH_1
+});
+
 export function createS3StandardImageUploadHandler(folderPath: string) {
   const resizeStrategy: ResizeOptions = { width: 840 };
   return createS3ResizeImageUploadHandler(folderPath, resizeStrategy);
@@ -23,6 +31,37 @@ export function createS3SquareImageUploadHandler(folderPath: string) {
   const resizeStrategy: ResizeOptions = { width: 100, height: 100, fit: 'cover', position: sharp.strategy.attention };
   return createS3ResizeImageUploadHandler(folderPath, resizeStrategy);
 }
+
+export async function deleteS3Objects(keys: string[]) {
+  const params = {
+    Bucket: AWS_BUCKET_NAME!,
+    Delete: {
+      Objects: keys.map(key => ({ Key: key }))
+    }
+  };
+
+  try {
+    await s3.deleteObjects(params).promise();
+    console.info(`Files deleted successfully from ${AWS_BUCKET_NAME}`);
+  } catch (error) {
+    console.error(`S3 Delete error: ${error}`);
+  }
+}
+
+export async function deleteS3Object(key: string) {
+  const params = {
+    Bucket: AWS_BUCKET_NAME!,
+    Key: key
+  };
+
+  try {
+    await s3.deleteObject(params).promise();
+    console.info(`File deleted successfully from ${AWS_BUCKET_NAME}`);
+  } catch (error) {
+    console.error(`S3 Delete error: ${error}`);
+  }
+}
+
 function createS3ResizeImageUploadHandler(folderPath: string, resizeStrategy: ResizeOptions): FileUploader {
   return async ({ filename, contentType, name, data }: UploadHandlerPart) => {
     const transformer = sharp().resize(resizeStrategy).jpeg({ mozjpeg: true, quality: 80 });
@@ -46,13 +85,6 @@ async function uploadStreamToS3(data: any, filename: string): Promise<string> {
 }
 
 const uploadStream = ({ Key }: Pick<AWS.S3.Types.PutObjectRequest, 'Key'>) => {
-  const s3 = new AWS.S3({
-    credentials: {
-      accessKeyId: AWS_ACCESS_KEY,
-      secretAccessKey: AWS_SECRET_ACCESS_KEY
-    },
-    region: EU_NORTH_1
-  });
   const pass = new PassThrough();
   return {
     writeStream: pass,

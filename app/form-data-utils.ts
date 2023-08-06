@@ -8,13 +8,7 @@ const IMAGE_PATTERN = /image\//;
  * string array.
  */
 export async function parseAndProcessImageFormData(request: Request, uploadHandler: FileUploader) {
-  const contentType: string = request.headers.get('Content-Type') || '';
-  const [type, boundary] = contentType.split(/\s*;\s*boundary=/);
-
-  if (!request.body || !boundary || type !== 'multipart/form-data') {
-    throw new Error('Could not parse content as FormData.');
-  }
-
+  const boundary = getBoundary(request);
   const fileParts = streamMultipart(request.body, boundary);
   const urls: string[] = [];
 
@@ -39,15 +33,10 @@ export async function parseAndProcessImageFormData(request: Request, uploadHandl
  * string array attacked the imageUrl key.
  */
 export async function parseAndProcessFormData(request: Request, uploadHandler: FileUploader) {
-  const contentType: string = request.headers.get('Content-Type') || '';
-  const [type, boundary] = contentType.split(/\s*;\s*boundary=/);
-
-  if (!request.body || !boundary || type !== 'multipart/form-data') {
-    throw new Error('Could not parse content as FormData.');
-  }
-
+  const boundary = getBoundary(request);
   const parts = streamMultipart(request.body, boundary);
   const map = new Map<string, any>();
+
   const imageUrls: string[] = [];
 
   for await (let part of parts) {
@@ -67,4 +56,38 @@ export async function parseAndProcessFormData(request: Request, uploadHandler: F
   map.set('imageUrls', imageUrls);
 
   return map;
+}
+
+export const IMAGE_PARTS = 'imageParts';
+export async function getFormDataAsMap(request: Request) {
+  const boundary = getBoundary(request);
+  const parts = streamMultipart(request.body, boundary);
+  const map = new Map<string, any>();
+
+  const imageParts = [];
+
+  for await (let part of parts) {
+    if (part.done) break;
+    if (part.name !== 'img') {
+      const next = await part.data.next();
+      map.set(part.name, new TextDecoder().decode(next.value));
+    } else if (IMAGE_PATTERN.test(part.contentType)) {
+      if (typeof part.filename === 'string') part.filename = part.filename.split(/[/\\]/).pop();
+      imageParts.push(part);
+    }
+  }
+
+  map.set(IMAGE_PARTS, imageParts);
+
+  return map;
+}
+
+function getBoundary(request: Request) {
+  const contentType: string = request.headers.get('Content-Type') || '';
+  const [type, boundary] = contentType.split(/\s*;\s*boundary=/);
+
+  if (!request.body || !boundary || type !== 'multipart/form-data') {
+    throw new Error('Could not parse content as FormData.');
+  }
+  return boundary;
 }

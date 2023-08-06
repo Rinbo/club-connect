@@ -4,6 +4,7 @@ import ImageModal from '~/components/image/image-modal';
 import ResourceContextMenu from '~/components/nav/resource-context-menu';
 import { useClubNewsItem, useClubUserRoles } from '~/loader-utils';
 import { BiEdit } from 'react-icons/bi';
+import DeleteResourceModal from '~/components/delete/delete-resource-modal';
 
 export default function ClubNewsItems() {
   const newsItem = useClubNewsItem();
@@ -13,7 +14,7 @@ export default function ClubNewsItems() {
     <React.Fragment>
       <NewsItemContextMenu isWebmaster={clubUserRoles.isWebmaster} />
       <div className={'my-4 flex justify-center'}>
-        <div className="card card-compact w-full bg-base-100 shadow-xl lg:max-w-4xl">
+        <div className="card-compact card w-full bg-base-100 shadow-xl lg:max-w-4xl">
           {newsItem.imageUrls[0] && (
             <figure>
               <img src={newsItem.imageUrls[0].url} alt="news-item" className={'h-96 w-full rounded-t-lg object-cover'} />
@@ -43,16 +44,19 @@ function NewsItemContextMenu(props: { isWebmaster: boolean }) {
   const { clubId, newsId } = useParams();
 
   return (
-    <ResourceContextMenu>
+    <ResourceContextMenu animate={false}>
       {props.isWebmaster && (
-        <li>
-          <Link to={`/clubs/${clubId}/news/${newsId}/edit`}>
-            <div className={'flex flex-col items-center gap-0'}>
-              <BiEdit size={20} />
-              <span className={`text-xs `}>Edit</span>
-            </div>
-          </Link>
-        </li>
+        <React.Fragment>
+          <li>
+            <Link to={`/clubs/${clubId}/news/${newsId}/edit`}>
+              <div className={'flex flex-col items-center gap-0'}>
+                <BiEdit size={20} />
+                <span className={`text-xs `}>Edit</span>
+              </div>
+            </Link>
+          </li>
+          <DeleteResourceModal action={`/clubs/${clubId}/news/${newsId}/delete`} message={'Are you sure you want to delete this post?'} />
+        </React.Fragment>
       )}
     </ResourceContextMenu>
   );

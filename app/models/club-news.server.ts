@@ -34,7 +34,14 @@ export async function updateClubNews(id: string, title: string, body: string, is
   });
 }
 
-export async function createClubNews(title: string, body: string, isPublic: boolean, imageUrls: string[], clubId: string, userId: string) {
+export async function createClubNewsWithImages(
+  title: string,
+  body: string,
+  isPublic: boolean,
+  imageUrls: string[],
+  clubId: string,
+  userId: string
+) {
   const clubUser = await findClubUserByClubIdAndUserId(clubId, userId);
   if (!clubUser) throw new Error('ClubUser does not exist');
 
@@ -54,8 +61,36 @@ export async function createClubNews(title: string, body: string, isPublic: bool
   });
 }
 
+export async function createClubNews(title: string, body: string, isPublic: boolean, clubId: string, userId: string) {
+  const clubUser = await findClubUserByClubIdAndUserId(clubId, userId);
+  if (!clubUser) throw new Error('ClubUser does not exist');
+
+  return prisma.clubNews.create({
+    data: {
+      title,
+      body,
+      isPublic,
+      clubId,
+      clubUserId: clubUser.id
+    }
+  });
+}
+
+export async function deleteClubNews(id: string) {
+  return prisma.clubNews.delete({
+    where: { id }
+  });
+}
+
+/** ClubNewsImageUrls **/
+
+export async function createClubNewsImages(urls: string[], clubNewsId: string) {
+  return prisma.clubNewsImageUrls.createMany({
+    data: urls.map(url => ({ url, clubNewsId }))
+  });
+}
+
 export async function deleteClubNewsImages(ids: string[]) {
-  console.log('DB', ids);
   return prisma.clubNewsImageUrls.deleteMany({
     where: { id: { in: ids } }
   });

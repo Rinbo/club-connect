@@ -24,7 +24,7 @@ export default function TextArea({ label, id, name, errors, defaultValue, placeh
         rows={10}
         defaultValue={defaultValue}
         className="textarea textarea-bordered"
-        placeholder="Bio"
+        placeholder="Body text"
       ></textarea>
       {errors?.map(error => (
         <small key={error} className="block text-error">

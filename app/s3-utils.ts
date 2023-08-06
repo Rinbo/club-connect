@@ -23,6 +23,12 @@ const s3 = new AWS.S3({
   region: EU_NORTH_1
 });
 
+export const createS3NewsItemKeyPath = (clubId: string, clubNewsItemId: string) => `clubs/${clubId}/club-news/${clubNewsItemId}`;
+
+export function mapImageUrlsToS3ObjectKey(urls: string[]): string[] {
+  return urls.map(url => decodeURIComponent(new URL(url).pathname.slice(1)));
+}
+
 export function createS3StandardImageUploadHandler(folderPath: string) {
   const resizeStrategy: ResizeOptions = { width: 840 };
   return createS3ResizeImageUploadHandler(folderPath, resizeStrategy);
@@ -49,17 +55,47 @@ export async function deleteS3Objects(keys: string[]) {
 }
 
 export async function deleteS3Object(key: string) {
+  console.log('KEY', key);
+
   const params = {
     Bucket: AWS_BUCKET_NAME!,
     Key: key
   };
 
   try {
-    await s3.deleteObject(params).promise();
+    const obj = await s3.deleteObject(params).promise();
+    console.log('DELETED', obj.DeleteMarker);
     console.info(`File deleted successfully from ${AWS_BUCKET_NAME}`);
   } catch (error) {
     console.error(`S3 Delete error: ${error}`);
   }
+}
+
+export async function deleteFolder(folder: string) {
+  const listParams = {
+    Bucket: AWS_BUCKET_NAME!,
+    Prefix: folder
+  };
+
+  const listedObjects = await s3.listObjectsV2(listParams).promise();
+
+  if (!listedObjects.Contents || listedObjects.Contents?.length === 0) return;
+
+  const keys: string[] = [];
+
+  for (const obj of listedObjects.Contents) {
+    const { Key } = obj;
+    if (Key) keys.push(Key);
+  }
+
+  const deleteParams = {
+    Bucket: AWS_BUCKET_NAME!,
+    Delete: { Objects: keys.map(key => ({ Key: key })) }
+  };
+
+  await s3.deleteObjects(deleteParams).promise();
+
+  if (listedObjects.IsTruncated) await deleteFolder(folder);
 }
 
 function createS3ResizeImageUploadHandler(folderPath: string, resizeStrategy: ResizeOptions): FileUploader {

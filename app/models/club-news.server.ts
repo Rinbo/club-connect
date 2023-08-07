@@ -1,9 +1,9 @@
 import { prisma } from '~/db.server';
 import { findClubUserByClubIdAndUserId } from '~/models/club-user.server';
-import type { ClubNews, ClubNewsImageUrls } from '.prisma/client';
+import type { ClubNews, ClubNewsImageUrl } from '.prisma/client';
 import type { ClubUser, User } from '@prisma/client';
 
-export type ClubNewsItem = ClubNews & { imageUrls: ClubNewsImageUrls[]; author: ClubUser & { user: User } };
+export type ClubNewsItem = ClubNews & { imageUrls: ClubNewsImageUrl[]; author: ClubUser & { user: User } };
 
 export async function findClubNewsByClubId(clubId: string, skip: number, take: number) {
   return prisma.clubNews.findMany({
@@ -85,13 +85,13 @@ export async function deleteClubNews(id: string) {
 /** ClubNewsImageUrls **/
 
 export async function createClubNewsImages(urls: string[], clubNewsId: string) {
-  return prisma.clubNewsImageUrls.createMany({
+  return prisma.clubNewsImageUrl.createMany({
     data: urls.map(url => ({ url, clubNewsId }))
   });
 }
 
 export async function deleteClubNewsImages(ids: string[]) {
-  return prisma.clubNewsImageUrls.deleteMany({
+  return prisma.clubNewsImageUrl.deleteMany({
     where: { id: { in: ids } }
   });
 }

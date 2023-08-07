@@ -33,7 +33,7 @@ export default function FileInput({ label, id, name, accept, multiple = false }:
           ref={inputRef}
           className="file-input file-input-bordered w-full max-w-xs"
         />
-        <button type={'button'} className={'btn btn-circle btn-ghost'} onClick={clearInput}>
+        <button type={'button'} className={'btn btn-circle btn-ghost ml-2'} onClick={clearInput}>
           <MdPlaylistRemove size={30} />
         </button>
       </div>

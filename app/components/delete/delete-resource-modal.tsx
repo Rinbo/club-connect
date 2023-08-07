@@ -19,14 +19,14 @@ export default function DeleteResourceModal({ action, message }: { action: strin
   }
 
   return (
-    <React.Fragment>
+    <div className={'cancel-animations'}>
       <li onClick={() => modalRef.current?.showModal()}>
         <div className={'flex flex-col items-center gap-0'}>
           <AiOutlineDelete size={20} />
           <span className={`text-xs `}>Delete</span>
         </div>
       </li>
-      <dialog id="modal" ref={modalRef} className="modal">
+      <dialog id="modal-delete-image" ref={modalRef} className="cancel-animations modal">
         <div className="modal-box">
           <h3 className="mb-2 text-lg font-bold">Delete Action</h3>
           <div>{message}</div>
@@ -45,6 +45,6 @@ export default function DeleteResourceModal({ action, message }: { action: strin
           <button>close</button>
         </form>
       </dialog>
-    </React.Fragment>
+    </div>
   );
 }

@@ -65,11 +65,11 @@ model ClubUser {
 }
 
 model ClubNews {
-  id        String              @id @default(cuid())
+  id        String             @id @default(cuid())
   title     String
   body      String
-  isPublic  Boolean             @default(false)
-  imageUrls ClubNewsImageUrls[]
+  isPublic  Boolean            @default(false)
+  imageUrls ClubNewsImageUrl[]
 
   club   Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
   author ClubUser? @relation(fields: [clubUserId], references: [id])
@@ -81,7 +81,7 @@ model ClubNews {
   updatedAt DateTime @updatedAt
 }
 
-model ClubNewsImageUrls {
+model ClubNewsImageUrl {
   id  String @id @default(cuid())
   url String
 

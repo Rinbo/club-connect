@@ -9,6 +9,8 @@ import { AiOutlineMail } from 'react-icons/ai';
 import { useClubUserRoles } from '~/loader-utils';
 import ResourceContextMenu from '~/components/nav/resource-context-menu';
 
+export { ErrorBoundary } from '~/error-boundry';
+
 export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.clubId, 'clubId not present in route');
   await requireClubUser(request, params.clubId);

@@ -1,4 +1,4 @@
-import { Form, useActionData, useFetcher, useNavigate, useParams } from '@remix-run/react';
+import { Form, useActionData, useNavigate } from '@remix-run/react';
 import TextInput from '~/components/form/text-input';
 import React from 'react';
 import TextArea from '~/components/form/text-area';
@@ -12,7 +12,6 @@ import useCustomToast from '~/hooks/useCustomToast';
 import { errorFlash, useClubNewsItem } from '~/loader-utils';
 import { requireClubAdmin } from '~/session.server';
 import { updateClubNews } from '~/models/club-news.server';
-import type { ClubNewsImageUrls } from '.prisma/client';
 
 const clubNewsSchema = object({
   title: string().min(2).max(60).trim(),
@@ -48,7 +47,6 @@ export const action = async ({ request, params: { clubId, newsId } }: ActionArgs
 export default function CreateClubNews() {
   const actionData = useActionData<ActionData>();
   const newsItem = useClubNewsItem();
-  const imageUrls = newsItem.imageUrls;
   const navigate = useNavigate();
 
   useCustomToast(actionData?.flash);
@@ -75,41 +73,6 @@ export default function CreateClubNews() {
           </button>
         </Form>
       </section>
-      {imageUrls[0] && <ImageManager imageUrls={imageUrls} />}
     </React.Fragment>
-  );
-}
-
-function ImageManager(props: { imageUrls: ClubNewsImageUrls[] }) {
-  const fetcher = useFetcher();
-  const { clubId } = useParams();
-
-  return (
-    <section className={'flex justify-center'}>
-      <div className={'mt-3 w-full max-w-4xl'}>
-        <h2 className={'mb-2 text-xl'}>Image manager</h2>
-        <fetcher.Form
-          className={'flex flex-row flex-wrap gap-3 rounded-xl border p-3'}
-          action={`/clubs/${clubId}/news/delete-images`}
-          method={'delete'}
-        >
-          {props.imageUrls.map(imageUrl => (
-            <div key={imageUrl.id} className="relative w-28 rounded">
-              <input
-                name={'imageUrls-' + imageUrl.id}
-                value={JSON.stringify(imageUrl)}
-                type="checkbox"
-                className="checkbox absolute right-1 top-1 z-10 border border-black bg-white"
-              />
-              <img src={imageUrl.url} alt="thumbnail" className={'rounded'} />
-            </div>
-          ))}
-          <div className={'w-full'}></div>
-          <button type={'submit'} className={'btn btn-warning'}>
-            Delete
-          </button>
-        </fetcher.Form>
-      </div>
-    </section>
   );
 }

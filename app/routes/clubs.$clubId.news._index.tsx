@@ -10,6 +10,7 @@ import { AiOutlineMail } from 'react-icons/ai';
 import ResourceContextMenu from '~/components/nav/resource-context-menu';
 import { requireClubUser } from '~/session.server';
 
+export { ErrorBoundary } from '~/error-boundry';
 export const loader = async ({ request, params: { clubId } }: LoaderArgs) => {
   invariant(clubId, 'clubId missing from route');
   await requireClubUser(request, clubId);

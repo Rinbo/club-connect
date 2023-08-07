@@ -75,3 +75,7 @@
     }
 }
 
+.cancel-animations {
+    animation: none !important;
+    transition: none !important;
+}

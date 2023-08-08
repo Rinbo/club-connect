@@ -1,17 +1,18 @@
-import { Link, useParams } from '@remix-run/react';
+import { Link, useNavigate, useParams } from '@remix-run/react';
 import React from 'react';
 import ImageModal from '~/components/image/image-modal';
 import ResourceContextMenu from '~/components/nav/resource-context-menu';
 import { useClubNewsItem, useClubUserRoles } from '~/loader-utils';
 import { BiEdit } from 'react-icons/bi';
-import HoveringBackButton from '~/components/nav/hovering-back-button';
 import DeleteResourceModal from '~/components/delete/delete-resource-modal';
 import ImageManagerModal from '~/components/image/image-manager-modal';
+import HoveringBackButton from '~/components/nav/hovering-back-button';
 
 export default function ClubNewsItems() {
   const { clubId, newsId } = useParams();
   const newsItem = useClubNewsItem();
   const clubUserRoles = useClubUserRoles();
+  const navigate = useNavigate();
 
   const contextMenu = (
     <ResourceContextMenu>
@@ -44,8 +45,8 @@ export default function ClubNewsItems() {
             </figure>
           )}
           <div className="card-body">
-            <div className={'flex flex-row flex-wrap items-center justify-between'}>
-              <h2 className="card-title text-3xl">{newsItem.title}</h2>
+            <div className={'flex flex-row flex-wrap items-center'}>
+              <h2 className="card-title flex-grow items-baseline text-3xl">{newsItem.title}</h2>
               <div className={'badge badge-neutral'}>{newsItem.isPublic ? 'Public' : 'Private'}</div>
             </div>
             <span className={'text-xs text-accent-content'}>{newsItem.author?.user.name}</span>

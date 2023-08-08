@@ -30,12 +30,14 @@ model Password {
 }
 
 model Club {
-  id        String     @id @default(cuid())
-  name      String     @unique
+  id       String  @id @default(cuid())
+  name     String  @unique
+  clubType String
+  logoUrl  String?
+
   clubUsers ClubUser[]
   ClubNews  ClubNews[]
-  clubType  String
-  logoUrl   String?
+  Teams     Team[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -54,6 +56,7 @@ model ClubUser {
   club      Club       @relation(fields: [clubId], references: [id], onDelete: Cascade)
   clubRoles ClubRole[]
   ClubNews  ClubNews[]
+  TeamUsers TeamUser[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -87,6 +90,37 @@ model ClubNewsImageUrl {
 
   clubNews   ClubNews @relation(fields: [clubNewsId], references: [id], onDelete: Cascade)
   clubNewsId String
+}
+
+enum TeamRole {
+  TEAM_LEADER
+  TEAM_PLAYER
+  TEAM_WEBMASTER
+  TEAM_PARENT
+}
+
+model TeamUser {
+  id        String     @id @default(cuid())
+  clubUser  ClubUser   @relation(fields: [clubUserId], references: [id], onDelete: Cascade)
+  team      Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamRoles TeamRole[]
+
+  clubUserId String
+  teamId     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Team {
+  id        String     @id @default(cuid())
+  name      String
+  club      Club       @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  TeamUsers TeamUser[]
+
+  clubId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Note {

@@ -6,8 +6,8 @@ export default function HoveringBackButton() {
   const navigate = useNavigate();
 
   return (
-    <div className={'absolute left-1 top-1'}>
-      <button onClick={() => navigate(-1)} className={'btn btn-circle btn-sm z-20 shadow-lg'}>
+    <div className={'absolute left-1 top-1 z-30'}>
+      <button onClick={() => navigate(-1)} className={'btn btn-circle btn-sm shadow-lg'}>
         <IoIosArrowBack size={20} />
       </button>
     </div>

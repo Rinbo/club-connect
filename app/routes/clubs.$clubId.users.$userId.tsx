@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link, Outlet, useParams } from '@remix-run/react';
 import { AiOutlineEdit, AiOutlineMail } from 'react-icons/ai';
 import { useClubUserRoles } from '~/loader-utils';
@@ -18,37 +19,38 @@ export const loader = async ({ request, params: { userId, clubId } }: LoaderArgs
 };
 export default function ClubUserLayout() {
   const clubUserRoles = useClubUserRoles();
+  const { clubId, userId } = useParams();
+
+  const contextMenu = (
+    <ResourceContextMenu backButton>
+      {clubUserRoles.isAdmin && (
+        <React.Fragment>
+          <li>
+            <Link to={`/clubs/${clubId}/users/${userId}/edit`}>
+              <div className={'flex flex-col items-center gap-0'}>
+                <AiOutlineEdit size={20} />
+                <span className={`text-xs `}>Edit</span>
+              </div>
+            </Link>
+          </li>
+
+          <li>
+            <Link to={`/clubs/${clubId}/users/${userId}/notify`}>
+              <div className={'flex flex-col items-center gap-0'}>
+                <AiOutlineMail size={20} />
+                <span className={`text-xs`}>Notify</span>
+              </div>
+            </Link>
+          </li>
+        </React.Fragment>
+      )}
+    </ResourceContextMenu>
+  );
 
   return (
     <div>
-      {clubUserRoles.isAdmin && <AdminUserMenu />}
+      {contextMenu}
       <Outlet />
     </div>
-  );
-}
-
-function AdminUserMenu() {
-  const { clubId, userId } = useParams();
-
-  return (
-    <ResourceContextMenu>
-      <li>
-        <Link to={`/clubs/${clubId}/users/${userId}/edit`}>
-          <div className={'flex flex-col items-center gap-0'}>
-            <AiOutlineEdit size={20} />
-            <span className={`text-xs `}>Edit</span>
-          </div>
-        </Link>
-      </li>
-
-      <li>
-        <Link to={`/clubs/${clubId}/users/${userId}/notify`}>
-          <div className={'flex flex-col items-center gap-0'}>
-            <AiOutlineMail size={20} />
-            <span className={`text-xs`}>Notify</span>
-          </div>
-        </Link>
-      </li>
-    </ResourceContextMenu>
   );
 }

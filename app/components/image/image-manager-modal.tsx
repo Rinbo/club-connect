@@ -1,6 +1,7 @@
-import useCustomToast, { Flash } from '~/hooks/useCustomToast';
+import type { Flash } from '~/hooks/useCustomToast';
+import useCustomToast from '~/hooks/useCustomToast';
 import { useFetcher } from '@remix-run/react';
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { BsImages } from 'react-icons/bs';
 import { AiOutlineDelete } from 'react-icons/ai';
 import FileInput from '~/components/form/file-input';
@@ -9,7 +10,7 @@ interface ImageUrl {
   url: string;
   id: string;
 }
-type FetcherData = { flash?: Flash } | undefined;
+type FetcherData = { flash?: Flash; ok?: boolean } | undefined;
 
 export default function ImageManagerModal(props: { imageUrls: ImageUrl[]; postAction: string; deleteAction: string }) {
   const fetcher = useFetcher<FetcherData>();
@@ -19,6 +20,10 @@ export default function ImageManagerModal(props: { imageUrls: ImageUrl[]; postAc
   const working = useMemo(() => fetcher.state !== 'idle', [fetcher.state]);
 
   useCustomToast(fetcher.data?.flash);
+
+  useEffect(() => {
+    if (fetcher.data?.ok) closeModal();
+  }, [fetcher.data]);
 
   function closeModal() {
     formRef.current?.reset();

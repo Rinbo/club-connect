@@ -30,7 +30,7 @@ export default function TextInput({ label, id, name, type, placeholder, required
         aria-invalid={errors ? true : undefined}
         aria-describedby={`${name}-error`}
         ref={reactRef}
-        className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-black focus:outline-none focus:ring-black sm:text-sm"
+        className="input input-bordered mt-1 w-full"
       />
       {errors?.map(error => (
         <small key={error} className="block text-red-500">

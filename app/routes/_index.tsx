@@ -72,7 +72,7 @@ export default function Index() {
         <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
           <div className="mb-10 mt-2 flex flex-wrap justify-center gap-4">
             {clubs.map(club => (
-              <ClubCard key={club.id} name={club.name} />
+              <ClubCard key={club.id} name={club.name} logoUrl={club.logoUrl} />
             ))}
           </div>
         </div>

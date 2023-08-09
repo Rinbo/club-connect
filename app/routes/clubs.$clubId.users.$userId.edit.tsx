@@ -1,5 +1,5 @@
 import { errorFlash, useClubUser, useClubUserRoles } from '~/loader-utils';
-import { Form, useActionData } from '@remix-run/react';
+import { Form, useActionData, useNavigate } from '@remix-run/react';
 import DropDown from '~/components/form/dropdown';
 import type { ActionArgs } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
@@ -9,11 +9,14 @@ import { updateClubUser } from '~/models/club-user.server';
 import useCustomToast from '~/hooks/useCustomToast';
 import type { ClubRole } from '@prisma/client';
 import { ClubRole as ClubRoles } from '@prisma/client';
-import { useMemo } from 'react';
-import Email from '~/components/misc/email';
+import React, { useMemo } from 'react';
+import UserDisplay from '~/components/user/user-display';
+import TextInput from '~/components/form/text-input';
 
 const CLUB_USER_ID = 'clubUserId';
 const ROLE = 'role';
+
+// TODO implement address
 export const action = async ({ request, params: { userId, clubId } }: ActionArgs) => {
   invariant(clubId, 'invalid clubId');
   invariant(userId, 'invalid userId');
@@ -32,7 +35,7 @@ export const action = async ({ request, params: { userId, clubId } }: ActionArgs
     return json({ flash: errorFlash('Update failed') }, { status: 500 });
   }
 
-  return redirect(`/clubs/${clubId}/users/${userId}`, 303);
+  return redirect(`/clubs/${clubId}/users/${userId}`);
 };
 
 /**
@@ -42,30 +45,45 @@ export const action = async ({ request, params: { userId, clubId } }: ActionArgs
 export default function EditClubUser() {
   const clubUser = useClubUser();
   const actionData = useActionData<typeof action>();
-  const roles = useClubUserRoles();
+  const principalRoles = useClubUserRoles();
+  const navigate = useNavigate();
+
   useCustomToast(actionData?.flash);
 
   const selectableRoles = useMemo(() => {
-    if (roles.isOwner) return Object.values(ClubRoles);
+    if (principalRoles.isOwner) return Object.values(ClubRoles);
     return Object.values(ClubRoles).filter(role => role !== ClubRoles.CLUB_OWNER);
-  }, [roles]);
+  }, [principalRoles]);
 
   const resourceIsOwner = useMemo(() => clubUser.clubRoles.includes(ClubRoles.CLUB_OWNER), [clubUser]);
 
   return (
-    <Form method={'post'} className={'mx-auto mt-2 flex max-w-md flex-col gap-2'}>
-      <div className={'text-2xl'}>{clubUser.user.name}</div>
-      {/*TODO this should be in the 'showUser' component, not here*/}
-      <Email email={clubUser.user.email} />
-      {resourceIsOwner && !roles.isOwner ? (
-        <div>Only owners can edit owner roles</div>
-      ) : (
-        <>
-          <input hidden name={CLUB_USER_ID} readOnly value={clubUser.id} />
-          <DropDown defaultValue={clubUser.clubRoles[0]} options={selectableRoles} name={ROLE} id={ROLE} label={'Role'} errors={null} />
-          <button className={'btn btn-primary'}>Save</button>{' '}
-        </>
-      )}
-    </Form>
+    <UserDisplay user={clubUser.user}>
+      <Form method={'post'} className={'mx-auto mt-2 flex max-w-md flex-col gap-2'}>
+        <input hidden name={CLUB_USER_ID} readOnly value={clubUser.id} />
+        <TextInput label={'Phone Number'} defaultValue={'+46 555 555 55'} />
+        <TextInput label={'Address'} defaultValue={'Generic Street 17'} />
+        {resourceIsOwner && !principalRoles.isOwner ? (
+          <div>Only owners can edit owner roles</div>
+        ) : (
+          <DropDown
+            defaultValue={clubUser.clubRoles[0]}
+            options={selectableRoles}
+            name={ROLE}
+            id={ROLE}
+            label={'Club Role'}
+            errors={null}
+          />
+        )}
+        <div className={'mt-2 flex justify-between'}>
+          <button type={'button'} className={'btn'} onClick={() => navigate(-1)}>
+            Cancel
+          </button>
+          <button type={'submit'} className={'btn btn-primary'}>
+            Save
+          </button>
+        </div>
+      </Form>
+    </UserDisplay>
   );
 }

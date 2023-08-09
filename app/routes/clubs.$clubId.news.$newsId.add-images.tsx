@@ -22,5 +22,5 @@ export const action = async ({ request, params: { clubId, newsId } }: ActionArgs
     return json({ flash: errorFlash(getMessageOrDefault(e, 'Adding images failed')) }, { status: 500 });
   }
 
-  return json({});
+  return json({ ok: true });
 };

@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import type { User } from '~/models/user.server';
 import type { Club, ClubUser } from '@prisma/client';
 import type { ClubUserRoles } from '~/session.server';
-import { ClubNewsItem } from '~/models/club-news.server';
+import type { ClubNewsItem } from '~/models/club-news.server';
 
 export type PromiseType<T extends Promise<any>> = T extends Promise<infer U> ? U : never;
 

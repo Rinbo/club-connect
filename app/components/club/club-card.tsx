@@ -4,7 +4,7 @@ import { Link } from '@remix-run/react';
 
 type ClubProps = {
   name: string;
-  logoUrl?: string;
+  logoUrl?: string | null;
 };
 
 const ClubCard: React.FC<ClubProps> = ({ name, logoUrl }) => {

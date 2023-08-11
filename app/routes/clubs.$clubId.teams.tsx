@@ -1,3 +1,5 @@
-export default function Teams() {
-  return <div className={'text-center text-2xl'}>Club Teams</div>;
+import { Outlet } from '@remix-run/react';
+
+export default function TeamsLayout() {
+  return <Outlet />;
 }

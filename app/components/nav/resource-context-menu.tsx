@@ -1,6 +1,7 @@
 import React from 'react';
-import { useNavigate } from '@remix-run/react';
-import { IoIosArrowBack } from 'react-icons/io';
+import { Link, useNavigate } from '@remix-run/react';
+import { IoIosArrowBack, IoMdAddCircleOutline } from 'react-icons/io';
+import { AiOutlineMail } from 'react-icons/ai';
 
 type Props = {
   children?: React.ReactNode;
@@ -25,5 +26,30 @@ export default function ResourceContextMenu({ children, backButton, animate = tr
       )}
       {children}
     </ul>
+  );
+}
+
+export function AddLink({ to }: { to: string }) {
+  return (
+    <li>
+      <Link to={to}>
+        <div className={'flex flex-col items-center gap-0'}>
+          <IoMdAddCircleOutline size={20} />
+          <span className={`text-xs `}>Add</span>
+        </div>
+      </Link>
+    </li>
+  );
+}
+export function NotifyLink({ to }: { to: string }) {
+  return (
+    <li>
+      <Link to={to}>
+        <div className={'flex flex-col items-center gap-0'}>
+          <AiOutlineMail size={20} />
+          <span className={`text-xs`}>Notify</span>
+        </div>
+      </Link>
+    </li>
   );
 }

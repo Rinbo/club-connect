@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useFetcher } from '@remix-run/react';
 import { BsCardImage } from 'react-icons/bs';
+import FileInput from '~/components/form/file-input';
 
 type FetcherData = {
   ok: boolean;
@@ -31,7 +32,7 @@ export default function UploadImageModal({ action }: { action: string }) {
         <div className="modal-box">
           <h3 className="mb-2 text-lg font-bold">Upload picture</h3>
           <fetcher.Form ref={formRef} method={'post'} encType="multipart/form-data" action={action}>
-            <input className={'file-input mb-4 w-full max-w-xs'} id="img-field" type="file" multiple name="img" accept="image/*" />
+            <FileInput label={'Select image'} id="img-field" name="img" />
             <div className={'flex justify-end gap-2'}>
               <button type="button" className={'btn'} onClick={closeModal}>
                 Cancel

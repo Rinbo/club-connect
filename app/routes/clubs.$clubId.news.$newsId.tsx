@@ -4,7 +4,7 @@ import type { LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import { requireClubUser } from '~/session.server';
-import { findClubNewsById } from '~/models/club-news.server';
+import { getClubNewsById } from '~/models/club-news.server';
 
 export const loader = async ({ request, params: { clubId, newsId } }: LoaderArgs) => {
   invariant(clubId, 'clubId missing from route');
@@ -12,7 +12,7 @@ export const loader = async ({ request, params: { clubId, newsId } }: LoaderArgs
 
   await requireClubUser(request, clubId);
 
-  const newsItem = await findClubNewsById(newsId);
+  const newsItem = await getClubNewsById(newsId);
 
   return json({ newsItem });
 };

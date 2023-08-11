@@ -5,9 +5,7 @@ import { findClubNewsByClubId } from '~/models/club-news.server';
 import invariant from 'tiny-invariant';
 import { Link, useLoaderData, useParams } from '@remix-run/react';
 import { useClubUserRoles } from '~/loader-utils';
-import { IoMdAddCircleOutline } from 'react-icons/io';
-import { AiOutlineMail } from 'react-icons/ai';
-import ResourceContextMenu from '~/components/nav/resource-context-menu';
+import ResourceContextMenu, { AddLink, NotifyLink } from '~/components/nav/resource-context-menu';
 import { requireClubUser } from '~/session.server';
 
 export { ErrorBoundary } from '~/error-boundry';
@@ -57,23 +55,8 @@ function AdminClubNewsMenu() {
 
   return (
     <ResourceContextMenu>
-      <li>
-        <Link to={`/clubs/${clubId}/news/new`}>
-          <div className={'flex flex-col items-center gap-0'}>
-            <IoMdAddCircleOutline size={20} />
-            <span className={`text-xs `}>Add</span>
-          </div>
-        </Link>
-      </li>
-
-      <li>
-        <Link to={`/clubs/${clubId}/users/notify`}>
-          <div className={'flex flex-col items-center gap-0'}>
-            <AiOutlineMail size={20} />
-            <span className={`text-xs`}>Notify</span>
-          </div>
-        </Link>
-      </li>
+      <AddLink to={`/clubs/${clubId}/news/new`} />
+      <NotifyLink to={`/clubs/${clubId}/users/notify`} />
     </ResourceContextMenu>
   );
 }

@@ -15,7 +15,7 @@ export async function findClubNewsByClubId(clubId: string, skip: number, take: n
   });
 }
 
-export async function findClubNewsById(id: string) {
+export async function getClubNewsById(id: string) {
   return prisma.clubNews.findFirstOrThrow({
     where: { id },
     include: { imageUrls: true, author: { include: { user: true } } }

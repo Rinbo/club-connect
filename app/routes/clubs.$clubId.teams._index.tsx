@@ -23,13 +23,17 @@ export default function Teams() {
   const contextMenu = clubUserRoles.isAdmin && (
     <ResourceContextMenu>
       <AddLink to={`/clubs/${clubId}/teams/new`} />
-      <section>
+    </ResourceContextMenu>
+  );
+
+  return (
+    <main>
+      {contextMenu}
+      <section className={'py-4'}>
         {teams.map(team => (
           <div key={team.id}>{JSON.stringify(team, null, 2)}</div>
         ))}
       </section>
-    </ResourceContextMenu>
+    </main>
   );
-
-  return <main>{contextMenu}</main>;
 }

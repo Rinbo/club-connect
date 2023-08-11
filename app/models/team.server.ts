@@ -8,3 +8,13 @@ export async function findTeamsByClubId(clubId: string, skip: number, take: numb
     orderBy: { createdAt: 'desc' }
   });
 }
+
+export async function getTeamById(id: string) {
+  return prisma.team.findFirstOrThrow({ where: { id } });
+}
+
+export async function createTeam(name: string, clubId: string) {
+  return prisma.team.create({
+    data: { name, clubId }
+  });
+}

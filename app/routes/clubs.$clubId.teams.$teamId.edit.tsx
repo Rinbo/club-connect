@@ -1,13 +1,16 @@
+import { useOutletContext } from 'react-router';
+import type { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId';
+import TeamForm, { teamSchema } from '~/components/form/team-form';
 import type { ActionArgs } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import { requireClubAdmin } from '~/session.server';
-import { createTeam } from '~/models/team.server';
-import TeamForm, { teamSchema } from '~/components/form/team-form';
-import React from 'react';
+import { updateTeam } from '~/models/team.server';
 
-export const action = async ({ request, params: { clubId } }: ActionArgs) => {
+export const action = async ({ request, params: { clubId, teamId } }: ActionArgs) => {
   invariant(clubId, 'clubId missing in route');
+  invariant(teamId, 'teamId missing in route');
+
   await requireClubAdmin(request, clubId);
 
   const formData = await request.formData();
@@ -15,16 +18,18 @@ export const action = async ({ request, params: { clubId } }: ActionArgs) => {
   if (!validation.success) return json({ errors: validation.error.flatten().fieldErrors }, { status: 400 });
 
   const { name, description } = validation.data;
-  const team = await createTeam(name, description, clubId);
+  const team = await updateTeam(teamId, name, description);
 
   return redirect(`/clubs/${clubId}/teams/${team.id}`);
 };
 
-export default function CreateTeam() {
+export default function EditTeam() {
+  const { team } = useOutletContext<TeamContextType>();
+
   return (
     <section className={'flex flex-col items-center py-4'}>
-      <h2 className={'text-2xl'}>Create Team</h2>
-      <TeamForm />
+      <h2 className={'text-2xl'}>Edit Team</h2>
+      <TeamForm defaultTeam={team} />
     </section>
   );
 }

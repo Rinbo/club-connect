@@ -8,7 +8,7 @@ import type { Team } from '.prisma/client';
 
 export { ErrorBoundary } from '~/error-boundry';
 
-type ClientTeam = Omit<Team, 'createdAt' | 'updatedAt'> & {
+export type ClientTeam = Omit<Team, 'createdAt' | 'updatedAt'> & {
   createdAt: string;
   updatedAt: string;
 };

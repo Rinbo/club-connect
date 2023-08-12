@@ -13,8 +13,15 @@ export async function getTeamById(id: string) {
   return prisma.team.findFirstOrThrow({ where: { id } });
 }
 
-export async function createTeam(name: string, clubId: string) {
+export async function createTeam(name: string, description: string, clubId: string) {
   return prisma.team.create({
-    data: { name, clubId }
+    data: { name, description, clubId }
+  });
+}
+
+export async function updateTeam(id: string, name: string, description: string) {
+  return prisma.team.update({
+    where: { id },
+    data: { name, description }
   });
 }

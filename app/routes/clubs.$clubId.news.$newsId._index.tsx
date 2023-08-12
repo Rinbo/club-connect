@@ -1,9 +1,8 @@
-import { Link, useParams } from '@remix-run/react';
+import { useParams } from '@remix-run/react';
 import React from 'react';
 import ImageModal from '~/components/image/image-modal';
-import ResourceContextMenu from '~/components/nav/resource-context-menu';
+import ResourceContextMenu, { EditLink } from '~/components/nav/resource-context-menu';
 import { useClubNewsItem, useClubUserRoles } from '~/loader-utils';
-import { BiEdit } from 'react-icons/bi';
 import DeleteResourceModal from '~/components/delete/delete-resource-modal';
 import ImageManagerModal from '~/components/image/image-manager-modal';
 
@@ -16,14 +15,7 @@ export default function ClubNewsItems() {
     <ResourceContextMenu backButton>
       {clubUserRoles.isWebmaster && (
         <React.Fragment>
-          <li>
-            <Link to={`/clubs/${clubId}/news/${newsId}/edit`}>
-              <div className={'flex flex-col items-center gap-0'}>
-                <BiEdit size={20} />
-                <span className={`text-xs `}>Edit</span>
-              </div>
-            </Link>
-          </li>
+          <EditLink to={`/clubs/${clubId}/news/${newsId}/edit`} />
           <ImageManagerModal
             imageUrls={newsItem.imageUrls}
             postAction={`/clubs/${clubId}/news/${newsId}/add-images`}

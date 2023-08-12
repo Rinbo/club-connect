@@ -113,10 +113,12 @@ model TeamUser {
 }
 
 model Team {
-  id        String     @id @default(cuid())
-  name      String
-  club      Club       @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  TeamUsers TeamUser[]
+  id          String     @id @default(cuid())
+  name        String
+  club        Club       @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  description String
+  TeamUsers   TeamUser[]
+  logoUrl     String?
 
   clubId    String
   createdAt DateTime @default(now())

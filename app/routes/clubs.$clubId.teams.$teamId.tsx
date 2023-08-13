@@ -15,6 +15,10 @@ export type ClientTeam = Omit<Team, 'createdAt' | 'updatedAt'> & {
 
 export type TeamContextType = { team: ClientTeam | null };
 
+export const handle = {
+  isTeamRoute: true
+};
+
 export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs) => {
   invariant(clubId, 'clubId missing in route');
   invariant(teamId, 'teamId missing in route');

@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet, useLoaderData, useParams } from '@remix-run/react';
+import { Link, NavLink, Outlet, useLoaderData, useMatches, useParams } from '@remix-run/react';
 import { IoAppsOutline } from 'react-icons/io5';
 import { FaHome, FaRegNewspaper, FaUsers } from 'react-icons/fa';
 import { RiTeamLine } from 'react-icons/ri';
@@ -12,6 +12,7 @@ import { requireClubUser } from '~/session.server';
 import { AiOutlineSchedule } from 'react-icons/ai';
 import { LuLayoutDashboard } from 'react-icons/lu';
 import { FiSettings } from 'react-icons/fi';
+import { getGravatarUrl } from '~/misc-utils';
 
 export { ErrorBoundary } from '~/error-boundry';
 
@@ -33,6 +34,11 @@ export default function ClubLayout() {
     clubUserRoles
   } = useLoaderData<typeof loader>();
   const divRef = useRef<HTMLDivElement>(null);
+  const matches = useMatches();
+
+  const teamRoute = React.useMemo(() => {
+    return matches.find(route => route.handle && route.handle.isTeamRoute);
+  }, [matches]);
 
   function handleClick() {
     divRef.current?.classList.toggle(':dropdown-open');
@@ -41,17 +47,32 @@ export default function ClubLayout() {
     }
   }
 
+  // TODO fix so that all below nav links use the above MenuNavLink component
+
   return (
-    <div className="h-full">
+    <nav className="h-full">
       <div className={'navbar bg-base-300'}>
         <div className="flex-1">
-          <Link to={`/clubs/${id}`} className="text-md btn btn-ghost normal-case xs:text-xl">
-            {logoUrl && <img className="inline-block h-10 w-10 rounded-full ring-2 ring-white" src={logoUrl} alt={name} />}
-            {name}
-          </Link>
+          {teamRoute ? (
+            <Link to={teamRoute.pathname} className="text-md btn btn-ghost normal-case xs:text-xl">
+              {
+                <img
+                  className="inline-block h-10 w-10 rounded-full ring-2 ring-white"
+                  src={teamRoute.data.team.logoUrl ? teamRoute.data.team.logoUrl : getGravatarUrl(teamRoute.data.team.name)}
+                  alt={name}
+                />
+              }
+              {teamRoute.data.team.name}
+            </Link>
+          ) : (
+            <Link to={`/clubs/${id}`} className="text-md btn btn-ghost normal-case xs:text-xl">
+              {logoUrl && <img className="inline-block h-10 w-10 rounded-full ring-2 ring-white" src={logoUrl} alt={name} />}
+              {name}
+            </Link>
+          )}
         </div>
         <div className="flex-none">
-          <div className="dropdown-end dropdown" ref={divRef}>
+          <div className="dropdown dropdown-end" ref={divRef}>
             <label tabIndex={0} className="btn btn-circle btn-ghost ">
               <div className="indicator">
                 <IoAppsOutline size={30} />
@@ -132,10 +153,25 @@ export default function ClubLayout() {
         </div>
       </div>
       <div className={'container mx-auto px-2 py-2 xs:px-0'}>
-        <ClubMenu />
+        {teamRoute ? <TeamMenu teamRoot={teamRoute.pathname} /> : <ClubMenu />}
         <Outlet />
       </div>
-    </div>
+    </nav>
+  );
+}
+
+function MenuNavLink({ to, icon, label }: { to: string; icon: React.ReactElement; label: string }) {
+  return (
+    <li>
+      <NavLink to={to} end>
+        {({ isActive, isPending }) => (
+          <div className={'flex flex-col items-center gap-0'}>
+            {React.cloneElement(icon, { size: ICON_SIZE })}
+            <span className={`text-xs ${isActive ? 'active' : ''}`}>{label}</span>
+          </div>
+        )}
+      </NavLink>
+    </li>
   );
 }
 
@@ -143,61 +179,108 @@ function ClubMenu() {
   const { clubId } = useParams();
 
   return (
-    <ul className="menu-animate-right no-scrollbar menu rounded-box menu-horizontal menu-xs z-10 mb-1 w-full flex-nowrap gap-1 overflow-x-auto bg-base-200 sm:menu-md sm:justify-center">
-      <li>
-        <NavLink to={`/clubs/${clubId}`} end>
-          {({ isActive, isPending }) => (
-            <div className={'flex flex-col items-center gap-0'}>
-              <FaHome size={ICON_SIZE} />
-              <span className={`text-xs ${isActive ? 'active' : ''}`}>Home</span>
-            </div>
-          )}
-        </NavLink>
-      </li>
+    <nav>
+      <ul className="menu-animate-right no-scrollbar menu rounded-box menu-horizontal menu-xs z-10 mb-1 w-full flex-nowrap gap-1 overflow-x-auto bg-base-200 sm:menu-md sm:justify-center">
+        <li>
+          <NavLink to={`/clubs/${clubId}`} end>
+            {({ isActive, isPending }) => (
+              <div className={'flex flex-col items-center gap-0'}>
+                <FaHome size={ICON_SIZE} />
+                <span className={`text-xs ${isActive ? 'active' : ''}`}>Home</span>
+              </div>
+            )}
+          </NavLink>
+        </li>
 
-      <li>
-        <NavLink to={`/clubs/${clubId}/news`}>
-          {({ isActive, isPending }) => (
-            <div className={'flex flex-col items-center gap-0'}>
-              <FaRegNewspaper size={ICON_SIZE} />
-              <span className={`text-xs ${isActive ? 'active' : ''}`}>News</span>
-            </div>
-          )}
-        </NavLink>
-      </li>
+        <li>
+          <NavLink to={`/clubs/${clubId}/news`} end>
+            {({ isActive, isPending }) => (
+              <div className={'flex flex-col items-center gap-0'}>
+                <FaRegNewspaper size={ICON_SIZE} />
+                <span className={`text-xs ${isActive ? 'active' : ''}`}>News</span>
+              </div>
+            )}
+          </NavLink>
+        </li>
 
-      <li>
-        <NavLink to={`/clubs/${clubId}/users`}>
-          {({ isActive, isPending }) => (
-            <div className={'flex flex-col items-center gap-0'}>
-              <FaUsers size={ICON_SIZE} />
-              <span className={`text-xs ${isActive ? 'active' : ''}`}>Members</span>
-            </div>
-          )}
-        </NavLink>
-      </li>
+        <li>
+          <NavLink to={`/clubs/${clubId}/users`}>
+            {({ isActive, isPending }) => (
+              <div className={'flex flex-col items-center gap-0'}>
+                <FaUsers size={ICON_SIZE} />
+                <span className={`text-xs ${isActive ? 'active' : ''}`}>Members</span>
+              </div>
+            )}
+          </NavLink>
+        </li>
 
-      <li>
-        <NavLink to={`/clubs/${clubId}/teams`}>
-          {({ isActive, isPending }) => (
-            <div className={'flex flex-col items-center gap-0'}>
-              <RiTeamLine size={ICON_SIZE} />
-              <span className={`text-xs ${isActive ? 'active' : ''}`}>Teams</span>
-            </div>
-          )}
-        </NavLink>
-      </li>
+        <li>
+          <NavLink to={`/clubs/${clubId}/teams`}>
+            {({ isActive, isPending }) => (
+              <div className={'flex flex-col items-center gap-0'}>
+                <RiTeamLine size={ICON_SIZE} />
+                <span className={`text-xs ${isActive ? 'active' : ''}`}>Teams</span>
+              </div>
+            )}
+          </NavLink>
+        </li>
 
-      <li>
-        <NavLink to={`/clubs/${clubId}/schedules`} end>
-          {({ isActive, isPending }) => (
-            <div className={'flex flex-col items-center gap-0'}>
-              <AiOutlineSchedule size={ICON_SIZE} />
-              <span className={`text-xs ${isActive ? 'active' : ''}`}>Schedules</span>
-            </div>
-          )}
-        </NavLink>
-      </li>
-    </ul>
+        <MenuNavLink to={`/clubs/${clubId}/schedules`} icon={<AiOutlineSchedule />} label={'Schedules'} />
+      </ul>
+    </nav>
+  );
+}
+
+function TeamMenu({ teamRoot }: { teamRoot: string }) {
+  return (
+    <nav>
+      <ul className="menu-animate-right no-scrollbar menu rounded-box menu-horizontal menu-xs z-10 mb-1 w-full flex-nowrap gap-1 overflow-x-auto bg-base-200 sm:menu-md sm:justify-center">
+        <li>
+          <NavLink to={`${teamRoot}`} end>
+            {({ isActive, isPending }) => (
+              <div className={'flex flex-col items-center gap-0'}>
+                <FaHome size={ICON_SIZE} />
+                <span className={`text-xs ${isActive ? 'active' : ''}`}>Home</span>
+              </div>
+            )}
+          </NavLink>
+        </li>
+
+        <li>
+          <NavLink to={`${teamRoot}/news`}>
+            {({ isActive, isPending }) => (
+              <div className={'flex flex-col items-center gap-0'}>
+                <FaRegNewspaper size={ICON_SIZE} />
+                <span className={`text-xs ${isActive ? 'active' : ''}`}>News</span>
+              </div>
+            )}
+          </NavLink>
+        </li>
+
+        <li>
+          <NavLink to={`${teamRoot}/users`}>
+            {({ isActive, isPending }) => (
+              <div className={'flex flex-col items-center gap-0'}>
+                <FaUsers size={ICON_SIZE} />
+                <span className={`text-xs ${isActive ? 'active' : ''}`}>Members</span>
+              </div>
+            )}
+          </NavLink>
+        </li>
+
+        <li>
+          <NavLink to={`${teamRoot}/team`}>
+            {({ isActive, isPending }) => (
+              <div className={'flex flex-col items-center gap-0'}>
+                <RiTeamLine size={ICON_SIZE} />
+                <span className={`text-xs ${isActive ? 'active' : ''}`}>Teams</span>
+              </div>
+            )}
+          </NavLink>
+        </li>
+
+        <MenuNavLink to={`${teamRoot}/schedule`} icon={<AiOutlineSchedule />} label={'Schedule'} />
+      </ul>
+    </nav>
   );
 }

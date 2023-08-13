@@ -5,6 +5,7 @@ import { useClubUserRoles } from '~/loader-utils';
 import { useParams } from '@remix-run/react';
 import DeleteResourceModal from '~/components/delete/delete-resource-modal';
 import React from 'react';
+import AddMembersModal from '~/routes/clubs.$clubId.teams.$teamId._index/add-members-modal';
 
 export default function Team() {
   const { team } = useOutletContext<TeamContextType>();
@@ -15,7 +16,8 @@ export default function Team() {
     <ResourceContextMenu backButton>
       {clubUserRoles.isAdmin && (
         <React.Fragment>
-          <EditLink to={`/clubs/${clubId}/teams/${teamId}/edit`} />{' '}
+          <EditLink to={`/clubs/${clubId}/teams/${teamId}/edit`} />
+          <AddMembersModal postAction={`/clubs/${clubId}/teams/${teamId}/add-members`} />
           <DeleteResourceModal action={`/clubs/${clubId}/teams/${teamId}/delete`} message={'Are you sure you want to delete this team?'} />
         </React.Fragment>
       )}

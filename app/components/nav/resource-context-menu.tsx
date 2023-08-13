@@ -12,6 +12,7 @@ type Props = {
 
 export default function ResourceContextMenu({ children, backButton, animate = true }: Props) {
   const navigate = useNavigate();
+
   return (
     <nav>
       <ul
@@ -67,6 +68,19 @@ export function EditLink({ to }: LinkProp) {
         <div className={'flex flex-col items-center gap-0'}>
           <BiEdit size={20} />
           <span className={`text-xs `}>Edit</span>
+        </div>
+      </Link>
+    </li>
+  );
+}
+
+export function ContextLink({ to, label, icon }: LinkProp & { label: string; icon: React.ReactElement }) {
+  return (
+    <li>
+      <Link to={to}>
+        <div className={'flex flex-col items-center gap-0'}>
+          {React.cloneElement(icon, { size: 20 })}
+          <span className={`text-xs `}>{label}</span>
         </div>
       </Link>
     </li>

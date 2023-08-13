@@ -44,7 +44,7 @@ export default function ImageManagerModal(props: { imageUrls: ImageUrl[]; postAc
           <h3 className="mb-2 text-2xl font-bold">Image Manager</h3>
 
           <section>
-            <fetcher.Form method={'post'} action={props.postAction} encType="multipart/form-data">
+            <fetcher.Form ref={formRef} method={'post'} action={props.postAction} encType="multipart/form-data">
               <h2 className={'mb-2 text-xl'}>Add images</h2>
               <FileInput label={'Select images'} name={'img'} id={'img-field'} accept={'image/*'} multiple={true} />
               <div className={'mt-2 flex flex-row gap-2'}>

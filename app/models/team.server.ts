@@ -25,3 +25,7 @@ export async function updateTeam(id: string, name: string, description: string) 
     data: { name, description }
   });
 }
+
+export async function deleteTeam(id: string) {
+  return prisma.team.delete({ where: { id } });
+}

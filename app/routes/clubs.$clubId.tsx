@@ -47,8 +47,6 @@ export default function ClubLayout() {
     }
   }
 
-  // TODO fix so that all below nav links use the above MenuNavLink component
-
   return (
     <nav className="h-full">
       <div className={'navbar bg-base-300'}>
@@ -72,7 +70,7 @@ export default function ClubLayout() {
           )}
         </div>
         <div className="flex-none">
-          <div className="dropdown dropdown-end" ref={divRef}>
+          <div className="dropdown-end dropdown" ref={divRef}>
             <label tabIndex={0} className="btn btn-circle btn-ghost ">
               <div className="indicator">
                 <IoAppsOutline size={30} />
@@ -175,6 +173,7 @@ function MenuNavLink({ to, icon, label }: { to: string; icon: React.ReactElement
   );
 }
 
+// TODO fix so that all below nav links use the above MenuNavLink component
 function ClubMenu() {
   const { clubId } = useParams();
 
@@ -235,50 +234,9 @@ function TeamMenu({ teamRoot }: { teamRoot: string }) {
   return (
     <nav>
       <ul className="menu-animate-right no-scrollbar menu rounded-box menu-horizontal menu-xs z-10 mb-1 w-full flex-nowrap gap-1 overflow-x-auto bg-base-200 sm:menu-md sm:justify-center">
-        <li>
-          <NavLink to={`${teamRoot}`} end>
-            {({ isActive, isPending }) => (
-              <div className={'flex flex-col items-center gap-0'}>
-                <FaHome size={ICON_SIZE} />
-                <span className={`text-xs ${isActive ? 'active' : ''}`}>Home</span>
-              </div>
-            )}
-          </NavLink>
-        </li>
-
-        <li>
-          <NavLink to={`${teamRoot}/news`}>
-            {({ isActive, isPending }) => (
-              <div className={'flex flex-col items-center gap-0'}>
-                <FaRegNewspaper size={ICON_SIZE} />
-                <span className={`text-xs ${isActive ? 'active' : ''}`}>News</span>
-              </div>
-            )}
-          </NavLink>
-        </li>
-
-        <li>
-          <NavLink to={`${teamRoot}/users`}>
-            {({ isActive, isPending }) => (
-              <div className={'flex flex-col items-center gap-0'}>
-                <FaUsers size={ICON_SIZE} />
-                <span className={`text-xs ${isActive ? 'active' : ''}`}>Members</span>
-              </div>
-            )}
-          </NavLink>
-        </li>
-
-        <li>
-          <NavLink to={`${teamRoot}/team`}>
-            {({ isActive, isPending }) => (
-              <div className={'flex flex-col items-center gap-0'}>
-                <RiTeamLine size={ICON_SIZE} />
-                <span className={`text-xs ${isActive ? 'active' : ''}`}>Teams</span>
-              </div>
-            )}
-          </NavLink>
-        </li>
-
+        <MenuNavLink to={`${teamRoot}`} icon={<FaHome size={ICON_SIZE} />} label={'Home'} />
+        <MenuNavLink to={`${teamRoot}/news`} icon={<FaRegNewspaper size={ICON_SIZE} />} label={'News'} />
+        <MenuNavLink to={`${teamRoot}/team-members`} icon={<RiTeamLine size={ICON_SIZE} />} label={'Members'} />
         <MenuNavLink to={`${teamRoot}/schedule`} icon={<AiOutlineSchedule />} label={'Schedule'} />
       </ul>
     </nav>

@@ -1,6 +1,5 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useUser } from '~/loader-utils';
-import { getGravatarUrl } from '~/misc-utils';
 import UploadImageModal from '~/components/upload/upload-image-modal';
 import UserDisplay from '~/components/user/user-display';
 import { AiOutlinePhone } from 'react-icons/ai';
@@ -8,9 +7,6 @@ import { FaRegAddressCard } from 'react-icons/fa';
 
 export default function Profile() {
   const user = useUser();
-  const imageSrc = useMemo(() => {
-    return user.imageUrl ? user.imageUrl : getGravatarUrl(user.email);
-  }, [user]);
 
   return (
     <UserDisplay user={user}>

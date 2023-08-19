@@ -7,6 +7,7 @@ import { errorFlash, useClubs } from '~/loader-utils';
 import { createClubUser } from '~/models/club-user.server';
 import useCustomToast from '~/hooks/useCustomToast';
 import { invalidateAuthorizationCache } from '~/security/authorization.server';
+import React from 'react';
 
 export const loader = async ({ request }: LoaderArgs) => {
   await requireUserId(request);

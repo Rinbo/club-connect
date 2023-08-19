@@ -1,19 +1,30 @@
+const SIZE_MAP = {
+  xs: 'select-xs',
+  sm: 'select-sm',
+  lg: 'select-lg'
+};
+
+type Size = keyof typeof SIZE_MAP;
+
 type Props = {
   options: string[];
   name: string;
   id: string;
-  label: string;
+  label?: string;
+  size?: Size;
   defaultValue?: string;
   errors: string[] | null | undefined;
 };
 
-export default function DropDown({ options, name, label, id, defaultValue, errors }: Props) {
+export default function DropDown({ options, name, label, id, size, defaultValue, errors }: Props) {
   return (
     <div className={'form-control'}>
-      <label htmlFor={id} className="label">
-        <span>{label}</span>
-      </label>
-      <select id={id} name={name} defaultValue={defaultValue} className="select select-bordered w-full">
+      {label && (
+        <label htmlFor={id} className="label">
+          <span>{label}</span>
+        </label>
+      )}
+      <select id={id} name={name} defaultValue={defaultValue} className={`select select-bordered w-full ${size && SIZE_MAP[size]}`}>
         {options.map(option => (
           <option key={option}>{option}</option>
         ))}

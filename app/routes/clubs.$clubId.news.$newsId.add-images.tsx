@@ -16,8 +16,7 @@ export const action = async ({ request, params: { clubId, newsId } }: ActionArgs
   const uploadHandler = createS3StandardImageUploadHandler(createS3NewsItemKeyPath(clubId, newsId));
   try {
     const urls = await parseAndProcessImageFormData(request, uploadHandler);
-    const batchPayload = await createClubNewsImages(urls, newsId);
-    console.log('COUNT', batchPayload.count);
+    await createClubNewsImages(urls, newsId);
   } catch (e) {
     return json({ flash: errorFlash(getMessageOrDefault(e, 'Adding images failed')) }, { status: 500 });
   }

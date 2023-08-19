@@ -33,3 +33,16 @@ export async function findClubUsersByClubId(clubId: string) {
     include: { user: true }
   });
 }
+
+export async function findClubUsersByNameContains(nameString: string, clubId: string, take: number) {
+  return prisma.clubUser.findMany({
+    where: {
+      user: {
+        name: { contains: nameString, mode: 'insensitive' }
+      },
+      clubId
+    },
+    include: { user: true },
+    take
+  });
+}

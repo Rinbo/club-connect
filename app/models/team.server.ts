@@ -1,4 +1,5 @@
 import { prisma } from '~/db.server';
+import type { MemberDto } from '~/routes/clubs.$clubId.teams.$teamId.add-team-members';
 
 export async function findTeamsByClubId(clubId: string, skip: number, take: number) {
   return prisma.team.findMany({
@@ -28,4 +29,15 @@ export async function updateTeam(id: string, name: string, description: string) 
 
 export async function deleteTeam(id: string) {
   return prisma.team.delete({ where: { id } });
+}
+
+/** Team Members **/
+
+export async function createTeamMembers(teamMembers: MemberDto[], teamId: string) {
+  return prisma.teamUser.createMany({
+    data: teamMembers.map(member => ({ clubUserId: member.clubUserId, teamRoles: [member.teamRole], teamId }))
+  });
+}
+export async function getTeamUsersByTeamId(teamId: string) {
+  return prisma.teamUser.findMany({ where: { teamId }, include: { clubUser: { include: { user: true } } } });
 }

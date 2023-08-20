@@ -3,29 +3,83 @@ import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import { requireClubUser } from '~/session.server';
 import { getTeamUsersByTeamId } from '~/models/team.server';
-import { useLoaderData, useParams } from '@remix-run/react';
+import { Link, useLoaderData, useParams } from '@remix-run/react';
 import React from 'react';
 import ResourceContextMenu, { EditLink } from '~/components/nav/resource-context-menu';
 import AddMembersModal from '~/routes/clubs.$clubId.teams.$teamId.team-members/add-members-modal';
 import DeleteResourceModal from '~/components/delete/delete-resource-modal';
 import { useClubUserRoles } from '~/loader-utils';
+import { getGravatarUrl } from '~/misc-utils';
+import { IoIosRemoveCircleOutline } from 'react-icons/io';
+import type { TeamRole } from '.prisma/client';
 
+type TeamUser = {
+  teamUserId: string;
+  teamRoles: TeamRole[];
+  clubUserId: string;
+  userId: string;
+  name: string;
+  email: string;
+  imageUrl?: string | null;
+  createdAt: string;
+  isSelected: boolean;
+};
 export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs) => {
   invariant(clubId, 'clubId missing in route');
   invariant(teamId, 'teamId missing in route');
 
   await requireClubUser(request, clubId);
-  const teamUsers = await getTeamUsersByTeamId(teamId);
+  const teamUsers: TeamUser[] = (await getTeamUsersByTeamId(teamId)).map(teamUser => {
+    const { id, name, email, imageUrl } = teamUser.clubUser.user;
+
+    return {
+      teamUserId: teamUser.id,
+      teamRoles: teamUser.teamRoles,
+      clubUserId: teamUser.clubUser.id,
+      userId: id,
+      name,
+      email,
+      imageUrl,
+      createdAt: teamUser.createdAt.toString(),
+      isSelected: false
+    };
+  });
 
   return json({ teamUsers });
 };
 
 export default function TeamMembers() {
-  const { teamUsers } = useLoaderData<typeof loader>();
   const { clubId, teamId } = useParams();
   const clubUserRoles = useClubUserRoles();
+  const { teamUsers: serverUsers } = useLoaderData<{ teamUsers: TeamUser[] }>();
 
-  const clubUserIds = React.useMemo(() => teamUsers.map(teamUser => teamUser.clubUser.id), [teamUsers]);
+  const [allSelected, setAllSelected] = React.useState<boolean>(false);
+  const [teamUsers, setTeamUsers] = React.useState<TeamUser[]>(serverUsers);
+
+  const clubUserIds: string[] = React.useMemo(() => teamUsers.map(({ clubUserId }) => clubUserId), [teamUsers]);
+
+  const handleAllSelected = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const newState: TeamUser[] = teamUsers.map(teamUser => ({ ...teamUser, isSelected: event.target.checked }));
+      setTeamUsers(newState);
+      setAllSelected(event.target.checked);
+    },
+    [teamUsers]
+  );
+
+  const handleSelect = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>, teamUserId: string) => {
+      const newState = teamUsers.map(teamUser => {
+        if (teamUser.teamUserId === teamUserId) {
+          return { ...teamUser, isSelected: event.target.checked };
+        }
+        return teamUser;
+      });
+      setTeamUsers(newState);
+      setAllSelected(false);
+    },
+    [teamUsers]
+  );
 
   const contextMenu = (
     <ResourceContextMenu backButton>
@@ -33,6 +87,7 @@ export default function TeamMembers() {
         <React.Fragment>
           <EditLink to={`/clubs/${clubId}/teams/${teamId}/edit`} />
           <AddMembersModal postAction={`/clubs/${clubId}/teams/${teamId}/add-team-members`} existingClubUserIds={clubUserIds} />
+          {/*//TODO move this to club team management instead*/}
           <DeleteResourceModal action={`/clubs/${clubId}/teams/${teamId}/delete`} message={'Are you sure you want to delete this team?'} />
         </React.Fragment>
       )}
@@ -43,10 +98,72 @@ export default function TeamMembers() {
     <React.Fragment>
       {contextMenu}
       <main className={'py-4'}>
-        <h1 className={'mb-4 text-center text-xl'}>Team Members</h1>
-        {teamUsers.map(teamUser => (
-          <div key={teamUser.id}>{JSON.stringify(teamUser, null, 2)}</div>
-        ))}
+        <div>
+          <div className="overflow-x-auto">
+            <table className="table">
+              <thead>
+                <tr>
+                  {clubUserRoles.isAdmin && (
+                    <th>
+                      <label>
+                        <input checked={allSelected} onChange={handleAllSelected} type="checkbox" className="checkbox" />
+                      </label>
+                    </th>
+                  )}
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Join date</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {teamUsers.map(({ teamUserId, teamRoles, userId, name, email, imageUrl, createdAt, isSelected }) => (
+                  <tr key={teamUserId}>
+                    {clubUserRoles.isAdmin && (
+                      <th>
+                        <label>
+                          <input type="checkbox" checked={isSelected} onChange={e => handleSelect(e, teamUserId)} className="checkbox" />
+                        </label>
+                      </th>
+                    )}
+                    <td>
+                      <div className="flex items-center space-x-3">
+                        <div className="avatar">
+                          <div className="mask mask-squircle h-12 w-12">
+                            <img src={imageUrl ? imageUrl : getGravatarUrl(email)} alt="User" />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="font-bold">{name}</div>
+                          <div className="text-sm opacity-50">City</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      {teamRoles.map(role => (
+                        <span key={`${role}-${teamUserId}`} className="badge badge-ghost badge-sm">
+                          {role}
+                        </span>
+                      ))}
+                    </td>
+                    <td>{new Date(createdAt).toDateString()}</td>
+                    <th>
+                      <Link to={`/clubs/${clubId}/users/${userId}`} key={`link-${teamUserId}`} className={'btn btn-ghost btn-xs'}>
+                        Details
+                      </Link>
+                    </th>
+                    <th>
+                      <button className={'btn btn-ghost'}>
+                        <IoIosRemoveCircleOutline />
+                      </button>
+                    </th>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </main>
     </React.Fragment>
   );

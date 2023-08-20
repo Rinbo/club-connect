@@ -34,6 +34,7 @@ export const action = async ({ request, params: { clubId, teamId } }: ActionArgs
   }
 };
 
+// TODO: Use Zod instead of manual type guarding
 function isTeamRole(value: any): value is TeamRoleType {
   return Object.values(TeamRole).includes(value);
 }

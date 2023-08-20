@@ -70,7 +70,7 @@ export default function ClubLayout() {
           )}
         </div>
         <div className="flex-none">
-          <div className="dropdown-end dropdown" ref={divRef}>
+          <div className="dropdown dropdown-end" ref={divRef}>
             <label tabIndex={0} className="btn btn-circle btn-ghost ">
               <div className="indicator">
                 <IoAppsOutline size={30} />
@@ -173,57 +173,16 @@ function MenuNavLink({ to, icon, label }: { to: string; icon: React.ReactElement
   );
 }
 
-// TODO fix so that all below nav links use the above MenuNavLink component
 function ClubMenu() {
   const { clubId } = useParams();
 
   return (
     <nav>
       <ul className="menu-animate-right no-scrollbar menu rounded-box menu-horizontal menu-xs z-10 mb-1 w-full flex-nowrap gap-1 overflow-x-auto bg-base-200 sm:menu-md sm:justify-center">
-        <li>
-          <NavLink to={`/clubs/${clubId}`} end>
-            {({ isActive, isPending }) => (
-              <div className={'flex flex-col items-center gap-0'}>
-                <FaHome size={ICON_SIZE} />
-                <span className={`text-xs ${isActive ? 'active' : ''}`}>Home</span>
-              </div>
-            )}
-          </NavLink>
-        </li>
-
-        <li>
-          <NavLink to={`/clubs/${clubId}/news`} end>
-            {({ isActive, isPending }) => (
-              <div className={'flex flex-col items-center gap-0'}>
-                <FaRegNewspaper size={ICON_SIZE} />
-                <span className={`text-xs ${isActive ? 'active' : ''}`}>News</span>
-              </div>
-            )}
-          </NavLink>
-        </li>
-
-        <li>
-          <NavLink to={`/clubs/${clubId}/users`}>
-            {({ isActive, isPending }) => (
-              <div className={'flex flex-col items-center gap-0'}>
-                <FaUsers size={ICON_SIZE} />
-                <span className={`text-xs ${isActive ? 'active' : ''}`}>Members</span>
-              </div>
-            )}
-          </NavLink>
-        </li>
-
-        <li>
-          <NavLink to={`/clubs/${clubId}/teams`}>
-            {({ isActive, isPending }) => (
-              <div className={'flex flex-col items-center gap-0'}>
-                <RiTeamLine size={ICON_SIZE} />
-                <span className={`text-xs ${isActive ? 'active' : ''}`}>Teams</span>
-              </div>
-            )}
-          </NavLink>
-        </li>
-
+        <MenuNavLink to={`/clubs/${clubId}`} icon={<FaHome size={ICON_SIZE} />} label={'Home'} />
+        <MenuNavLink to={`/clubs/${clubId}/news`} icon={<FaRegNewspaper size={ICON_SIZE} />} label={'News'} />
+        <MenuNavLink to={`/clubs/${clubId}/users`} icon={<FaUsers size={ICON_SIZE} />} label={'Members'} />
+        <MenuNavLink to={`/clubs/${clubId}/teams`} icon={<RiTeamLine size={ICON_SIZE} />} label={'Teams'} />
         <MenuNavLink to={`/clubs/${clubId}/schedules`} icon={<AiOutlineSchedule />} label={'Schedules'} />
       </ul>
     </nav>

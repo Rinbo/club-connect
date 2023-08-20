@@ -53,13 +53,11 @@ export default function ClubLayout() {
         <div className="flex-1">
           {teamRoute ? (
             <Link to={teamRoute.pathname} className="text-md btn btn-ghost normal-case xs:text-xl">
-              {
-                <img
-                  className="inline-block h-10 w-10 rounded-full ring-2 ring-white"
-                  src={teamRoute.data.team.logoUrl ? teamRoute.data.team.logoUrl : getGravatarUrl(teamRoute.data.team.name)}
-                  alt={name}
-                />
-              }
+              <img
+                className="inline-block h-10 w-10 rounded-full ring-2 ring-white"
+                src={teamRoute.data.team.logoUrl ? teamRoute.data.team.logoUrl : getGravatarUrl(teamRoute.data.team.name)}
+                alt={name}
+              />
               {teamRoute.data.team.name}
             </Link>
           ) : (
@@ -83,61 +81,32 @@ export default function ClubLayout() {
                 </Link>
 
                 <div className="card-actions gap-2">
-                  <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
-                    <Link to={`/clubs/${id}`} className="btn btn-accent" onClick={handleClick}>
-                      <FaHome />
-                    </Link>
-                    <div className={'text-center text-xs'}>Home</div>
-                  </div>
-                  <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
-                    <Link to={`/clubs/${id}/news`} className="btn btn-info" onClick={handleClick}>
-                      <FaRegNewspaper />
-                    </Link>
-                    <div className={'text-center text-xs'}>News</div>
-                  </div>
-                  <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
-                    <Link to={`/clubs/${id}/users`} className="btn btn-primary" onClick={handleClick}>
-                      <FaUsers />
-                    </Link>
-                    <div className={'text-center text-xs'}>Members</div>
-                  </div>
-                  <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
-                    <Link to={`/clubs/${id}/teams`} className="btn btn-secondary" onClick={handleClick}>
-                      <RiTeamLine />
-                    </Link>
-                    <div className={'text-center text-xs'}>Teams</div>
-                  </div>
-                  <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
-                    <Link to={`/clubs/${id}/schedules`} className="btn btn-accent" onClick={handleClick}>
-                      <AiOutlineSchedule />
-                    </Link>
-                    <div className={'text-center text-xs'}>Schedule</div>
-                  </div>
+                  <MenuLink to={`/clubs/${id}`} icon={<FaHome />} label={'Home'} color="btn-accent" onClick={handleClick} />
+                  <MenuLink to={`/clubs/${id}`} icon={<FaRegNewspaper />} label={'News'} color="btn-info" onClick={handleClick} />
+                  <MenuLink to={`/clubs/${id}/users`} icon={<FaUsers />} label={'Members'} color="btn-primary" onClick={handleClick} />
+                  <MenuLink to={`/clubs/${id}/teams`} icon={<RiTeamLine />} label={'Teams'} color={'btn-secondary'} onClick={handleClick} />
+                  <MenuLink
+                    to={`/clubs/${id}/schedules`}
+                    icon={<AiOutlineSchedule />}
+                    label={'Schedule'}
+                    color="btn-accent"
+                    onClick={handleClick}
+                  />
                 </div>
 
                 {clubUserRoles.isAdmin && (
                   <>
                     <div className="divider m-0 text-info">Admin</div>
                     <div className="card-actions gap-2">
-                      <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
-                        <Link to={`/clubs/${id}/settings`} className="btn btn-primary" onClick={handleClick}>
-                          <FiSettings />
-                        </Link>
-                        <div className={'text-center text-xs'}>Settings</div>
-                      </div>
+                      <MenuLink to={`/clubs/${id}/settings`} icon={<FiSettings />} label={'Settings'} onClick={handleClick} />
                     </div>
                   </>
                 )}
 
                 <div className="divider m-0 text-info">Personal</div>
                 <div className="card-actions gap-2">
+                  <MenuLink to={'/dashboard'} icon={<LuLayoutDashboard />} label={'Dashboard'} color="btn-accent" onClick={handleClick} />
                   <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1 pl-0'}>
-                    <Link to={'/dashboard'} className="btn btn-accent" onClick={handleClick}>
-                      <LuLayoutDashboard />
-                    </Link>
-                    <div className={'text-center text-xs'}>Dashboard</div>
-                  </div>
-                  <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
                     <Link to={`/clubs/${id}/personal/teams`} className="btn btn-secondary" onClick={handleClick}>
                       <RiTeamLine />
                     </Link>
@@ -158,6 +127,35 @@ export default function ClubLayout() {
   );
 }
 
+function ClubMenu() {
+  const { clubId } = useParams();
+
+  return (
+    <nav>
+      <ul className="menu-animate-right no-scrollbar menu rounded-box menu-horizontal menu-xs z-10 mb-1 w-full flex-nowrap gap-1 overflow-x-auto bg-base-200 sm:menu-md sm:justify-center">
+        <MenuNavLink to={`/clubs/${clubId}`} icon={<FaHome />} label={'Home'} />
+        <MenuNavLink to={`/clubs/${clubId}/news`} icon={<FaRegNewspaper />} label={'News'} />
+        <MenuNavLink to={`/clubs/${clubId}/users`} icon={<FaUsers />} label={'Members'} />
+        <MenuNavLink to={`/clubs/${clubId}/teams`} icon={<RiTeamLine />} label={'Teams'} />
+        <MenuNavLink to={`/clubs/${clubId}/schedules`} icon={<AiOutlineSchedule />} label={'Schedules'} />
+      </ul>
+    </nav>
+  );
+}
+
+function TeamMenu({ teamRoot }: { teamRoot: string }) {
+  return (
+    <nav>
+      <ul className="menu-animate-right no-scrollbar menu rounded-box menu-horizontal menu-xs z-10 mb-1 w-full flex-nowrap gap-1 overflow-x-auto bg-base-200 sm:menu-md sm:justify-center">
+        <MenuNavLink to={`${teamRoot}`} icon={<FaHome />} label={'Home'} />
+        <MenuNavLink to={`${teamRoot}/news`} icon={<FaRegNewspaper />} label={'News'} />
+        <MenuNavLink to={`${teamRoot}/team-members`} icon={<RiTeamLine />} label={'Members'} />
+        <MenuNavLink to={`${teamRoot}/schedule`} icon={<AiOutlineSchedule />} label={'Schedule'} />
+      </ul>
+    </nav>
+  );
+}
+
 function MenuNavLink({ to, icon, label }: { to: string; icon: React.ReactElement; label: string }) {
   return (
     <li>
@@ -173,31 +171,25 @@ function MenuNavLink({ to, icon, label }: { to: string; icon: React.ReactElement
   );
 }
 
-function ClubMenu() {
-  const { clubId } = useParams();
-
+function MenuLink({
+  to,
+  icon,
+  label,
+  color = 'btn-primary',
+  onClick
+}: {
+  to: string;
+  icon: React.ReactElement;
+  label: string;
+  color?: string;
+  onClick: () => void;
+}) {
   return (
-    <nav>
-      <ul className="menu-animate-right no-scrollbar menu rounded-box menu-horizontal menu-xs z-10 mb-1 w-full flex-nowrap gap-1 overflow-x-auto bg-base-200 sm:menu-md sm:justify-center">
-        <MenuNavLink to={`/clubs/${clubId}`} icon={<FaHome size={ICON_SIZE} />} label={'Home'} />
-        <MenuNavLink to={`/clubs/${clubId}/news`} icon={<FaRegNewspaper size={ICON_SIZE} />} label={'News'} />
-        <MenuNavLink to={`/clubs/${clubId}/users`} icon={<FaUsers size={ICON_SIZE} />} label={'Members'} />
-        <MenuNavLink to={`/clubs/${clubId}/teams`} icon={<RiTeamLine size={ICON_SIZE} />} label={'Teams'} />
-        <MenuNavLink to={`/clubs/${clubId}/schedules`} icon={<AiOutlineSchedule />} label={'Schedules'} />
-      </ul>
-    </nav>
-  );
-}
-
-function TeamMenu({ teamRoot }: { teamRoot: string }) {
-  return (
-    <nav>
-      <ul className="menu-animate-right no-scrollbar menu rounded-box menu-horizontal menu-xs z-10 mb-1 w-full flex-nowrap gap-1 overflow-x-auto bg-base-200 sm:menu-md sm:justify-center">
-        <MenuNavLink to={`${teamRoot}`} icon={<FaHome size={ICON_SIZE} />} label={'Home'} />
-        <MenuNavLink to={`${teamRoot}/news`} icon={<FaRegNewspaper size={ICON_SIZE} />} label={'News'} />
-        <MenuNavLink to={`${teamRoot}/team-members`} icon={<RiTeamLine size={ICON_SIZE} />} label={'Members'} />
-        <MenuNavLink to={`${teamRoot}/schedule`} icon={<AiOutlineSchedule />} label={'Schedule'} />
-      </ul>
-    </nav>
+    <div className={'btn-ghost flex flex-col items-center gap-1 rounded p-1'}>
+      <Link to={to} className={`btn ${color}`} onClick={onClick}>
+        {icon}
+      </Link>
+      <div className={'text-center text-xs'}>{label}</div>
+    </div>
   );
 }

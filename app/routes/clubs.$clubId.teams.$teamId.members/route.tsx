@@ -1,17 +1,18 @@
-import type { LoaderArgs } from '@remix-run/node';
+import type { ActionArgs, LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
-import { requireClubUser } from '~/session.server';
-import { getTeamUsersByTeamId } from '~/models/team.server';
+import { requireClubAdmin, requireClubUser } from '~/session.server';
+import { createTeamMembers, getTeamUsersByTeamId } from '~/models/team.server';
 import { Link, useLoaderData, useParams } from '@remix-run/react';
 import React from 'react';
 import ResourceContextMenu, { EditLink } from '~/components/nav/resource-context-menu';
-import AddMembersModal from '~/routes/clubs.$clubId.teams.$teamId.team-members/add-members-modal';
+import AddMembersModal from '~/routes/clubs.$clubId.teams.$teamId.members/add-members-modal';
 import DeleteResourceModal from '~/components/delete/delete-resource-modal';
-import { useClubUserRoles } from '~/loader-utils';
+import { errorFlash, useClubUserRoles } from '~/loader-utils';
 import { getGravatarUrl } from '~/misc-utils';
 import { IoIosRemoveCircleOutline } from 'react-icons/io';
-import type { TeamRole } from '.prisma/client';
+import { TeamRole } from '.prisma/client';
+import type { TeamRole as TeamRoleType } from '@prisma/client';
 
 type TeamUser = {
   teamUserId: string;
@@ -48,6 +49,44 @@ export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs
   return json({ teamUsers });
 };
 
+export type MemberDto = { clubUserId: string; teamRole: TeamRoleType };
+export const FORM_DATA_KEY = 'members';
+const ERROR_MESSAGE = 'Could not add member';
+
+export const action = async ({ request, params: { clubId, teamId } }: ActionArgs) => {
+  invariant(clubId, 'clubId missing in route');
+  invariant(teamId, 'teamId missing in route');
+
+  await requireClubAdmin(request, clubId);
+
+  const formData = await request.formData();
+  const formDataValue = formData.get(FORM_DATA_KEY);
+
+  if (typeof formDataValue !== 'string') {
+    return json({ flash: errorFlash(ERROR_MESSAGE) }, { status: 500 });
+  }
+  const members = JSON.parse(formDataValue);
+
+  if (Array.isArray(members) && isMemberDtoArray(members)) {
+    await createTeamMembers(members, teamId);
+    return json({ ok: true });
+  } else {
+    return json({ flash: errorFlash(ERROR_MESSAGE) }, { status: 500 });
+  }
+};
+
+// TODO: Use Zod instead of manual type guarding
+function isTeamRole(value: any): value is TeamRoleType {
+  return Object.values(TeamRole).includes(value);
+}
+function isMemberDto(data: any): data is MemberDto {
+  return typeof data.clubUserId === 'string' && typeof data.teamRole === 'string' && isTeamRole(data.teamRole);
+}
+
+function isMemberDtoArray(data: any[]): data is MemberDto[] {
+  return data.every(item => isMemberDto(item));
+}
+
 export default function TeamMembers() {
   const { clubId, teamId } = useParams();
   const clubUserRoles = useClubUserRoles();
@@ -55,6 +94,8 @@ export default function TeamMembers() {
 
   const [allSelected, setAllSelected] = React.useState<boolean>(false);
   const [teamUsers, setTeamUsers] = React.useState<TeamUser[]>(serverUsers);
+
+  React.useEffect(() => setTeamUsers(serverUsers), [serverUsers]);
 
   const clubUserIds: string[] = React.useMemo(() => teamUsers.map(({ clubUserId }) => clubUserId), [teamUsers]);
 
@@ -86,7 +127,7 @@ export default function TeamMembers() {
       {clubUserRoles.isAdmin && (
         <React.Fragment>
           <EditLink to={`/clubs/${clubId}/teams/${teamId}/edit`} />
-          <AddMembersModal postAction={`/clubs/${clubId}/teams/${teamId}/add-team-members`} existingClubUserIds={clubUserIds} />
+          <AddMembersModal postAction={`/clubs/${clubId}/teams/${teamId}/members`} existingClubUserIds={clubUserIds} />
           {/*//TODO move this to club team management instead*/}
           <DeleteResourceModal action={`/clubs/${clubId}/teams/${teamId}/delete`} message={'Are you sure you want to delete this team?'} />
         </React.Fragment>

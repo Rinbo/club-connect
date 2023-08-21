@@ -149,7 +149,7 @@ function TeamMenu({ teamRoot }: { teamRoot: string }) {
       <ul className="menu-animate-right no-scrollbar menu rounded-box menu-horizontal menu-xs z-10 mb-1 w-full flex-nowrap gap-1 overflow-x-auto bg-base-200 sm:menu-md sm:justify-center">
         <MenuNavLink to={`${teamRoot}`} icon={<FaHome />} label={'Home'} />
         <MenuNavLink to={`${teamRoot}/news`} icon={<FaRegNewspaper />} label={'News'} />
-        <MenuNavLink to={`${teamRoot}/team-members`} icon={<RiTeamLine />} label={'Members'} />
+        <MenuNavLink to={`${teamRoot}/members`} icon={<RiTeamLine />} label={'Members'} />
         <MenuNavLink to={`${teamRoot}/schedule`} icon={<AiOutlineSchedule />} label={'Schedule'} />
       </ul>
     </nav>

@@ -6,7 +6,8 @@ import { FaUsersCog } from 'react-icons/fa';
 import type { ClubUser as PrismaClubUser, TeamRole as TeamRoleType, User } from '@prisma/client';
 import { $Enums } from '@prisma/client';
 import { RxCross1 } from 'react-icons/rx';
-import { FORM_DATA_KEY, MemberDto } from '~/routes/clubs.$clubId.teams.$teamId.add-team-members/route';
+import type { MemberDto } from '~/routes/clubs.$clubId.teams.$teamId.members/route';
+import { FORM_DATA_KEY } from '~/routes/clubs.$clubId.teams.$teamId.members/route';
 import TeamRole = $Enums.TeamRole;
 
 type ClubUser = Omit<PrismaClubUser & { user: Omit<User, 'createdAt' | 'updatedAt'> }, 'createdAt' | 'updatedAt'>;

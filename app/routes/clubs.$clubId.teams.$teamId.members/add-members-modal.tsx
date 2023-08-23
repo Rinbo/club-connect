@@ -6,7 +6,7 @@ import { FaUsersCog } from 'react-icons/fa';
 import type { ClubUser as PrismaClubUser, TeamRole as TeamRoleType, User } from '@prisma/client';
 import { $Enums } from '@prisma/client';
 import { RxCross1 } from 'react-icons/rx';
-import type { MemberDto } from '~/routes/clubs.$clubId.teams.$teamId.members/route';
+import type { AddMemberRequest } from '~/routes/clubs.$clubId.teams.$teamId.members/route';
 import { FORM_DATA_KEY } from '~/routes/clubs.$clubId.teams.$teamId.members/route';
 import TeamRole = $Enums.TeamRole;
 
@@ -35,7 +35,7 @@ export default function AddMembersModal({ postAction, existingClubUserIds }: { p
   }, [fetcher.data, closeModal]);
 
   function submit() {
-    const members: MemberDto[] = selectedUsers.map(u => ({ clubUserId: u.id, teamRole: u.teamRole }));
+    const members: AddMemberRequest[] = selectedUsers.map(u => ({ clubUserId: u.id, teamRole: u.teamRole }));
     const formData = new FormData();
     formData.append(FORM_DATA_KEY, JSON.stringify(members));
     fetcher.submit(formData, { method: 'post', action: postAction, encType: 'multipart/form-data' });

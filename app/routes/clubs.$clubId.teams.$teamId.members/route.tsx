@@ -2,17 +2,18 @@ import type { ActionArgs, LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import { requireClubAdmin, requireClubUser } from '~/session.server';
-import { createTeamMembers, getTeamUsersByTeamId } from '~/models/team.server';
-import { Link, useLoaderData, useParams } from '@remix-run/react';
+import { createTeamMembers, deleteTeamMembers, getTeamUsersByTeamId } from '~/models/team.server';
+import { Link, useFetcher, useLoaderData, useParams } from '@remix-run/react';
 import React from 'react';
 import ResourceContextMenu, { EditLink } from '~/components/nav/resource-context-menu';
 import AddMembersModal from '~/routes/clubs.$clubId.teams.$teamId.members/add-members-modal';
-import DeleteResourceModal from '~/components/delete/delete-resource-modal';
 import { errorFlash, useClubUserRoles } from '~/loader-utils';
 import { getGravatarUrl } from '~/misc-utils';
-import { IoIosRemoveCircleOutline } from 'react-icons/io';
 import { TeamRole } from '.prisma/client';
 import type { TeamRole as TeamRoleType } from '@prisma/client';
+import ConfirmationModal from '~/components/modal/confirmation-modal';
+import { AiOutlineDelete } from 'react-icons/ai';
+import { IoIosRemoveCircleOutline } from 'react-icons/io';
 
 type TeamUser = {
   teamUserId: string;
@@ -49,14 +50,13 @@ export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs
   return json({ teamUsers });
 };
 
-export type MemberDto = { clubUserId: string; teamRole: TeamRoleType };
+export type AddMemberRequest = { clubUserId: string; teamRole: TeamRoleType };
 export const FORM_DATA_KEY = 'members';
 const ERROR_MESSAGE = 'Could not add member';
 
 export const action = async ({ request, params: { clubId, teamId } }: ActionArgs) => {
   invariant(clubId, 'clubId missing in route');
   invariant(teamId, 'teamId missing in route');
-
   await requireClubAdmin(request, clubId);
 
   const formData = await request.formData();
@@ -65,6 +65,18 @@ export const action = async ({ request, params: { clubId, teamId } }: ActionArgs
   if (typeof formDataValue !== 'string') {
     return json({ flash: errorFlash(ERROR_MESSAGE) }, { status: 500 });
   }
+
+  switch (request.method) {
+    case 'POST': {
+      return await addMembers(formDataValue, teamId);
+    }
+    case 'DELETE': {
+      return await removeMembers(formDataValue, teamId);
+    }
+  }
+};
+
+async function addMembers(formDataValue: string, teamId: string) {
   const members = JSON.parse(formDataValue);
 
   if (Array.isArray(members) && isMemberDtoArray(members)) {
@@ -73,30 +85,38 @@ export const action = async ({ request, params: { clubId, teamId } }: ActionArgs
   } else {
     return json({ flash: errorFlash(ERROR_MESSAGE) }, { status: 500 });
   }
-};
+}
 
-// TODO: Use Zod instead of manual type guarding
+async function removeMembers(formDataValue: string, teamId: string) {
+  const memberIds: string[] = JSON.parse(formDataValue);
+  await deleteTeamMembers(memberIds, teamId);
+  return json({ ok: true });
+}
+
 function isTeamRole(value: any): value is TeamRoleType {
   return Object.values(TeamRole).includes(value);
 }
-function isMemberDto(data: any): data is MemberDto {
+function isMemberDto(data: any): data is AddMemberRequest {
   return typeof data.clubUserId === 'string' && typeof data.teamRole === 'string' && isTeamRole(data.teamRole);
 }
 
-function isMemberDtoArray(data: any[]): data is MemberDto[] {
+function isMemberDtoArray(data: any[]): data is AddMemberRequest[] {
   return data.every(item => isMemberDto(item));
 }
 
 export default function TeamMembers() {
   const { clubId, teamId } = useParams();
+  const fetcher = useFetcher();
   const clubUserRoles = useClubUserRoles();
   const { teamUsers: serverUsers } = useLoaderData<{ teamUsers: TeamUser[] }>();
+  const action = `/clubs/${clubId}/teams/${teamId}/members`;
 
   const [allSelected, setAllSelected] = React.useState<boolean>(false);
   const [teamUsers, setTeamUsers] = React.useState<TeamUser[]>(serverUsers);
 
   React.useEffect(() => setTeamUsers(serverUsers), [serverUsers]);
 
+  const nonSelected = React.useMemo(() => !teamUsers.some(u => u.isSelected), [teamUsers]);
   const clubUserIds: string[] = React.useMemo(() => teamUsers.map(({ clubUserId }) => clubUserId), [teamUsers]);
 
   const handleAllSelected = React.useCallback(
@@ -107,6 +127,23 @@ export default function TeamMembers() {
     },
     [teamUsers]
   );
+
+  function onMultiUserRemoval(): void {
+    const teamUserIds: string[] = teamUsers.filter(u => u.isSelected).map(u => u.teamUserId);
+    fetcher.submit(createFormData(teamUserIds), { method: 'delete', action, encType: 'multipart/form-data' });
+    setAllSelected(false);
+  }
+
+  function onSingleUserRemoval(teamUserId: string): void {
+    fetcher.submit(createFormData([teamUserId]), { method: 'delete', action, encType: 'multipart/form-data' });
+    setAllSelected(false);
+  }
+
+  function createFormData(teamUserIds: string[]): FormData {
+    const formData = new FormData();
+    formData.append(FORM_DATA_KEY, JSON.stringify(teamUserIds));
+    return formData;
+  }
 
   const handleSelect = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>, teamUserId: string) => {
@@ -126,10 +163,24 @@ export default function TeamMembers() {
     <ResourceContextMenu backButton>
       {clubUserRoles.isAdmin && (
         <React.Fragment>
+          {/*//TODO move edit this to home tab instead*/}
           <EditLink to={`/clubs/${clubId}/teams/${teamId}/edit`} />
-          <AddMembersModal postAction={`/clubs/${clubId}/teams/${teamId}/members`} existingClubUserIds={clubUserIds} />
-          {/*//TODO move this to club team management instead*/}
-          <DeleteResourceModal action={`/clubs/${clubId}/teams/${teamId}/delete`} message={'Are you sure you want to delete this team?'} />
+          <AddMembersModal postAction={action} existingClubUserIds={clubUserIds} />
+          <ConfirmationModal
+            title={'Remove users from team'}
+            message={'Are you sure?'}
+            disabled={nonSelected}
+            onSubmit={() => onMultiUserRemoval()}
+          >
+            <li className={`${nonSelected && 'disabled'}`}>
+              <div className={'flex flex-col items-center gap-0'}>
+                <AiOutlineDelete size={20} />
+                <span className={`text-xs`}>Remove</span>
+              </div>
+            </li>
+          </ConfirmationModal>
+          {/*//TODO move delete team to home tab instead?*/}
+          {/*<DeleteResourceModal action={`/clubs/${clubId}/teams/${teamId}/delete`} message={'Are you sure you want to delete this team?'} />*/}
         </React.Fragment>
       )}
     </ResourceContextMenu>
@@ -195,9 +246,15 @@ export default function TeamMembers() {
                       </Link>
                     </th>
                     <th>
-                      <button className={'btn btn-ghost'}>
-                        <IoIosRemoveCircleOutline />
-                      </button>
+                      <ConfirmationModal
+                        message={'Are you sure?'}
+                        onSubmit={() => onSingleUserRemoval(teamUserId)}
+                        title={'Remove user from team'}
+                      >
+                        <button className={'btn btn-ghost'} onClick={() => onSingleUserRemoval(teamUserId)}>
+                          <IoIosRemoveCircleOutline />
+                        </button>
+                      </ConfirmationModal>
                     </th>
                   </tr>
                 ))}

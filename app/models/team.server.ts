@@ -41,3 +41,9 @@ export async function createTeamMembers(teamMembers: MemberDto[], teamId: string
 export async function getTeamUsersByTeamId(teamId: string) {
   return prisma.teamUser.findMany({ where: { teamId }, include: { clubUser: { include: { user: true } } } });
 }
+
+export async function deleteTeamMembers(memberIds: string[], teamId: string) {
+  return prisma.teamUser.deleteMany({
+    where: { teamId, id: { in: memberIds } }
+  });
+}

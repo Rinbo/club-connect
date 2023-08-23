@@ -15,6 +15,11 @@ import ConfirmationModal from '~/components/modal/confirmation-modal';
 import { AiOutlineDelete } from 'react-icons/ai';
 import { IoIosRemoveCircleOutline } from 'react-icons/io';
 
+const ERROR_MESSAGE = 'Could not add member';
+
+export type AddMemberModel = { clubUserId: string; teamRole: TeamRoleType };
+export const FORM_DATA_KEY = 'members';
+
 type TeamUser = {
   teamUserId: string;
   teamRoles: TeamRole[];
@@ -49,10 +54,6 @@ export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs
 
   return json({ teamUsers });
 };
-
-export type AddMemberRequest = { clubUserId: string; teamRole: TeamRoleType };
-export const FORM_DATA_KEY = 'members';
-const ERROR_MESSAGE = 'Could not add member';
 
 export const action = async ({ request, params: { clubId, teamId } }: ActionArgs) => {
   invariant(clubId, 'clubId missing in route');
@@ -96,11 +97,11 @@ async function removeMembers(formDataValue: string, teamId: string) {
 function isTeamRole(value: any): value is TeamRoleType {
   return Object.values(TeamRole).includes(value);
 }
-function isMemberDto(data: any): data is AddMemberRequest {
+function isMemberDto(data: any): data is AddMemberModel {
   return typeof data.clubUserId === 'string' && typeof data.teamRole === 'string' && isTeamRole(data.teamRole);
 }
 
-function isMemberDtoArray(data: any[]): data is AddMemberRequest[] {
+function isMemberDtoArray(data: any[]): data is AddMemberModel[] {
   return data.every(item => isMemberDto(item));
 }
 

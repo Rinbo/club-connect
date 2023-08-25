@@ -17,8 +17,15 @@ import { IoIosRemoveCircleOutline } from 'react-icons/io';
 
 const ERROR_MESSAGE = 'Could not add member';
 
-export type AddMemberModel = { clubUserId: string; teamRole: TeamRoleType };
+export type TeamMemberModel = { clubUserId: string; teamRole: TeamRoleType };
 export const FORM_DATA_KEY = 'members';
+
+const TeamRoleMap = {
+  [TeamRole.TEAM_LEADER]: 'Leaders',
+  [TeamRole.TEAM_PLAYER]: 'Players',
+  [TeamRole.TEAM_WEBMASTER]: 'Webmasters',
+  [TeamRole.TEAM_PARENT]: 'Parents'
+};
 
 type TeamUser = {
   teamUserId: string;
@@ -31,6 +38,7 @@ type TeamUser = {
   createdAt: string;
   isSelected: boolean;
 };
+
 export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs) => {
   invariant(clubId, 'clubId missing in route');
   invariant(teamId, 'teamId missing in route');
@@ -97,11 +105,11 @@ async function removeMembers(formDataValue: string, teamId: string) {
 function isTeamRole(value: any): value is TeamRoleType {
   return Object.values(TeamRole).includes(value);
 }
-function isMemberDto(data: any): data is AddMemberModel {
+function isMemberDto(data: any): data is TeamMemberModel {
   return typeof data.clubUserId === 'string' && typeof data.teamRole === 'string' && isTeamRole(data.teamRole);
 }
 
-function isMemberDtoArray(data: any[]): data is AddMemberModel[] {
+function isMemberDtoArray(data: any[]): data is TeamMemberModel[] {
   return data.every(item => isMemberDto(item));
 }
 
@@ -119,6 +127,15 @@ export default function TeamMembers() {
 
   const nonSelected = React.useMemo(() => !teamUsers.some(u => u.isSelected), [teamUsers]);
   const clubUserIds: string[] = React.useMemo(() => teamUsers.map(({ clubUserId }) => clubUserId), [teamUsers]);
+
+  const teamUserMap: Map<TeamRoleType, TeamUser[]> = React.useMemo(() => {
+    const map: Map<TeamRoleType, TeamUser[]> = new Map();
+    Object.values(TeamRole).forEach((role: TeamRoleType) => map.set(role, []));
+    map.forEach((users, role) => {
+      teamUsers.forEach(user => user.teamRoles.includes(role) && users.push(user));
+    });
+    return map;
+  }, [teamUsers]);
 
   const handleAllSelected = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -193,7 +210,7 @@ export default function TeamMembers() {
       <main className={'py-4'}>
         <div>
           <div className="overflow-x-auto">
-            <table className="table">
+            <table className="table table-pin-rows">
               <thead>
                 <tr>
                   {clubUserRoles.isAdmin && (
@@ -210,60 +227,95 @@ export default function TeamMembers() {
                   <th></th>
                 </tr>
               </thead>
-              <tbody>
-                {teamUsers.map(({ teamUserId, teamRoles, userId, name, email, imageUrl, createdAt, isSelected }) => (
-                  <tr key={teamUserId}>
-                    {clubUserRoles.isAdmin && (
-                      <th>
-                        <label>
-                          <input type="checkbox" checked={isSelected} onChange={e => handleSelect(e, teamUserId)} className="checkbox" />
-                        </label>
-                      </th>
-                    )}
-                    <td>
-                      <div className="flex items-center space-x-3">
-                        <div className="avatar">
-                          <div className="mask mask-squircle h-12 w-12">
-                            <img src={imageUrl ? imageUrl : getGravatarUrl(email)} alt="User" />
-                          </div>
-                        </div>
-                        <div>
-                          <div className="font-bold">{name}</div>
-                          <div className="text-sm opacity-50">City</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      {teamRoles.map(role => (
-                        <span key={`${role}-${teamUserId}`} className="badge badge-ghost badge-sm">
-                          {role}
-                        </span>
-                      ))}
-                    </td>
-                    <td>{new Date(createdAt).toDateString()}</td>
-                    <th>
-                      <Link to={`/clubs/${clubId}/users/${userId}`} key={`link-${teamUserId}`} className={'btn btn-ghost btn-xs'}>
-                        Details
-                      </Link>
-                    </th>
-                    <th>
-                      <ConfirmationModal
-                        message={'Are you sure?'}
-                        onSubmit={() => onSingleUserRemoval(teamUserId)}
-                        title={'Remove user from team'}
-                      >
-                        <button className={'btn btn-ghost'} onClick={() => onSingleUserRemoval(teamUserId)}>
-                          <IoIosRemoveCircleOutline />
-                        </button>
-                      </ConfirmationModal>
-                    </th>
-                  </tr>
-                ))}
-              </tbody>
+              {Array.from(teamUserMap.entries()).map(([role, users]) => {
+                return (
+                  users.length > 0 && (
+                    <React.Fragment key={role}>
+                      <thead>
+                        <tr>
+                          <th>{TeamRoleMap[role]}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {users.map(teamUser => (
+                          <TableRow
+                            key={teamUser.teamUserId}
+                            teamUser={teamUser}
+                            clubId={clubId}
+                            isAdmin={clubUserRoles.isAdmin}
+                            handleSelect={handleSelect}
+                            onSingleUserRemoval={onSingleUserRemoval}
+                          />
+                        ))}
+                      </tbody>
+                    </React.Fragment>
+                  )
+                );
+              })}
             </table>
           </div>
         </div>
       </main>
     </React.Fragment>
+  );
+}
+
+type TableRowProp = {
+  teamUser: TeamUser;
+  clubId: string | undefined;
+  isAdmin: boolean;
+  handleSelect: (event: React.ChangeEvent<HTMLInputElement>, teamUserId: string) => void;
+  onSingleUserRemoval: (teamUserId: string) => void;
+};
+function TableRow({
+  teamUser: { teamUserId, teamRoles, userId, name, email, imageUrl, createdAt, isSelected },
+  clubId,
+  isAdmin,
+  handleSelect,
+  onSingleUserRemoval
+}: TableRowProp) {
+  return (
+    <tr>
+      {isAdmin && (
+        <th>
+          <label>
+            <input type="checkbox" checked={isSelected} onChange={e => handleSelect(e, teamUserId)} className="checkbox" />
+          </label>
+        </th>
+      )}
+      <td>
+        <div className="flex items-center space-x-3">
+          <div className="avatar">
+            <div className="mask mask-squircle h-12 w-12">
+              <img src={imageUrl ? imageUrl : getGravatarUrl(email)} alt="User" />
+            </div>
+          </div>
+          <div>
+            <div className="font-bold">{name}</div>
+            <div className="text-sm opacity-50">City</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        {teamRoles.map(role => (
+          <span key={`${role}-${teamUserId}`} className="badge badge-ghost badge-sm">
+            {role}
+          </span>
+        ))}
+      </td>
+      <td>{new Date(createdAt).toDateString()}</td>
+      <th>
+        <Link to={`/clubs/${clubId}/users/${userId}`} key={`link-${teamUserId}`} className={'btn btn-ghost btn-xs'}>
+          Details
+        </Link>
+      </th>
+      <th>
+        <ConfirmationModal message={'Are you sure?'} onSubmit={() => onSingleUserRemoval(teamUserId)} title={'Remove user from team'}>
+          <button className={'btn btn-ghost'}>
+            <IoIosRemoveCircleOutline />
+          </button>
+        </ConfirmationModal>
+      </th>
+    </tr>
   );
 }

@@ -1,5 +1,5 @@
 import { prisma } from '~/db.server';
-import type { AddMemberModel } from '~/routes/clubs.$clubId.teams.$teamId.members/route';
+import type { TeamMemberModel } from '~/routes/clubs.$clubId.teams.$teamId.members/route';
 
 export async function findTeamsByClubId(clubId: string, skip: number, take: number) {
   return prisma.team.findMany({
@@ -33,7 +33,7 @@ export async function deleteTeam(id: string) {
 
 /** Team Members **/
 
-export async function createTeamMembers(teamMembers: AddMemberModel[], teamId: string) {
+export async function createTeamMembers(teamMembers: TeamMemberModel[], teamId: string) {
   return prisma.teamUser.createMany({
     data: teamMembers.map(member => ({ clubUserId: member.clubUserId, teamRoles: [member.teamRole], teamId }))
   });

@@ -4,8 +4,8 @@ import invariant from 'tiny-invariant';
 import { requireClubAdmin, requireClubUser } from '~/session.server';
 import { createTeamMembers, deleteTeamMembers, getTeamUsersByTeamId } from '~/models/team.server';
 import { Link, useFetcher, useLoaderData, useParams } from '@remix-run/react';
-import React from 'react';
-import ResourceContextMenu, { EditLink } from '~/components/nav/resource-context-menu';
+import React, { useRef } from 'react';
+import ResourceContextMenu from '~/components/nav/resource-context-menu';
 import AddMembersModal from '~/routes/clubs.$clubId.teams.$teamId.members/add-members-modal';
 import { errorFlash, useClubUserRoles } from '~/loader-utils';
 import { getGravatarUrl } from '~/misc-utils';
@@ -14,6 +14,8 @@ import type { TeamRole as TeamRoleType } from '@prisma/client';
 import ConfirmationModal from '~/components/modal/confirmation-modal';
 import { AiOutlineDelete } from 'react-icons/ai';
 import { IoIosRemoveCircleOutline } from 'react-icons/io';
+import { LuEdit } from 'react-icons/lu';
+import useCustomToast, { Flash } from '~/hooks/useCustomToast';
 
 const ERROR_MESSAGE = 'Could not add member';
 
@@ -178,11 +180,9 @@ export default function TeamMembers() {
   );
 
   const contextMenu = (
-    <ResourceContextMenu backButton>
+    <ResourceContextMenu>
       {clubUserRoles.isAdmin && (
         <React.Fragment>
-          {/*//TODO move edit this to home tab instead*/}
-          <EditLink to={`/clubs/${clubId}/teams/${teamId}/edit`} />
           <AddMembersModal postAction={action} existingClubUserIds={clubUserIds} />
           <ConfirmationModal
             title={'Remove users from team'}
@@ -197,8 +197,6 @@ export default function TeamMembers() {
               </div>
             </li>
           </ConfirmationModal>
-          {/*//TODO move delete team to home tab instead?*/}
-          {/*<DeleteResourceModal action={`/clubs/${clubId}/teams/${teamId}/delete`} message={'Are you sure you want to delete this team?'} />*/}
         </React.Fragment>
       )}
     </ResourceContextMenu>
@@ -267,19 +265,18 @@ type TableRowProp = {
   handleSelect: (event: React.ChangeEvent<HTMLInputElement>, teamUserId: string) => void;
   onSingleUserRemoval: (teamUserId: string) => void;
 };
-function TableRow({
-  teamUser: { teamUserId, teamRoles, userId, name, email, imageUrl, createdAt, isSelected },
-  clubId,
-  isAdmin,
-  handleSelect,
-  onSingleUserRemoval
-}: TableRowProp) {
+function TableRow({ teamUser, clubId, isAdmin, handleSelect, onSingleUserRemoval }: TableRowProp) {
   return (
     <tr>
       {isAdmin && (
         <th>
           <label>
-            <input type="checkbox" checked={isSelected} onChange={e => handleSelect(e, teamUserId)} className="checkbox" />
+            <input
+              type="checkbox"
+              checked={teamUser.isSelected}
+              onChange={e => handleSelect(e, teamUser.teamUserId)}
+              className="checkbox"
+            />
           </label>
         </th>
       )}
@@ -287,35 +284,99 @@ function TableRow({
         <div className="flex items-center space-x-3">
           <div className="avatar">
             <div className="mask mask-squircle h-12 w-12">
-              <img src={imageUrl ? imageUrl : getGravatarUrl(email)} alt="User" />
+              <img src={teamUser.imageUrl ? teamUser.imageUrl : getGravatarUrl(teamUser.email)} alt="User" />
             </div>
           </div>
           <div>
-            <div className="font-bold">{name}</div>
+            <div className="font-bold">{teamUser.name}</div>
             <div className="text-sm opacity-50">City</div>
           </div>
         </div>
       </td>
       <td>
-        {teamRoles.map(role => (
-          <span key={`${role}-${teamUserId}`} className="badge badge-ghost badge-sm">
-            {role}
-          </span>
-        ))}
+        <span className={'flex items-center gap-2'}>
+          {teamUser.teamRoles.map(role => (
+            <span key={`${role}-${teamUser.teamUserId}`} className="badge badge-ghost badge-sm">
+              {role}
+            </span>
+          ))}
+
+          {isAdmin && <EditTeamRolesModal teamUser={teamUser} />}
+        </span>
       </td>
-      <td>{new Date(createdAt).toDateString()}</td>
+      <td>{new Date(teamUser.createdAt).toDateString()}</td>
       <th>
-        <Link to={`/clubs/${clubId}/users/${userId}`} key={`link-${teamUserId}`} className={'btn btn-ghost btn-xs'}>
+        <Link to={`/clubs/${clubId}/users/${teamUser.userId}`} key={`link-${teamUser.teamUserId}`} className={'btn btn-ghost btn-xs'}>
           Details
         </Link>
       </th>
       <th>
-        <ConfirmationModal message={'Are you sure?'} onSubmit={() => onSingleUserRemoval(teamUserId)} title={'Remove user from team'}>
+        <ConfirmationModal
+          message={'Are you sure?'}
+          onSubmit={() => onSingleUserRemoval(teamUser.teamUserId)}
+          title={'Remove user from team'}
+        >
           <button className={'btn btn-ghost'}>
             <IoIosRemoveCircleOutline />
           </button>
         </ConfirmationModal>
       </th>
     </tr>
+  );
+}
+
+function EditTeamRolesModal({ teamUser }: { teamUser: TeamUser }) {
+  const fetcher = useFetcher<{ flash?: Flash } | undefined>();
+  const modalRef = useRef<HTMLDialogElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const { clubId, teamId } = useParams();
+
+  useCustomToast(fetcher.data?.flash);
+
+  function closeModal() {
+    formRef.current?.reset();
+    modalRef.current?.close();
+  }
+
+  return (
+    <div className={'cancel-animations'}>
+      <button className={'btn btn-ghost'} onClick={() => modalRef.current?.showModal()}>
+        <LuEdit />
+      </button>
+      <dialog id="modal-delete-image" ref={modalRef} className="cancel-animations modal">
+        <div className="modal-box">
+          <h3 className="mb-2 text-lg font-bold">{`Edit ${teamUser.name}'s team role`}</h3>
+          <div className={'my-2'}>Select Role</div>
+          <fetcher.Form ref={formRef} method={'post'} action={`/clubs/${clubId}/teams/${teamId}/edit-role`}>
+            <div className={'flex flex-col gap-2'}>
+              <div className={'form-control mb-4'}>
+                <input hidden readOnly name="team-user-id" id="team-user-id" />
+                <select
+                  id={'team-role'}
+                  name={'team-role'}
+                  defaultValue={teamUser.teamRoles.length > 0 ? teamUser.teamRoles[0] : undefined}
+                  className={'select select-bordered select-sm w-full'}
+                >
+                  {Object.values(TeamRole).map(option => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </select>
+              </div>
+              <div className={'flex gap-2'}>
+                <button type="button" className={'btn'} onClick={closeModal}>
+                  Cancel
+                </button>
+                <button type={'submit'} className={'btn btn-warning float-right'}>
+                  Save
+                </button>
+              </div>
+            </div>
+          </fetcher.Form>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+    </div>
   );
 }

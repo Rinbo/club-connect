@@ -1,5 +1,6 @@
 import { prisma } from '~/db.server';
 import type { TeamMemberModel } from '~/routes/clubs.$clubId.teams.$teamId.members/route';
+import { TeamRole } from '.prisma/client';
 
 export async function findTeamsByClubId(clubId: string, skip: number, take: number) {
   return prisma.team.findMany({
@@ -45,5 +46,12 @@ export async function getTeamUsersByTeamId(teamId: string) {
 export async function deleteTeamMembers(memberIds: string[], teamId: string) {
   return prisma.teamUser.deleteMany({
     where: { teamId, id: { in: memberIds } }
+  });
+}
+
+export async function updateTeamUserRole(id: string, teamId: string, teamRole: TeamRole) {
+  return prisma.teamUser.update({
+    where: { teamId, id },
+    data: { teamRoles: [teamRole] }
   });
 }

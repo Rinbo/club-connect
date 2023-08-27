@@ -15,7 +15,8 @@ import ConfirmationModal from '~/components/modal/confirmation-modal';
 import { AiOutlineDelete } from 'react-icons/ai';
 import { IoIosRemoveCircleOutline } from 'react-icons/io';
 import { LuEdit } from 'react-icons/lu';
-import useCustomToast, { Flash } from '~/hooks/useCustomToast';
+import type { Flash } from '~/hooks/useCustomToast';
+import useCustomToast from '~/hooks/useCustomToast';
 
 const ERROR_MESSAGE = 'Could not add member';
 
@@ -350,10 +351,10 @@ function EditTeamRolesModal({ teamUser }: { teamUser: TeamUser }) {
           <fetcher.Form ref={formRef} method={'post'} action={`/clubs/${clubId}/teams/${teamId}/edit-role`}>
             <div className={'flex flex-col gap-2'}>
               <div className={'form-control mb-4'}>
-                <input hidden readOnly name="team-user-id" id="team-user-id" />
+                <input hidden readOnly name={'teamUserId'} id="teamUserId" value={teamUser.teamUserId} />
                 <select
-                  id={'team-role'}
-                  name={'team-role'}
+                  id={'teamRole'}
+                  name={'teamRole'}
                   defaultValue={teamUser.teamRoles.length > 0 ? teamUser.teamRoles[0] : undefined}
                   className={'select select-bordered select-sm w-full'}
                 >

@@ -1,11 +1,11 @@
 import { useOutletContext } from 'react-router';
-import type { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId';
 import TeamForm, { teamSchema } from '~/components/form/team-form';
 import type { ActionArgs } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import { requireClubAdmin } from '~/session.server';
 import { updateTeam } from '~/models/team.server';
+import { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
 
 export const action = async ({ request, params: { clubId, teamId } }: ActionArgs) => {
   invariant(clubId, 'clubId missing in route');

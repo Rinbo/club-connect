@@ -1,7 +1,7 @@
-import type { ClientTeam } from '~/routes/clubs.$clubId.teams.$teamId';
 import { Form, useActionData, useNavigate } from '@remix-run/react';
 import TextInput from '~/components/form/text-input';
 import { object, string } from 'zod';
+import { ClientTeam } from '~/routes/clubs.$clubId.teams.$teamId/route';
 
 export type TeamFormActionData = {
   errors?: { name?: string[]; description?: string[] };

@@ -57,6 +57,7 @@ model ClubUser {
   clubRoles ClubRole[]
   ClubNews  ClubNews[]
   TeamUsers TeamUser[]
+  TeamNews  TeamNews[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -118,11 +119,36 @@ model Team {
   club        Club       @relation(fields: [clubId], references: [id], onDelete: Cascade)
   description String
   TeamUsers   TeamUser[]
+  TeamNews    TeamNews[]
   logoUrl     String?
 
   clubId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model TeamNews {
+  id        String             @id @default(cuid())
+  title     String
+  body      String
+  imageUrls TeamNewsImageUrl[]
+
+  team   Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  author ClubUser? @relation(fields: [clubUserId], references: [id])
+
+  teamId     String
+  clubUserId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TeamNewsImageUrl {
+  id  String @id @default(cuid())
+  url String
+
+  teamNews   TeamNews @relation(fields: [teamNewsId], references: [id], onDelete: Cascade)
+  teamNewsId String
 }
 
 model Note {

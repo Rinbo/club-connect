@@ -31,7 +31,7 @@ export default function DeleteResourceModal({ action, message }: { action: strin
           <h3 className="mb-2 text-lg font-bold">Delete Action</h3>
           <div>{message}</div>
           <fetcher.Form ref={formRef} method={'delete'} action={action}>
-            <div className={'flex justify-end gap-2'}>
+            <div className={'mt-6 flex justify-end gap-2'}>
               <button type="button" className={'btn'} onClick={closeModal}>
                 Cancel
               </button>

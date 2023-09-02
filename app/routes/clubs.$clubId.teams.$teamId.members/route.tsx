@@ -1,13 +1,13 @@
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
-import { requireClubAdmin, requireClubUser } from '~/session.server';
+import { requireClubUser, requireTeamLeader } from '~/session.server';
 import { createTeamMembers, deleteTeamMembers, getTeamUsersByTeamId } from '~/models/team.server';
 import { Link, useFetcher, useLoaderData, useParams } from '@remix-run/react';
 import React, { useRef } from 'react';
 import ResourceContextMenu from '~/components/nav/resource-context-menu';
 import AddMembersModal from '~/routes/clubs.$clubId.teams.$teamId.members/add-members-modal';
-import { errorFlash, useClubUserRoles } from '~/loader-utils';
+import { errorFlash } from '~/loader-utils';
 import { getGravatarUrl } from '~/misc-utils';
 import { TeamRole } from '.prisma/client';
 import type { TeamRole as TeamRoleType } from '@prisma/client';
@@ -17,6 +17,8 @@ import { IoIosRemoveCircleOutline } from 'react-icons/io';
 import { LuEdit } from 'react-icons/lu';
 import type { Flash } from '~/hooks/useCustomToast';
 import useCustomToast from '~/hooks/useCustomToast';
+import { useOutletContext } from 'react-router';
+import { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
 
 const ERROR_MESSAGE = 'Could not add member';
 
@@ -69,7 +71,7 @@ export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs
 export const action = async ({ request, params: { clubId, teamId } }: ActionArgs) => {
   invariant(clubId, 'clubId missing in route');
   invariant(teamId, 'teamId missing in route');
-  await requireClubAdmin(request, clubId);
+  await requireTeamLeader(request, clubId, teamId);
 
   const formData = await request.formData();
   const formDataValue = formData.get(FORM_DATA_KEY);
@@ -119,8 +121,8 @@ function isMemberDtoArray(data: any[]): data is TeamMemberModel[] {
 export default function TeamMembers() {
   const { clubId, teamId } = useParams();
   const fetcher = useFetcher();
-  const clubUserRoles = useClubUserRoles();
   const { teamUsers: serverUsers } = useLoaderData<{ teamUsers: TeamUser[] }>();
+  const { teamRoles } = useOutletContext<TeamContextType>();
   const action = `/clubs/${clubId}/teams/${teamId}/members`;
 
   const [allSelected, setAllSelected] = React.useState<boolean>(false);
@@ -182,7 +184,7 @@ export default function TeamMembers() {
 
   const contextMenu = (
     <ResourceContextMenu>
-      {clubUserRoles.isAdmin && (
+      {teamRoles.isTeamLeader && (
         <React.Fragment>
           <AddMembersModal postAction={action} existingClubUserIds={clubUserIds} />
           <ConfirmationModal
@@ -212,7 +214,7 @@ export default function TeamMembers() {
             <table className="table table-pin-rows">
               <thead>
                 <tr>
-                  {clubUserRoles.isAdmin && (
+                  {teamRoles.isTeamLeader && (
                     <th>
                       <label>
                         <input checked={allSelected} onChange={handleAllSelected} type="checkbox" className="checkbox" />
@@ -241,7 +243,7 @@ export default function TeamMembers() {
                             key={teamUser.teamUserId}
                             teamUser={teamUser}
                             clubId={clubId}
-                            isAdmin={clubUserRoles.isAdmin}
+                            isAdmin={teamRoles.isTeamLeader}
                             handleSelect={handleSelect}
                             onSingleUserRemoval={onSingleUserRemoval}
                           />

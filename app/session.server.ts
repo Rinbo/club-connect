@@ -3,7 +3,7 @@ import type { User, UserWithRoles } from '~/models/user.server';
 import { getUserById } from '~/models/user.server';
 
 import invariant from 'tiny-invariant';
-import { isClubAdmin, isClubOwner, isClubUser, isClubWebmaster } from '~/security/role-utils';
+import { isClubAdmin, isClubOwner, isClubUser, isClubWebmaster, isTeamLeader, isTeamUser, isTeamWebmaster } from '~/security/role-utils';
 import { getUserRoles, invalidateAuthorizationCache } from '~/security/authorization.server';
 
 invariant(process.env.SESSION_SECRET, 'SESSION_SECRET must be set');
@@ -23,6 +23,12 @@ export interface ClubUserRoles {
   isWebmaster: boolean;
   isAdmin: boolean;
   isOwner: boolean;
+}
+
+export interface TeamUserRoles {
+  isTeamUser: boolean;
+  isTeamWebmaster: boolean;
+  isTeamLeader: boolean;
 }
 
 const sessionStorage = createCookieSessionStorage<SessionData, SessionFlashData>({
@@ -99,10 +105,37 @@ export async function requireClubWebmaster(request: Request, clubId: string) {
   const userRoles = await getUserRoles(userId);
 
   if (!isClubWebmaster(userRoles.clubRoles, clubId)) {
-    throw redirect(`/clubs/${clubId}`);
+    throw redirect(`/clubs/${clubId}`, { status: 403 });
   }
 
   return userId;
+}
+
+export async function requireTeamLeader(request: Request, clubId: string, teamId: string) {
+  const teamRoles = await getTeamRoles(request, clubId, teamId);
+
+  if (!teamRoles.isTeamLeader) {
+    throw redirect(`/clubs/${clubId}/teams/${teamId}`, { status: 403 });
+  }
+}
+
+export async function requireTeamWebmaster(request: Request, clubId: string, teamId: string) {
+  const teamRoles = await getTeamRoles(request, clubId, teamId);
+
+  if (!teamRoles.isTeamWebmaster) {
+    throw redirect(`/clubs/${clubId}/teams/${teamId}`, { status: 403 });
+  }
+}
+
+export async function getTeamRoles(request: Request, clubId: string, teamId: string): Promise<TeamUserRoles> {
+  const userId = await requireUserId(request);
+  const userRoles = await getUserRoles(userId);
+
+  return {
+    isTeamUser: isTeamUser(userRoles.teamRoles, teamId) || isClubWebmaster(userRoles.clubRoles, clubId),
+    isTeamWebmaster: isTeamWebmaster(userRoles.teamRoles, teamId) || isClubWebmaster(userRoles.clubRoles, clubId),
+    isTeamLeader: isTeamLeader(userRoles.teamRoles, teamId) || isClubAdmin(userRoles.clubRoles, clubId)
+  };
 }
 
 export async function redirectIfSignedIn(request: Request) {

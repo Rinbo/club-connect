@@ -2,7 +2,7 @@ import { Outlet, useLoaderData } from '@remix-run/react';
 import type { LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
-import { requireClubUser } from '~/session.server';
+import { getTeamRoles, requireClubUser, TeamUserRoles } from '~/session.server';
 import { getTeamById } from '~/models/team.server';
 import type { Team } from '.prisma/client';
 
@@ -13,7 +13,7 @@ export type ClientTeam = Omit<Team, 'createdAt' | 'updatedAt'> & {
   updatedAt: string;
 };
 
-export type TeamContextType = { team: ClientTeam | null };
+export type TeamContextType = { team: ClientTeam | null; teamRoles: TeamUserRoles };
 
 export const handle = {
   isTeamRoute: true
@@ -25,11 +25,12 @@ export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs
   await requireClubUser(request, clubId);
 
   const team = await getTeamById(teamId);
+  const teamRoles: TeamUserRoles = await getTeamRoles(request, clubId, teamId);
 
-  return json({ team });
+  return json({ team, teamRoles });
 };
 
 export default function TeamLayout() {
-  const { team } = useLoaderData<typeof loader>();
-  return <Outlet context={{ team } satisfies TeamContextType} />;
+  const { team, teamRoles } = useLoaderData<typeof loader>();
+  return <Outlet context={{ team, teamRoles } satisfies TeamContextType} />;
 }

@@ -32,7 +32,7 @@ export async function deleteTeam(id: string) {
   return prisma.team.delete({ where: { id } });
 }
 
-/** Team Members **/
+/** Team Users **/
 
 export async function createTeamMembers(teamMembers: TeamMemberModel[], teamId: string) {
   return prisma.teamUser.createMany({
@@ -53,5 +53,11 @@ export async function updateTeamUserRole(id: string, teamId: string, teamRole: T
   return prisma.teamUser.update({
     where: { teamId, id },
     data: { teamRoles: [teamRole] }
+  });
+}
+
+export async function findTeamUsersByUserId(userId: string) {
+  return prisma.teamUser.findMany({
+    where: { clubUser: { userId } }
   });
 }

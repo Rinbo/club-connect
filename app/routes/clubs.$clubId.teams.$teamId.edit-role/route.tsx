@@ -1,7 +1,7 @@
 import type { ActionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
-import { requireClubAdmin } from '~/session.server';
+import { requireTeamLeader } from '~/session.server';
 import { nativeEnum, string, z } from 'zod';
 import type { TeamRole } from '.prisma/client';
 import { $Enums } from '.prisma/client';
@@ -18,7 +18,7 @@ const error = json({ flash: errorFlash('Edit roles failed') }, { status: 500 });
 export const action = async ({ request, params: { clubId, teamId } }: ActionArgs) => {
   invariant(clubId, 'clubId missing from route');
   invariant(teamId, 'teamId missing from route');
-  await requireClubAdmin(request, clubId);
+  await requireTeamLeader(request, clubId, teamId);
 
   const formData = await request.formData();
   const validation = teamRoleSchema.safeParse(Object.fromEntries(formData));

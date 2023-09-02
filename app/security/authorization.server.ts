@@ -1,10 +1,12 @@
 import { findClubUserByUserId } from '~/models/club-user.server';
 import type { ClubRole } from '@prisma/client';
 import { cache as authorizationCache } from '~/security/cache.server';
+import { findTeamUsersByUserId } from '~/models/team.server';
+import type { TeamRole } from '.prisma/client';
 
 type UserRoles = {
   clubRoles: Map<string, ClubRole[]>;
-  teamRoles: Map<string, string[]>;
+  teamRoles: Map<string, TeamRole[]>;
   parentRoles: Map<string, string[]>;
 };
 
@@ -15,10 +17,11 @@ export async function getUserRoles(userId: string): Promise<UserRoles> {
   if (cachedRoles) return cachedRoles;
 
   const clubRoleMap = await getClubUserRoles(userId);
+  const teamUserMap = await getTeamUserRoles(userId);
 
   const roles: UserRoles = {
     clubRoles: clubRoleMap,
-    teamRoles: new Map<string, string[]>(),
+    teamRoles: teamUserMap,
     parentRoles: new Map<string, string[]>()
   };
 
@@ -28,6 +31,14 @@ export async function getUserRoles(userId: string): Promise<UserRoles> {
 
 export function invalidateAuthorizationCache(userId: string) {
   authorizationCache.del(userId);
+}
+
+async function getTeamUserRoles(userId: string) {
+  const teamUsers = await findTeamUsersByUserId(userId);
+  const teamUserMap = new Map<string, TeamRole[]>();
+
+  teamUsers.forEach(teamUser => teamUserMap.set(teamUser.teamId, teamUser.teamRoles));
+  return teamUserMap;
 }
 
 async function getClubUserRoles(userId: string) {

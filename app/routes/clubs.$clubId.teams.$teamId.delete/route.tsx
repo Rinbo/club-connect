@@ -1,7 +1,7 @@
 import type { ActionArgs } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
 import invariant from 'tiny-invariant';
-import { requireClubAdmin } from '~/session.server';
+import { requireTeamLeader } from '~/session.server';
 import { errorFlash } from '~/loader-utils';
 import { getMessageOrDefault } from '~/misc-utils';
 import { deleteTeam } from '~/models/team.server';
@@ -9,7 +9,7 @@ import { deleteTeam } from '~/models/team.server';
 export const action = async ({ request, params: { clubId, teamId } }: ActionArgs) => {
   invariant(clubId, 'clubId missing in route');
   invariant(teamId, 'teamId missing in route');
-  await requireClubAdmin(request, clubId);
+  await requireTeamLeader(request, clubId, teamId);
 
   try {
     await deleteTeam(teamId);

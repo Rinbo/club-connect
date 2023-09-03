@@ -14,7 +14,7 @@ export default function UserCircle() {
   }
 
   return (
-    <div ref={divRef} className="dropdown dropdown-end">
+    <div ref={divRef} className="dropdown-end dropdown">
       <label tabIndex={0} className="avatar btn btn-circle btn-ghost">
         <div className="indicator">
           <AiOutlineUser size={30} />
@@ -24,7 +24,6 @@ export default function UserCircle() {
         <li>
           <Link to={'/dashboard/profile'} onClick={handleClick}>
             Profile
-            <span className="badge">New</span>
           </Link>
         </li>
         <li>

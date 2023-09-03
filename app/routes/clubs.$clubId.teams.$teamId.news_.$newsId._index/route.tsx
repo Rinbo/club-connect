@@ -1,27 +1,26 @@
-import { useParams } from '@remix-run/react';
-import React from 'react';
-import ImageModal from '~/components/image/image-modal';
+import { useLocation, useOutletContext } from 'react-router';
+import type { TeamNewsContext } from '~/routes/clubs.$clubId.teams.$teamId.news_.$newsId/route';
 import ResourceContextMenu, { EditLink } from '~/components/nav/resource-context-menu';
-import { useClubNewsItem, useClubUserRoles } from '~/loader-utils';
-import DeleteResourceModal from '~/components/delete/delete-resource-modal';
+import React from 'react';
 import ImageManagerModal from '~/components/image/image-manager-modal';
+import DeleteResourceModal from '~/components/delete/delete-resource-modal';
+import ImageModal from '~/components/image/image-modal';
 
-export default function ClubNewsItems() {
-  const { clubId, newsId } = useParams();
-  const newsItem = useClubNewsItem();
-  const clubUserRoles = useClubUserRoles();
+export default function TeamNewsItem() {
+  const { teamRoles, newsItem } = useOutletContext<TeamNewsContext>();
+  const { pathname } = useLocation();
 
   const contextMenu = (
     <ResourceContextMenu backButton>
-      {clubUserRoles.isWebmaster && (
+      {teamRoles.isTeamWebmaster && (
         <React.Fragment>
-          <EditLink to={`/clubs/${clubId}/news/${newsId}/edit`} />
+          <EditLink to={`${pathname}/edit`} />
           <ImageManagerModal
             imageUrls={newsItem.imageUrls}
-            postAction={`/clubs/${clubId}/news/${newsId}/add-images`}
-            deleteAction={`/clubs/${clubId}/news/delete-images`}
+            postAction={`${pathname}/add-images`}
+            deleteAction={`${pathname}/delete-images`}
           />
-          <DeleteResourceModal action={`/clubs/${clubId}/news/${newsId}/delete`} message={'Are you sure you want to delete this post?'} />
+          <DeleteResourceModal action={`${pathname}/delete`} message={'Are you sure you want to delete this post?'} />
         </React.Fragment>
       )}
     </ResourceContextMenu>
@@ -31,7 +30,7 @@ export default function ClubNewsItems() {
     <main>
       {contextMenu}
       <div className={'mb-4 flex justify-center py-2'}>
-        <div className="card card-compact w-full bg-base-100 shadow-xl lg:max-w-4xl">
+        <div className="card-compact card w-full bg-base-100 shadow-xl lg:max-w-4xl">
           {newsItem.imageUrls[0] && (
             <figure>
               <img src={newsItem.imageUrls[0].url} alt="news-item" className={'h-96 w-full rounded-t-lg object-cover'} />
@@ -40,7 +39,6 @@ export default function ClubNewsItems() {
           <div className="card-body">
             <div className={'flex flex-row flex-wrap items-center'}>
               <h2 className="card-title flex-grow items-baseline text-3xl">{newsItem.title}</h2>
-              <div className={'badge badge-neutral'}>{newsItem.isPublic ? 'Public' : 'Private'}</div>
             </div>
             <span className={'text-xs text-accent-content'}>{newsItem.author?.user.name}</span>
             <span className={'mb-2 text-xs italic'}>{new Date(newsItem.createdAt).toDateString()}</span>

@@ -12,6 +12,7 @@ export const loader = async ({ request, params: { clubId, newsId } }: LoaderArgs
 
   await requireClubUser(request, clubId);
 
+  //TODO use outlet context instead of making this a custom hook
   const newsItem = await getClubNewsById(newsId);
 
   return json({ newsItem });

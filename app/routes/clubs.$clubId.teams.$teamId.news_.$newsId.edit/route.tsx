@@ -1,19 +1,20 @@
-import { Form, useActionData, useNavigate } from '@remix-run/react';
-import TextInput from '~/components/form/text-input';
-import React from 'react';
-import TextArea from '~/components/form/text-area';
-import Toggle from '~/components/form/toggle';
-import type { ActionArgs } from '@remix-run/node';
-import { json, redirect } from '@remix-run/node';
-import invariant from 'tiny-invariant';
 import { object, string } from 'zod';
 import type { Flash } from '~/hooks/useCustomToast';
 import useCustomToast from '~/hooks/useCustomToast';
-import { errorFlash, useClubNewsItem } from '~/loader-utils';
-import { requireClubAdmin } from '~/session.server';
-import { updateClubNews } from '~/models/club-news.server';
+import type { ActionArgs } from '@remix-run/node';
+import { json, redirect } from '@remix-run/node';
+import invariant from 'tiny-invariant';
+import { requireTeamWebmaster } from '~/session.server';
+import { errorFlash } from '~/loader-utils';
+import { Form, useActionData, useNavigate } from '@remix-run/react';
+import React from 'react';
+import TextInput from '~/components/form/text-input';
+import TextArea from '~/components/form/text-area';
+import { useOutletContext } from 'react-router';
+import type { TeamNewsContext } from '~/routes/clubs.$clubId.teams.$teamId.news_.$newsId/route';
+import { updateTeamNews } from '~/models/team-news.server';
 
-const clubNewsSchema = object({
+const teamNewsSchema = object({
   title: string().min(2).max(60).trim(),
   body: string().nonempty().trim()
 });
@@ -23,21 +24,22 @@ type ActionData = {
   flash?: Flash;
 };
 
-export const action = async ({ request, params: { clubId, newsId } }: ActionArgs) => {
+export const action = async ({ request, params: { clubId, teamId, newsId } }: ActionArgs) => {
   invariant(clubId, 'clubId missing in routes');
+  invariant(teamId, 'teamId missing in routes');
   invariant(newsId, 'newsId missing in routes');
-  await requireClubAdmin(request, clubId);
+  await requireTeamWebmaster(request, clubId, teamId);
 
   const formData = await request.formData();
 
-  const validation = clubNewsSchema.safeParse(Object.fromEntries(formData));
+  const validation = teamNewsSchema.safeParse(Object.fromEntries(formData));
   if (!validation.success) return json({ errors: validation.error.flatten().fieldErrors }, { status: 400 });
 
   const { title, body } = validation.data;
 
   try {
-    const clubNewsItem = await updateClubNews(newsId, title, body, formData.get('isPublic') === 'on', clubId);
-    return redirect(`/clubs/${clubId}/news/${clubNewsItem.id}`);
+    const clubNewsItem = await updateTeamNews(newsId, title, body, teamId);
+    return redirect(`/clubs/${clubId}/teams/${teamId}/news/${clubNewsItem.id}`);
   } catch (e) {
     console.error(e);
     return json({ flash: errorFlash('Update failed') }, { status: 500 });
@@ -46,7 +48,7 @@ export const action = async ({ request, params: { clubId, newsId } }: ActionArgs
 
 export default function EditTeamNews() {
   const actionData = useActionData<ActionData>();
-  const newsItem = useClubNewsItem();
+  const { newsItem } = useOutletContext<TeamNewsContext>();
   const navigate = useNavigate();
 
   useCustomToast(actionData?.flash);
@@ -54,7 +56,7 @@ export default function EditTeamNews() {
   return (
     <React.Fragment>
       <section className={'flex justify-center py-4'}>
-        <Form method={'post'} className={'w-full max-w-4xl'}>
+        <Form replace method={'post'} className={'w-full max-w-4xl'}>
           <TextInput
             label={'Title'}
             name={'title'}
@@ -64,7 +66,6 @@ export default function EditTeamNews() {
             errors={actionData?.errors?.title}
           />
           <TextArea label={'Body'} name={'body'} id={'body'} defaultValue={newsItem.body} errors={actionData?.errors?.body} />
-          <Toggle label={'Publicly viewable'} name={'isPublic'} id={'isPublic'} defaultChecked={newsItem.isPublic} />
           <button onClick={() => navigate(-1)} type={'button'} className={'btn float-left mt-2'}>
             Cancel
           </button>

@@ -24,6 +24,8 @@ const s3 = new AWS.S3({
 });
 
 export const createS3NewsItemKeyPath = (clubId: string, clubNewsItemId: string) => `clubs/${clubId}/club-news/${clubNewsItemId}`;
+export const createS3TeamNewsItemKeyPath = (clubId: string, teamId: string, teamNewsItemId: string) =>
+  `clubs/${clubId}/teams/${teamId}/team-news/${teamNewsItemId}`;
 
 export function mapImageUrlsToS3ObjectKey(urls: string[]): string[] {
   return urls.map(url => decodeURIComponent(new URL(url).pathname.slice(1)));

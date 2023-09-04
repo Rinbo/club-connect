@@ -51,13 +51,14 @@ enum ClubRole {
 }
 
 model ClubUser {
-  id        String     @id @default(cuid())
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  club      Club       @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  clubRoles ClubRole[]
-  ClubNews  ClubNews[]
-  TeamUsers TeamUser[]
-  TeamNews  TeamNews[]
+  id             String         @id @default(cuid())
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  club           Club           @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubRoles      ClubRole[]
+  ClubNews       ClubNews[]
+  TeamUsers      TeamUser[]
+  TeamNews       TeamNews[]
+  teamActivities TeamActivity[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -114,13 +115,15 @@ model TeamUser {
 }
 
 model Team {
-  id          String     @id @default(cuid())
-  name        String
-  club        Club       @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  description String
-  TeamUsers   TeamUser[]
-  TeamNews    TeamNews[]
-  logoUrl     String?
+  id             String         @id @default(cuid())
+  name           String
+  club           Club           @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  description    String
+  TeamUsers      TeamUser[]
+  TeamNews       TeamNews[]
+  teamActivities TeamActivity[]
+  trainingTimes  TrainingTime[]
+  logoUrl        String?
 
   clubId    String
   createdAt DateTime @default(now())
@@ -149,6 +152,50 @@ model TeamNewsImageUrl {
 
   teamNews   TeamNews @relation(fields: [teamNewsId], references: [id], onDelete: Cascade)
   teamNewsId String
+}
+
+enum TeamActivityType {
+  COMPETITION
+  SOCIAL
+  TRAINING
+}
+
+model TeamActivity {
+  id          String           @id @default(cuid())
+  location    String
+  description String?
+  type        TeamActivityType
+  startTime   DateTime
+  endTime     DateTime
+  present     ClubUser[]
+
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum WeekDay {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
+model TrainingTime {
+  id        String  @id @default(cuid())
+  location  String
+  weekDay   WeekDay
+  startTime String
+  endTime   String
+
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Note {

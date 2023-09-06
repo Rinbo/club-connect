@@ -18,7 +18,7 @@ import { LuEdit } from 'react-icons/lu';
 import type { Flash } from '~/hooks/useCustomToast';
 import useCustomToast from '~/hooks/useCustomToast';
 import { useOutletContext } from 'react-router';
-import { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
+import type { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
 
 const ERROR_MESSAGE = 'Could not add member';
 

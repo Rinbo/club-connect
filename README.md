@@ -19,3 +19,6 @@ Teams will have to have training times for the schedule
         - So you do this on team home page? Is that intuitive?
         - I don't like it. Or maybe put it there at first and see if it fits better somewhere else later?
     - Will training time have any relation to activity? (I would say no)
+
+- Add two sections to schedule tab. One for adding training times. And one for adding activities.
+  - In the schedule it would be nice if a training event could be synced with an activity. 

@@ -38,10 +38,10 @@ export default function TeamSchedule() {
   return (
     <main>
       {teamRoles.isTeamLeader && contextMenu}
-      <div className={'mb-4 flex flex-wrap justify-center gap-3 py-2'}>
+      <section>
         <h1 className={'text-center text-2xl'}>Schedule</h1>
         <TrainingTimeIsland trainingTimes={trainingTimes} />
-      </div>
+      </section>
     </main>
   );
 }

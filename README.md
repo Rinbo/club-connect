@@ -22,3 +22,9 @@ Teams will have to have training times for the schedule
 
 - Add two sections to schedule tab. One for adding training times. And one for adding activities.
   - In the schedule it would be nice if a training event could be synced with an activity. 
+
+Lets make this island
+ - Displays all training times which it gets from root route loader
+ - Has an add button which brings up modal that points to /training-time POST
+ - Each training time has an edit button which brings up modal to exit /training-time PATCH
+ - Each training time has a remove button which brings up confirmation modal hitting /training-time DELETE

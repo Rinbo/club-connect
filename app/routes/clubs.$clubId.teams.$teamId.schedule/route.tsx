@@ -39,7 +39,6 @@ export default function TeamSchedule() {
     <main>
       {teamRoles.isTeamLeader && contextMenu}
       <section>
-        <h1 className={'text-center text-2xl'}>Schedule</h1>
         <TrainingTimeIsland trainingTimes={trainingTimes} />
       </section>
     </main>

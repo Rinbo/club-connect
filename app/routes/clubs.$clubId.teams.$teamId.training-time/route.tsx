@@ -4,13 +4,14 @@ import invariant from 'tiny-invariant';
 import { requireTeamLeader } from '~/session.server';
 import { nativeEnum, string, z } from 'zod';
 import { $Enums } from '.prisma/client';
-import { createTrainingTime } from '~/models/training-time.server';
+import { createTrainingTime, deleteTrainingTimeById } from '~/models/training-time.server';
 import { errorFlash } from '~/loader-utils';
 import { getMessageOrDefault } from '~/misc-utils';
 import type { Flash } from '~/hooks/useCustomToast';
 import WeekDay = $Enums.WeekDay;
 
 const trainingTimeSchema = z.object({
+  trainingTimeId: string().optional(),
   weekDay: nativeEnum(WeekDay),
   startTime: string().length(5),
   endTime: string().length(5),
@@ -31,6 +32,11 @@ export const action = async ({ request, params: { clubId, teamId } }: ActionArgs
   switch (request.method) {
     case 'POST':
       return post(request, teamId);
+    case 'PATCH':
+      return patch(request, teamId);
+    case 'DELETE':
+      return remove(request, teamId);
+
     default:
       throw new Error('route not implemented');
   }
@@ -55,6 +61,27 @@ async function post(request: Request, teamId: string) {
     return json({ ok: true });
   } catch (e) {
     return json({ flash: errorFlash(getMessageOrDefault(e, 'Create failed')) }, { status: 500 });
+  }
+}
+
+async function patch(request: Request, teamId: string) {
+  console.log('Hello');
+  return json({ ok: true });
+}
+
+async function remove(request: Request, teamId: string) {
+  const formData = await request.formData();
+  const trainingTimeId = formData.get('trainingTimeId');
+
+  if (typeof trainingTimeId !== 'string') {
+    return json({ flash: errorFlash('Delete failed') }, { status: 500 });
+  }
+
+  try {
+    await deleteTrainingTimeById(trainingTimeId);
+    return json({ ok: true });
+  } catch (e) {
+    return json({ flash: errorFlash(getMessageOrDefault(e, 'Delete failed')) }, { status: 500 });
   }
 }
 

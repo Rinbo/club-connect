@@ -5,10 +5,10 @@ import { $Enums } from '.prisma/client';
 import type { TrainingTimeFetcherData } from '~/routes/clubs.$clubId.teams.$teamId.training-time/route';
 import useCustomToast from '~/hooks/useCustomToast';
 import { IoIosRemoveCircleOutline } from 'react-icons/io';
-import { LuEdit } from 'react-icons/lu';
 import ConfirmationModal from '~/components/modal/confirmation-modal';
 import { useOutletContext } from 'react-router';
 import type { TeamContextType, TrainingTime } from '~/routes/clubs.$clubId.teams.$teamId/route';
+import { BiEdit } from 'react-icons/bi';
 import WeekDay = $Enums.WeekDay;
 
 type Props = { trainingTimes: TrainingTime[] };
@@ -46,7 +46,7 @@ export default function TrainingTimeIsland({ trainingTimes }: Props) {
             {teamRoles.isTeamLeader && (
               <span className={'flex items-center'}>
                 <TrainingTimeModal method={'patch'} defaultTrainingTime={trainingTime}>
-                  <LuEdit />
+                  <BiEdit />
                 </TrainingTimeModal>
                 <ConfirmationModal
                   message={'Are you sure you want to delete training time?'}

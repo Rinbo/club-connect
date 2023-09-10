@@ -14,11 +14,11 @@ import type { TeamRole as TeamRoleType } from '@prisma/client';
 import ConfirmationModal from '~/components/modal/confirmation-modal';
 import { AiOutlineDelete } from 'react-icons/ai';
 import { IoIosRemoveCircleOutline } from 'react-icons/io';
-import { LuEdit } from 'react-icons/lu';
 import type { Flash } from '~/hooks/useCustomToast';
 import useCustomToast from '~/hooks/useCustomToast';
 import { useOutletContext } from 'react-router';
 import type { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
+import { BiEdit } from 'react-icons/bi';
 
 const ERROR_MESSAGE = 'Could not add member';
 
@@ -344,7 +344,7 @@ function EditTeamRolesModal({ teamUser }: { teamUser: TeamUser }) {
   return (
     <div className={'cancel-animations'}>
       <button className={'btn btn-ghost'} onClick={() => modalRef.current?.showModal()}>
-        <LuEdit />
+        <BiEdit />
       </button>
       <dialog id="modal-delete-image" ref={modalRef} className="cancel-animations modal">
         <div className="modal-box">

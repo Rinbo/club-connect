@@ -4,9 +4,10 @@ import type { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route
 import ResourceContextMenu, { EditLink } from '~/components/nav/resource-context-menu';
 import { useParams } from '@remix-run/react';
 import DeleteResourceModal from '~/components/delete/delete-resource-modal';
+import TrainingTimeIsland from '~/routes/clubs.$clubId.teams.$teamId.schedule/training-time-island';
 
 export default function Team() {
-  const { team, teamRoles } = useOutletContext<TeamContextType>();
+  const { teamRoles, trainingTimes } = useOutletContext<TeamContextType>();
   const { clubId, teamId } = useParams();
 
   const contextMenu = (
@@ -23,7 +24,7 @@ export default function Team() {
   return (
     <main>
       {teamRoles.isTeamWebmaster && contextMenu}
-      <div>{JSON.stringify(team, null, 2)}</div>
+      <TrainingTimeIsland trainingTimes={trainingTimes} />
     </main>
   );
 }

@@ -1,4 +1,5 @@
-import { ActionArgs, json } from '@remix-run/node';
+import type { ActionArgs } from '@remix-run/node';
+import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import { requireTeamWebmaster } from '~/session.server';
 import { createS3StandardImageUploadHandler, createS3TeamNewsItemKeyPath } from '~/s3-utils';

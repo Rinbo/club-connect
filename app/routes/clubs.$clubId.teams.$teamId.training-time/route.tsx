@@ -4,8 +4,8 @@ import invariant from 'tiny-invariant';
 import { requireTeamLeader } from '~/session.server';
 import { nativeEnum, string, z } from 'zod';
 import { $Enums } from '.prisma/client';
-import { createTrainingTime, deleteTrainingTimeById } from '~/models/training-time.server';
-import { errorFlash } from '~/loader-utils';
+import { createTrainingTime, deleteTrainingTimeById, updateTrainingTime } from '~/models/training-time.server';
+import { errorFlash, successFlash } from '~/loader-utils';
 import { getMessageOrDefault } from '~/misc-utils';
 import type { Flash } from '~/hooks/useCustomToast';
 import WeekDay = $Enums.WeekDay;
@@ -33,7 +33,7 @@ export const action = async ({ request, params: { clubId, teamId } }: ActionArgs
     case 'POST':
       return post(request, teamId);
     case 'PATCH':
-      return patch(request, teamId);
+      return patch(request);
     case 'DELETE':
       return remove(request, teamId);
 
@@ -58,15 +58,32 @@ async function post(request: Request, teamId: string) {
 
   try {
     await createTrainingTime(weekDay, startTime, endTime, location, teamId);
-    return json({ ok: true });
+    return json({ ok: true, flash: successFlash('Training time created') });
   } catch (e) {
     return json({ flash: errorFlash(getMessageOrDefault(e, 'Create failed')) }, { status: 500 });
   }
 }
 
-async function patch(request: Request, teamId: string) {
-  console.log('Hello');
-  return json({ ok: true });
+async function patch(request: Request) {
+  const formData = await request.formData();
+  const validation = trainingTimeSchema.safeParse(Object.fromEntries(formData));
+
+  if (!validation.success) {
+    return json({ errors: validation.error.flatten().fieldErrors }, { status: 400 });
+  }
+
+  const { trainingTimeId, weekDay, startTime, endTime, location } = validation.data;
+
+  if (getDate(startTime) >= getDate(endTime)) {
+    return json({ flash: errorFlash('Start time must come before end time') }, { status: 400 });
+  }
+
+  try {
+    await updateTrainingTime(trainingTimeId, weekDay, startTime, endTime, location);
+    return json({ ok: true, flash: successFlash('Training time updated') });
+  } catch (e) {
+    return json({ flash: errorFlash(getMessageOrDefault(e, 'Update failed')) }, { status: 500 });
+  }
 }
 
 async function remove(request: Request, teamId: string) {
@@ -79,7 +96,7 @@ async function remove(request: Request, teamId: string) {
 
   try {
     await deleteTrainingTimeById(trainingTimeId);
-    return json({ ok: true });
+    return json({ ok: true, flash: successFlash('Training time deleted') });
   } catch (e) {
     return json({ flash: errorFlash(getMessageOrDefault(e, 'Delete failed')) }, { status: 500 });
   }

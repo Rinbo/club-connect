@@ -12,6 +12,13 @@ export async function createTrainingTime(weekDay: WeekDay, startTime: string, en
   });
 }
 
+export async function updateTrainingTime(id: string | undefined, weekDay: WeekDay, startTime: string, endTime: string, location: string) {
+  return prisma.trainingTime.update({
+    where: { id },
+    data: { weekDay, startTime, endTime, location }
+  });
+}
+
 export async function deleteTrainingTimeById(id: string) {
   return prisma.trainingTime.delete({ where: { id } });
 }

@@ -1,4 +1,5 @@
-import { ActionArgs, json, redirect } from '@remix-run/node';
+import type { ActionArgs } from '@remix-run/node';
+import { json, redirect } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import { requireTeamWebmaster } from '~/session.server';
 import { errorFlash } from '~/loader-utils';

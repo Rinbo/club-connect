@@ -1,4 +1,3 @@
-import type { TrainingTime } from '~/routes/clubs.$clubId.teams.$teamId.schedule/route';
 import React, { useEffect, useRef } from 'react';
 import { MdAddCircleOutline } from 'react-icons/md';
 import { useFetcher, useParams } from '@remix-run/react';
@@ -9,7 +8,7 @@ import { IoIosRemoveCircleOutline } from 'react-icons/io';
 import { LuEdit } from 'react-icons/lu';
 import ConfirmationModal from '~/components/modal/confirmation-modal';
 import { useOutletContext } from 'react-router';
-import type { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
+import type { TeamContextType, TrainingTime } from '~/routes/clubs.$clubId.teams.$teamId/route';
 import WeekDay = $Enums.WeekDay;
 
 type Props = { trainingTimes: TrainingTime[] };
@@ -30,29 +29,31 @@ export default function TrainingTimeIsland({ trainingTimes }: Props) {
   }
 
   return (
-    <section className={'inline-flex w-full max-w-screen-xs flex-col gap-2 rounded-xl border p-3'}>
+    <section className={'inline-flex w-full max-w-screen-sm flex-col gap-2 rounded-xl border p-3'}>
       <h3 className={'text-center text-xl'}>Training times</h3>
       {trainingTimes.map(trainingTime => (
-        <div key={trainingTime.id} className={'flex items-center gap-4'}>
-          <div className={'flex grow flex-col items-start'}>
+        <div key={trainingTime.id} className={'flex items-center gap-2 text-xs sm:text-sm'}>
+          <div className={'flex flex-[5] flex-col overflow-scroll whitespace-nowrap'}>
             <div>{trainingTime.weekDay}</div>
             <div className={'badge badge-neutral badge-sm'}>{trainingTime.location}</div>
           </div>
-          <div className={'flex items-center gap-2 text-sm'}>
-            <div>{trainingTime.startTime}</div>
-            <div>-</div>
-            <div>{trainingTime.endTime}</div>
+          <div className={'flex flex-[6] items-center justify-end gap-3'}>
+            <div className={'flex gap-1'}>
+              <div>{trainingTime.startTime}</div>
+              <div>-</div>
+              <div>{trainingTime.endTime}</div>
+            </div>
             {teamRoles.isTeamLeader && (
-              <span className={'ml-2 flex'}>
-                <button className={'btn btn-circle btn-ghost'}>
+              <span className={'flex items-center'}>
+                <TrainingTimeModal method={'patch'} defaultTrainingTime={trainingTime}>
                   <LuEdit />
-                </button>
+                </TrainingTimeModal>
                 <ConfirmationModal
                   message={'Are you sure you want to delete training time?'}
                   title={'Remove Training Time'}
                   onSubmit={() => handleRemove(trainingTime.id)}
                 >
-                  <button className={'btn btn-circle btn-ghost'}>
+                  <button className={'btn btn-circle btn-ghost btn-sm'}>
                     <IoIosRemoveCircleOutline />
                   </button>
                 </ConfirmationModal>
@@ -61,14 +62,19 @@ export default function TrainingTimeIsland({ trainingTimes }: Props) {
           </div>
         </div>
       ))}
-      <div className={'flex justify-center'}>
-        <AddTrainingTimeModal />
-      </div>
+      {teamRoles.isTeamLeader && (
+        <div className={'flex justify-center'}>
+          <TrainingTimeModal method={'post'}>
+            <MdAddCircleOutline size={20} />
+          </TrainingTimeModal>
+        </div>
+      )}
     </section>
   );
 }
 
-function AddTrainingTimeModal() {
+type TTModalProps = { method: 'post' | 'patch'; children: React.ReactElement; defaultTrainingTime?: TrainingTime };
+function TrainingTimeModal({ method, children, defaultTrainingTime }: TTModalProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const modalRef = useRef<HTMLDialogElement>(null);
   const fetcher = useFetcher<TrainingTimeFetcherData>();
@@ -99,20 +105,21 @@ function AddTrainingTimeModal() {
 
   return (
     <div className={'cancel-animations'}>
-      <button className={'btn btn-circle btn-ghost'} onClick={() => modalRef.current?.showModal()}>
-        <MdAddCircleOutline size={25} />
+      <button className={'btn btn-circle btn-ghost btn-sm'} onClick={() => modalRef.current?.showModal()}>
+        {children}
       </button>
 
       <dialog id={'add-training-time-manager'} ref={modalRef} className="cancel-animations modal">
         <div className="modal-box flex w-full flex-col lg:max-w-2xl">
           <h3 className="mb-2 text-2xl font-bold">Add Training Time</h3>
-          <fetcher.Form ref={formRef} action={`/clubs/${clubId}/teams/${teamId}/training-time`} method={'post'}>
+          <fetcher.Form ref={formRef} action={`/clubs/${clubId}/teams/${teamId}/training-time`} method={method}>
             <div className={'flex flex-wrap gap-2'}>
+              <input hidden id={'trainingTimeId'} name={'trainingTimeId'} defaultValue={defaultTrainingTime?.id} />
               <div className={'form-control'}>
                 <label className={'label'} htmlFor={'weekDay'}>
                   Day of week
                 </label>
-                <select className={'select select-bordered'} id={'weekDay'} name={'weekDay'}>
+                <select className={'select select-bordered'} id={'weekDay'} name={'weekDay'} defaultValue={defaultTrainingTime?.weekDay}>
                   {Object.values(WeekDay).map(weekDay => (
                     <option key={weekDay}>{weekDay}</option>
                   ))}
@@ -123,7 +130,13 @@ function AddTrainingTimeModal() {
                 <label className={'label'} htmlFor={'startTime'}>
                   Start time
                 </label>
-                <input className={'input input-bordered'} type="time" id={'startTime'} name={'startTime'} />
+                <input
+                  className={'input input-bordered'}
+                  type="time"
+                  id={'startTime'}
+                  name={'startTime'}
+                  defaultValue={defaultTrainingTime?.startTime}
+                />
                 {renderError(fetcher.data?.errors?.startTime)}
               </div>
 
@@ -131,7 +144,13 @@ function AddTrainingTimeModal() {
                 <label className={'label'} htmlFor={'endTime'}>
                   End time
                 </label>
-                <input className={'input input-bordered'} type="time" id={'endTime'} name={'endTime'} />
+                <input
+                  className={'input input-bordered'}
+                  type="time"
+                  id={'endTime'}
+                  name={'endTime'}
+                  defaultValue={defaultTrainingTime?.endTime}
+                />
                 {renderError(fetcher.data?.errors?.endTime)}
               </div>
 
@@ -139,7 +158,7 @@ function AddTrainingTimeModal() {
                 <label className={'label'} htmlFor={'location'}>
                   Location
                 </label>
-                <input className={'input input-bordered'} id={'location'} name={'location'} />
+                <input className={'input input-bordered'} id={'location'} name={'location'} defaultValue={defaultTrainingTime?.location} />
                 {renderError(fetcher.data?.errors?.location)}
               </div>
             </div>

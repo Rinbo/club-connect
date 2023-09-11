@@ -7,17 +7,22 @@ import { getTeamRoles, requireClubUser } from '~/session.server';
 import { getTeamById } from '~/models/team.server';
 import type { Team } from '.prisma/client';
 import { findTrainingTimesByTeamId } from '~/models/training-time.server';
-import type { TrainingTime as DbTrainingTime } from '@prisma/client';
+import type { TeamNews, TrainingTime } from '@prisma/client';
+import { findClubNews } from '~/models/team-news.server';
+import type { Clientify } from '~/misc-utils';
 
 export { ErrorBoundary } from '~/error-boundry';
 
-export type TrainingTime = Omit<DbTrainingTime, 'createdAt' | 'updatedAt'>;
-export type ClientTeam = Omit<Team, 'createdAt' | 'updatedAt'> & {
-  createdAt: string;
-  updatedAt: string;
-};
+export type ClientTrainingTime = Clientify<TrainingTime>;
+export type ClientTeamNews = Clientify<TeamNews> & { imageUrls: { url: string }[] };
+export type ClientTeam = Clientify<Team>;
 
-export type TeamContextType = { team: ClientTeam | null; teamRoles: TeamUserRoles; trainingTimes: TrainingTime[] };
+export type TeamContextType = {
+  team: ClientTeam;
+  teamRoles: TeamUserRoles;
+  trainingTimes: ClientTrainingTime[];
+  teamNews: ClientTeamNews[];
+};
 
 export const handle = {
   isTeamRoute: true
@@ -31,11 +36,12 @@ export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs
   const team = await getTeamById(teamId);
   const teamRoles: TeamUserRoles = await getTeamRoles(request, clubId, teamId);
   const trainingTimes = await findTrainingTimesByTeamId(teamId);
+  const teamNews = await findClubNews(clubId, teamId, 0, 5);
 
-  return json({ team, teamRoles, trainingTimes });
+  return json({ team, teamRoles, trainingTimes, teamNews });
 };
 
 export default function TeamLayout() {
-  const { team, teamRoles, trainingTimes } = useLoaderData<typeof loader>();
-  return <Outlet context={{ team, teamRoles, trainingTimes } satisfies TeamContextType} />;
+  const { team, teamRoles, trainingTimes, teamNews } = useLoaderData<typeof loader>();
+  return <Outlet context={{ team, teamRoles, trainingTimes, teamNews } satisfies TeamContextType} />;
 }

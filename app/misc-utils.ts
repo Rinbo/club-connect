@@ -1,5 +1,7 @@
 import crypto from 'crypto';
 
+export type Clientify<T> = Omit<T, 'createdAt' | 'updatedAt'> & { createdAt: string; updatedAt: string };
+
 export function getStringInitials(clubName: string): string {
   const words = clubName.split(' ');
   const initials = words.map(word => word[0]).join('');

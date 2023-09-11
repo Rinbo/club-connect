@@ -7,11 +7,11 @@ import useCustomToast from '~/hooks/useCustomToast';
 import { IoIosRemoveCircleOutline } from 'react-icons/io';
 import ConfirmationModal from '~/components/modal/confirmation-modal';
 import { useOutletContext } from 'react-router';
-import type { TeamContextType, TrainingTime } from '~/routes/clubs.$clubId.teams.$teamId/route';
+import type { ClientTrainingTime, TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
 import { BiEdit } from 'react-icons/bi';
 import WeekDay = $Enums.WeekDay;
 
-type Props = { trainingTimes: TrainingTime[] };
+type Props = { trainingTimes: ClientTrainingTime[] };
 
 export default function TrainingTimeIsland({ trainingTimes }: Props) {
   const fetcher = useFetcher();
@@ -29,7 +29,7 @@ export default function TrainingTimeIsland({ trainingTimes }: Props) {
   }
 
   return (
-    <section className={'inline-flex w-full max-w-screen-sm flex-col gap-2 rounded-xl border p-3'}>
+    <section className={'inline-flex w-full max-w-screen-sm flex-shrink-0 flex-col gap-2 rounded-xl border p-3'}>
       <h3 className={'text-center text-xl'}>Training times</h3>
       {trainingTimes.map(trainingTime => (
         <div key={trainingTime.id} className={'flex items-center gap-2 text-xs sm:text-sm'}>
@@ -73,7 +73,7 @@ export default function TrainingTimeIsland({ trainingTimes }: Props) {
   );
 }
 
-type TTModalProps = { method: 'post' | 'patch'; children: React.ReactElement; defaultTrainingTime?: TrainingTime };
+type TTModalProps = { method: 'post' | 'patch'; children: React.ReactElement; defaultTrainingTime?: ClientTrainingTime };
 function TrainingTimeModal({ method, children, defaultTrainingTime }: TTModalProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const modalRef = useRef<HTMLDialogElement>(null);

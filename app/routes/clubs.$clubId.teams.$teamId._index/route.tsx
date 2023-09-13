@@ -3,8 +3,8 @@ import React from 'react';
 import type { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
 import ResourceContextMenu, { EditLink } from '~/components/nav/resource-context-menu';
 import DeleteResourceModal from '~/components/delete/delete-resource-modal';
-import TrainingTimeIsland from '~/routes/clubs.$clubId.teams.$teamId.schedule/training-time-island';
 import { Link } from '@remix-run/react';
+import TrainingTimeIsland from './training-time-island';
 
 export default function Team() {
   const { teamRoles, trainingTimes, teamNews } = useOutletContext<TeamContextType>();

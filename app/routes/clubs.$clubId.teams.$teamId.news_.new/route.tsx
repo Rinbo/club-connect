@@ -67,7 +67,7 @@ export default function CreateTeamNews() {
 
   return (
     <div className={'flex justify-center py-4'}>
-      <Form method={'post'} className={'w-full max-w-4xl'} encType="multipart/form-data">
+      <Form replace method={'post'} className={'w-full max-w-4xl'} encType="multipart/form-data">
         {working && <progress className="progress w-full" />}
         <TextInput label={'Title'} name={'title'} id={'title'} type={'text'} errors={actionData?.errors?.title} />
         <TextArea label={'Body'} name={'body'} id={'body'} errors={actionData?.errors?.body} />

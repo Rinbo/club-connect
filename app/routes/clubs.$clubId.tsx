@@ -137,7 +137,7 @@ function ClubMenu() {
         <MenuNavLink to={`/clubs/${clubId}/news`} icon={<FaRegNewspaper />} label={'News'} />
         <MenuNavLink to={`/clubs/${clubId}/users`} icon={<FaUsers />} label={'Members'} />
         <MenuNavLink to={`/clubs/${clubId}/teams`} icon={<RiTeamLine />} label={'Teams'} />
-        <MenuNavLink to={`/clubs/${clubId}/schedules`} icon={<AiOutlineSchedule />} label={'Schedules'} />
+        <MenuNavLink to={`/clubs/${clubId}/schedule`} icon={<AiOutlineSchedule />} label={'Schedules'} />
       </ul>
     </nav>
   );
@@ -150,7 +150,7 @@ function TeamMenu({ teamRoot }: { teamRoot: string }) {
         <MenuNavLink to={`${teamRoot}`} icon={<FaHome />} label={'Home'} />
         <MenuNavLink to={`${teamRoot}/news`} icon={<FaRegNewspaper />} label={'News'} />
         <MenuNavLink to={`${teamRoot}/members`} icon={<RiTeamLine />} label={'Members'} />
-        <MenuNavLink to={`${teamRoot}/schedule`} icon={<AiOutlineSchedule />} label={'Schedule'} />
+        <MenuNavLink to={`${teamRoot}/activities`} icon={<AiOutlineSchedule />} label={'Activities'} />
       </ul>
     </nav>
   );

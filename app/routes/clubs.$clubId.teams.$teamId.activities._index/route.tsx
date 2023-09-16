@@ -6,7 +6,7 @@ import type { TeamActivityContext } from '~/routes/clubs.$clubId.teams.$teamId.a
 
 export default function TeamActivities() {
   const { pathname } = useLocation();
-  const { teamRoles, trainingTimes } = useOutletContext<TeamActivityContext>();
+  const { teamRoles, trainingTimes, teamActivities } = useOutletContext<TeamActivityContext>();
 
   const contextMenu = (
     <ResourceContextMenu>
@@ -18,6 +18,13 @@ export default function TeamActivities() {
     <main>
       {teamRoles.isTeamLeader && contextMenu}
       <TrainingTimeIsland trainingTimes={trainingTimes} />
+      <section className={'mt-2 flex flex-wrap gap-3'}>
+        {teamActivities.map(teamActivity => (
+          <pre key={teamActivity.id} className={'max-w-md rounded-xl border p-2'}>
+            {JSON.stringify(teamActivity, null, 2)}
+          </pre>
+        ))}
+      </section>
     </main>
   );
 }

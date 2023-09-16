@@ -4,33 +4,25 @@ export type Props = {
   label: string;
   id?: string;
   name?: string;
-  type?: string;
-  placeholder?: string;
   required?: boolean;
   defaultValue?: string;
-  autoComplete?: string;
   errors?: string[] | null;
   reactRef?: React.RefObject<HTMLInputElement>;
 };
 
-export default function TextInput({ label, id, name, type, placeholder, required, defaultValue, autoComplete, errors, reactRef }: Props) {
+export default function DateInput({ id, name, label, defaultValue, errors, required = true }: Props) {
   return (
     <div>
       <label htmlFor={id} className="label">
         <span className={'label-text'}>{label}</span>
       </label>
       <input
+        className="input input-bordered w-full"
+        type={'datetime-local'}
         id={id}
         name={name}
-        type={type}
-        required={required}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
         defaultValue={defaultValue}
-        aria-invalid={errors ? true : undefined}
-        aria-describedby={`${name}-error`}
-        ref={reactRef}
-        className="input input-bordered w-full"
+        required={required}
       />
       {errors?.map(error => (
         <small key={error} className="block text-red-500">

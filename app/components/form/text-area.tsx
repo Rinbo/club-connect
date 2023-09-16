@@ -5,13 +5,23 @@ export type Props = {
   id?: string;
   name?: string;
   placeholder?: string;
+  rowNum?: number;
   required?: boolean;
   defaultValue?: string;
   errors?: string[] | null;
   reactRef?: React.RefObject<HTMLInputElement>;
 };
 
-export default function TextArea({ label, id, name, errors, defaultValue, placeholder = 'Write something...', required = true }: Props) {
+export default function TextArea({
+  label,
+  id,
+  name,
+  errors,
+  defaultValue,
+  rowNum = 10,
+  placeholder = 'Write something...',
+  required = true
+}: Props) {
   return (
     <div className="form-control">
       <label className="label">
@@ -21,10 +31,11 @@ export default function TextArea({ label, id, name, errors, defaultValue, placeh
         id={id}
         aria-placeholder={placeholder}
         name={name}
-        rows={10}
+        rows={rowNum}
+        required={required}
         defaultValue={defaultValue}
         className="textarea textarea-bordered"
-        placeholder="Body text"
+        placeholder={placeholder}
       ></textarea>
       {errors?.map(error => (
         <small key={error} className="block text-error">

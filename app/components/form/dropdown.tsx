@@ -13,7 +13,7 @@ type Props = {
   label?: string;
   size?: Size;
   defaultValue?: string;
-  errors: string[] | null | undefined;
+  errors?: string[] | null | undefined;
 };
 
 export default function DropDown({ options, name, label, id, size, defaultValue, errors }: Props) {

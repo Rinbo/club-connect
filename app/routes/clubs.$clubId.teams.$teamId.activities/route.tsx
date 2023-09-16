@@ -6,7 +6,7 @@ import { requireClubUser } from '~/session.server';
 import type { LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
-import { findTeamActivity } from '~/models/team-activity.server';
+import { findTeamActivities } from '~/models/team-activity.server';
 import type { TeamActivity } from '@prisma/client';
 
 export type ClientTeamActivity = Omit<TeamActivity, 'startTime' | 'endTime' | 'createdAt' | 'updatedAt'> & {
@@ -16,14 +16,14 @@ export type ClientTeamActivity = Omit<TeamActivity, 'startTime' | 'endTime' | 'c
   endTime: string;
 };
 
-export type TeamActivityContext = { teamRoles: TeamUserRoles; trainingTimes: ClientTrainingTime[]; teamActivities: ClientTeamActivity[] };
+export type TeamActivitiesContext = { teamRoles: TeamUserRoles; trainingTimes: ClientTrainingTime[]; teamActivities: ClientTeamActivity[] };
 
 export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs) => {
   invariant(clubId, 'clubId missing in route');
   invariant(teamId, 'teamId missing in route');
 
   await requireClubUser(request, clubId);
-  const teamActivities = await findTeamActivity(teamId, 0, 10);
+  const teamActivities = await findTeamActivities(teamId, 0, 10);
 
   return json({ teamActivities });
 };
@@ -32,5 +32,5 @@ export default function TeamActivitiesLayout() {
   const { teamActivities } = useLoaderData<{ teamActivities: ClientTeamActivity[] }>();
   const { teamRoles, trainingTimes } = useOutletContext<TeamContextType>();
 
-  return <Outlet context={{ teamRoles, trainingTimes, teamActivities } satisfies TeamActivityContext} />;
+  return <Outlet context={{ teamRoles, trainingTimes, teamActivities } satisfies TeamActivitiesContext} />;
 }

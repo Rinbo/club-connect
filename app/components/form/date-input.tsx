@@ -21,7 +21,7 @@ export default function DateInput({ id, name, label, defaultValue, errors, requi
         type={'datetime-local'}
         id={id}
         name={name}
-        defaultValue={defaultValue}
+        defaultValue={defaultValue && new Date(defaultValue).toLocaleString()}
         required={required}
       />
       {errors?.map(error => (

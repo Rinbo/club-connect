@@ -17,6 +17,12 @@ export async function findTeamActivityById(id: string) {
   });
 }
 
+export async function deleteTeamActivity(id: string) {
+  return prisma.teamActivity.delete({
+    where: { id }
+  });
+}
+
 type TeamActivityData = { type: TeamActivityType; location: string; description?: string | undefined; startTime: Date; endTime: Date };
 
 export async function createTeamActivity(teamId: string, data: TeamActivityData) {

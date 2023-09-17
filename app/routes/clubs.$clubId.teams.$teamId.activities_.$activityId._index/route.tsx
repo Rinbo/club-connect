@@ -10,16 +10,18 @@ export default function TeamActivity() {
 
   const contextMenu = (
     <ResourceContextMenu backButton>
-      <React.Fragment>
-        <EditLink to={`${pathname}/edit`} />
-        <DeleteResourceModal action={`${pathname}`} message={'Are you sure you want to delete this activity?'} />
-      </React.Fragment>
+      {teamRoles.isTeamWebmaster && (
+        <React.Fragment>
+          <EditLink to={`${pathname}/edit`} />
+          <DeleteResourceModal action={`${pathname}`} message={'Are you sure you want to delete this activity?'} />
+        </React.Fragment>
+      )}
     </ResourceContextMenu>
   );
 
   return (
     <main>
-      {teamRoles.isTeamWebmaster && contextMenu}
+      {contextMenu}
       <section>
         <pre>{teamActivity && JSON.stringify(teamActivity, null, 2)}</pre>
       </section>

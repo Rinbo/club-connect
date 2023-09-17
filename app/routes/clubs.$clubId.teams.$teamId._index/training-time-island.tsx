@@ -29,46 +29,48 @@ export default function TrainingTimeIsland({ trainingTimes }: Props) {
   }
 
   return (
-    <section className={'inline-flex w-full max-w-screen-sm flex-shrink-0 flex-col gap-2 rounded-xl border p-3'}>
-      <h3 className={'text-center text-xl'}>Training times</h3>
-      {trainingTimes.map(trainingTime => (
-        <div key={trainingTime.id} className={'flex items-center gap-2 text-xs sm:text-sm'}>
-          <div className={'flex flex-[5] flex-col overflow-scroll whitespace-nowrap'}>
-            <div>{trainingTime.weekDay}</div>
-            <div className={'badge badge-neutral badge-sm'}>{trainingTime.location}</div>
-          </div>
-          <div className={'flex flex-[6] items-center justify-end gap-3'}>
-            <div className={'flex gap-1'}>
-              <div>{trainingTime.startTime}</div>
-              <div>-</div>
-              <div>{trainingTime.endTime}</div>
+    <section className={'w-full lg:max-w-md'}>
+      <div className={'inline-flex w-full flex-shrink-0 flex-col gap-2 rounded-xl border p-3'}>
+        <h3 className={'text-center text-xl'}>Training times</h3>
+        {trainingTimes.map(trainingTime => (
+          <div key={trainingTime.id} className={'flex items-center gap-2 text-xs sm:text-sm'}>
+            <div className={'flex flex-[5] flex-col overflow-scroll whitespace-nowrap'}>
+              <div>{trainingTime.weekDay}</div>
+              <div className={'badge badge-neutral badge-sm'}>{trainingTime.location}</div>
             </div>
-            {teamRoles.isTeamLeader && (
-              <span className={'flex items-center'}>
-                <TrainingTimeModal method={'patch'} defaultTrainingTime={trainingTime}>
-                  <BiEdit />
-                </TrainingTimeModal>
-                <ConfirmationModal
-                  message={'Are you sure you want to delete training time?'}
-                  title={'Remove Training Time'}
-                  onSubmit={() => handleRemove(trainingTime.id)}
-                >
-                  <button className={'btn btn-circle btn-ghost btn-sm'}>
-                    <IoIosRemoveCircleOutline />
-                  </button>
-                </ConfirmationModal>
-              </span>
-            )}
+            <div className={'flex flex-[6] items-center justify-end gap-3'}>
+              <div className={'flex gap-1'}>
+                <div>{trainingTime.startTime}</div>
+                <div>-</div>
+                <div>{trainingTime.endTime}</div>
+              </div>
+              {teamRoles.isTeamLeader && (
+                <span className={'flex items-center'}>
+                  <TrainingTimeModal method={'patch'} defaultTrainingTime={trainingTime}>
+                    <BiEdit />
+                  </TrainingTimeModal>
+                  <ConfirmationModal
+                    message={'Are you sure you want to delete training time?'}
+                    title={'Remove Training Time'}
+                    onSubmit={() => handleRemove(trainingTime.id)}
+                  >
+                    <button className={'btn btn-circle btn-ghost btn-sm'}>
+                      <IoIosRemoveCircleOutline />
+                    </button>
+                  </ConfirmationModal>
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
-      {teamRoles.isTeamLeader && (
-        <div className={'flex justify-center'}>
-          <TrainingTimeModal method={'post'}>
-            <MdAddCircleOutline size={20} />
-          </TrainingTimeModal>
-        </div>
-      )}
+        ))}
+        {teamRoles.isTeamLeader && (
+          <div className={'flex justify-center'}>
+            <TrainingTimeModal method={'post'}>
+              <MdAddCircleOutline size={20} />
+            </TrainingTimeModal>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

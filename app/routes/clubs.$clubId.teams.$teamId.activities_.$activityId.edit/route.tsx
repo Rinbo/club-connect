@@ -1,6 +1,6 @@
 import TeamActivityForm, { teamActivityFormValidation } from '~/components/form/TeamActivityForm';
 import { useOutletContext } from 'react-router';
-import type { TeamActivityContext } from '~/routes/clubs.$clubId.teams.$teamId.activities.$activityId/route';
+import type { TeamActivityContext } from '~/routes/clubs.$clubId.teams.$teamId.activities_.$activityId/route';
 import type { ActionArgs } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
 import invariant from 'tiny-invariant';

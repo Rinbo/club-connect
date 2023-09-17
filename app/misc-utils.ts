@@ -39,3 +39,11 @@ export function getMessageOrDefault(error: any, defaultMessage: string): string 
     return defaultMessage;
   }
 }
+
+export function cx(...args: unknown[]) {
+  return args
+    .flat()
+    .filter(x => typeof x === 'string')
+    .join(' ')
+    .trim();
+}

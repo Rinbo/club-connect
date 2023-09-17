@@ -7,7 +7,7 @@ import useCustomToast from '~/hooks/useCustomToast';
 import { IoIosRemoveCircleOutline } from 'react-icons/io';
 import ConfirmationModal from '~/components/modal/confirmation-modal';
 import { useOutletContext } from 'react-router';
-import type { ClientTrainingTime, TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
+import type { ClientTrainingTime, TeamContext } from '~/routes/clubs.$clubId.teams.$teamId/route';
 import { BiEdit } from 'react-icons/bi';
 import WeekDay = $Enums.WeekDay;
 
@@ -16,7 +16,7 @@ type Props = { trainingTimes: ClientTrainingTime[] };
 export default function TrainingTimeIsland({ trainingTimes }: Props) {
   const fetcher = useFetcher();
   const { clubId, teamId } = useParams();
-  const { teamRoles } = useOutletContext<TeamContextType>();
+  const { teamRoles } = useOutletContext<TeamContext>();
 
   function handleRemove(trainingTimeId: string) {
     const formData = new FormData();

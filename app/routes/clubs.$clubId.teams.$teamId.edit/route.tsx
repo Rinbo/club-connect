@@ -5,7 +5,7 @@ import { json, redirect } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import { requireTeamWebmaster } from '~/session.server';
 import { updateTeam } from '~/models/team.server';
-import type { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
+import type { TeamContext } from '~/routes/clubs.$clubId.teams.$teamId/route';
 
 export const action = async ({ request, params: { clubId, teamId } }: ActionArgs) => {
   invariant(clubId, 'clubId missing in route');
@@ -24,7 +24,7 @@ export const action = async ({ request, params: { clubId, teamId } }: ActionArgs
 };
 
 export default function EditTeam() {
-  const { team } = useOutletContext<TeamContextType>();
+  const { team } = useOutletContext<TeamContext>();
 
   return (
     <section className={'flex flex-col items-center py-4'}>

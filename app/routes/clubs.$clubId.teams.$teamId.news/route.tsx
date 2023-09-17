@@ -5,7 +5,7 @@ import type { LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { useLocation, useOutletContext } from 'react-router';
-import type { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
+import type { TeamContext } from '~/routes/clubs.$clubId.teams.$teamId/route';
 import invariant from 'tiny-invariant';
 import { requireClubUser } from '~/session.server';
 import { findClubNews } from '~/models/team-news.server';
@@ -22,7 +22,7 @@ export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs
 
 export default function TeamNews() {
   const { pathname } = useLocation();
-  const { teamRoles } = useOutletContext<TeamContextType>();
+  const { teamRoles } = useOutletContext<TeamContext>();
   const { teamNews } = useLoaderData<typeof loader>();
 
   const contextMenu = (

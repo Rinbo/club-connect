@@ -17,7 +17,7 @@ import { IoIosRemoveCircleOutline } from 'react-icons/io';
 import type { Flash } from '~/hooks/useCustomToast';
 import useCustomToast from '~/hooks/useCustomToast';
 import { useOutletContext } from 'react-router';
-import type { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
+import type { TeamContext } from '~/routes/clubs.$clubId.teams.$teamId/route';
 import { BiEdit } from 'react-icons/bi';
 
 const ERROR_MESSAGE = 'Could not add member';
@@ -122,7 +122,7 @@ export default function TeamMembers() {
   const { clubId, teamId } = useParams();
   const fetcher = useFetcher();
   const { teamUsers: serverUsers } = useLoaderData<{ teamUsers: TeamUser[] }>();
-  const { teamRoles } = useOutletContext<TeamContextType>();
+  const { teamRoles } = useOutletContext<TeamContext>();
   const action = `/clubs/${clubId}/teams/${teamId}/members`;
 
   const [allSelected, setAllSelected] = React.useState<boolean>(false);

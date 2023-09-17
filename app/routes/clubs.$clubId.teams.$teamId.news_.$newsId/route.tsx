@@ -1,5 +1,5 @@
 import { useOutletContext } from 'react-router';
-import type { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
+import type { TeamContext } from '~/routes/clubs.$clubId.teams.$teamId/route';
 import { Outlet, useLoaderData } from '@remix-run/react';
 import type { LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
@@ -31,7 +31,7 @@ export const loader = async ({ request, params: { clubId, newsId } }: LoaderArgs
 };
 
 export default function TeamNewsLayout() {
-  const { teamRoles } = useOutletContext<TeamContextType>();
+  const { teamRoles } = useOutletContext<TeamContext>();
   const { newsItem } = useLoaderData<{ newsItem: TeamNewsItem }>();
 
   return <Outlet context={{ teamRoles, newsItem } satisfies TeamNewsContext} />;

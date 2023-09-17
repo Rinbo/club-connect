@@ -17,7 +17,7 @@ export type ClientTrainingTime = Clientify<TrainingTime>;
 export type ClientTeamNews = Clientify<TeamNews> & { imageUrls: { url: string }[] };
 export type ClientTeam = Clientify<Team>;
 
-export type TeamContextType = {
+export type TeamContext = {
   team: ClientTeam;
   teamRoles: TeamUserRoles;
   trainingTimes: ClientTrainingTime[];
@@ -43,5 +43,5 @@ export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs
 
 export default function TeamLayout() {
   const { team, teamRoles, trainingTimes, teamNews } = useLoaderData<typeof loader>();
-  return <Outlet context={{ team, teamRoles, trainingTimes, teamNews } satisfies TeamContextType} />;
+  return <Outlet context={{ team, teamRoles, trainingTimes, teamNews } satisfies TeamContext} />;
 }

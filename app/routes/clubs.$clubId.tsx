@@ -137,7 +137,7 @@ function ClubMenu() {
         <MenuNavLink to={`/clubs/${clubId}/news`} icon={<FaRegNewspaper />} label={'News'} />
         <MenuNavLink to={`/clubs/${clubId}/users`} icon={<FaUsers />} label={'Members'} />
         <MenuNavLink to={`/clubs/${clubId}/teams`} icon={<RiTeamLine />} label={'Teams'} />
-        <MenuNavLink to={`/clubs/${clubId}/schedule`} icon={<AiOutlineSchedule />} label={'Schedules'} />
+        <MenuNavLink to={`/clubs/${clubId}/schedules`} icon={<AiOutlineSchedule />} label={'Schedules'} />
       </ul>
     </nav>
   );

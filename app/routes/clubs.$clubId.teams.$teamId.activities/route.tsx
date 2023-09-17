@@ -1,13 +1,15 @@
-import { Outlet, useLoaderData } from '@remix-run/react';
-import { useOutletContext } from 'react-router';
-import type { ClientTrainingTime, TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
-import type { TeamUserRoles } from '~/session.server';
+import { Link, useLoaderData } from '@remix-run/react';
+import { useLocation, useOutletContext } from 'react-router';
+import type { TeamContext } from '~/routes/clubs.$clubId.teams.$teamId/route';
 import { requireClubUser } from '~/session.server';
 import type { LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import { findTeamActivities } from '~/models/team-activity.server';
 import type { TeamActivity } from '@prisma/client';
+import ResourceContextMenu, { AddLink } from '~/components/nav/resource-context-menu';
+import TrainingTimeIsland from '~/routes/clubs.$clubId.teams.$teamId._index/training-time-island';
+import React from 'react';
 
 export type ClientTeamActivity = Omit<TeamActivity, 'startTime' | 'endTime' | 'createdAt' | 'updatedAt'> & {
   createdAt: string;
@@ -16,7 +18,7 @@ export type ClientTeamActivity = Omit<TeamActivity, 'startTime' | 'endTime' | 'c
   endTime: string;
 };
 
-export type TeamActivitiesContext = { teamRoles: TeamUserRoles; trainingTimes: ClientTrainingTime[]; teamActivities: ClientTeamActivity[] };
+type LoaderData = { teamActivities: ClientTeamActivity[] };
 
 export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs) => {
   invariant(clubId, 'clubId missing in route');
@@ -29,8 +31,27 @@ export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs
 };
 
 export default function TeamActivitiesLayout() {
-  const { teamActivities } = useLoaderData<{ teamActivities: ClientTeamActivity[] }>();
-  const { teamRoles, trainingTimes } = useOutletContext<TeamContextType>();
+  const { pathname } = useLocation();
+  const { teamActivities } = useLoaderData<LoaderData>();
+  const { teamRoles, trainingTimes } = useOutletContext<TeamContext>();
 
-  return <Outlet context={{ teamRoles, trainingTimes, teamActivities } satisfies TeamActivitiesContext} />;
+  const contextMenu = (
+    <ResourceContextMenu>
+      <AddLink to={`${pathname}/new`} />
+    </ResourceContextMenu>
+  );
+
+  return (
+    <main>
+      {teamRoles.isTeamWebmaster && contextMenu}
+      <TrainingTimeIsland trainingTimes={trainingTimes} />
+      <section className={'mt-2 flex flex-wrap gap-3'}>
+        {teamActivities.map(teamActivity => (
+          <pre key={teamActivity.id} className={'max-w-md overflow-hidden rounded-xl border p-2'}>
+            <Link to={pathname + '/' + teamActivity.id}>{JSON.stringify(teamActivity, null, 2)}</Link>
+          </pre>
+        ))}
+      </section>
+    </main>
+  );
 }

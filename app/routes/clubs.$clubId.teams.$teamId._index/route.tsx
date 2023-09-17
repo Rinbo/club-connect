@@ -1,13 +1,13 @@
 import { useLocation, useOutletContext } from 'react-router';
 import React from 'react';
-import type { TeamContextType } from '~/routes/clubs.$clubId.teams.$teamId/route';
+import type { TeamContext } from '~/routes/clubs.$clubId.teams.$teamId/route';
 import ResourceContextMenu, { EditLink } from '~/components/nav/resource-context-menu';
 import DeleteResourceModal from '~/components/delete/delete-resource-modal';
 import { Link } from '@remix-run/react';
 import TrainingTimeIsland from './training-time-island';
 
 export default function Team() {
-  const { teamRoles, trainingTimes, teamNews } = useOutletContext<TeamContextType>();
+  const { teamRoles, trainingTimes, teamNews } = useOutletContext<TeamContext>();
   const { pathname } = useLocation();
 
   const contextMenu = (

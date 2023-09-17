@@ -1,5 +1,5 @@
 import { useOutletContext } from 'react-router';
-import type { ClientTeamActivity, TeamActivitiesContext } from '~/routes/clubs.$clubId.teams.$teamId.activities/route';
+import type { ClientTeamActivity } from '~/routes/clubs.$clubId.teams.$teamId.activities/route';
 import React from 'react';
 import type { LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
@@ -7,6 +7,7 @@ import { findTeamActivityById } from '~/models/team-activity.server';
 import invariant from 'tiny-invariant';
 import { Outlet, useLoaderData } from '@remix-run/react';
 import type { TeamUserRoles } from '~/session.server';
+import { TeamContext } from '~/routes/clubs.$clubId.teams.$teamId/route';
 
 export type TeamActivityContext = { teamRoles: TeamUserRoles; teamActivity: ClientTeamActivity };
 
@@ -20,7 +21,7 @@ export const loader = async ({ request, params: { clubId, activityId } }: Loader
 
 export default function TeamActivityLayout() {
   const { teamActivity } = useLoaderData<typeof loader>();
-  const { teamRoles } = useOutletContext<TeamActivitiesContext>();
+  const { teamRoles } = useOutletContext<TeamContext>();
 
   return <Outlet context={{ teamRoles, teamActivity } satisfies TeamActivityContext} />;
 }

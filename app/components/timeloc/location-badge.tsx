@@ -1,11 +1,15 @@
 import { FaLocationDot } from 'react-icons/fa6';
+import type { HTMLAttributes } from 'react';
 import React from 'react';
+import { cn } from '~/misc-utils';
 
-type Props = { location: string };
+interface ChildComponentProps extends HTMLAttributes<HTMLDivElement> {
+  location: string;
+}
 
-export default function LocationBadge({ location }: Props) {
+export default function LocationBadge({ location, className }: ChildComponentProps) {
   return (
-    <div className={'badge badge-sm flex gap-1'}>
+    <div className={cn('badge badge-sm flex gap-1', className)}>
       <FaLocationDot />
       {location}
     </div>

@@ -1,4 +1,7 @@
 import crypto from 'crypto';
+import type { ClassValue } from 'clsx';
+import { clsx } from 'clsx';
+import { twMerge } from 'tw-merge';
 
 export type Clientify<T> = Omit<T, 'createdAt' | 'updatedAt'> & { createdAt: string; updatedAt: string };
 
@@ -40,10 +43,14 @@ export function getMessageOrDefault(error: any, defaultMessage: string): string 
   }
 }
 
-export function cx(...args: unknown[]) {
+export function cx(...args: any[]) {
   return args
     .flat()
     .filter(x => typeof x === 'string')
     .join(' ')
     .trim();
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }

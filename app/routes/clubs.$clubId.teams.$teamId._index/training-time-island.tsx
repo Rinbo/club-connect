@@ -29,7 +29,7 @@ export default function TrainingTimeIsland({ trainingTimes }: Props) {
   }
 
   return (
-    <section className={'w-full lg:max-w-md'}>
+    <section className={'w-full lg:max-w-xl'}>
       <div className={'inline-flex w-full flex-shrink-0 flex-col gap-2 rounded-xl border p-3'}>
         <h3 className={'text-center text-xl'}>Training times</h3>
         {trainingTimes.map(trainingTime => (

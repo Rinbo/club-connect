@@ -3,6 +3,8 @@ import ResourceContextMenu, { EditLink } from '~/components/nav/resource-context
 import React from 'react';
 import DeleteResourceModal from '~/components/delete/delete-resource-modal';
 import type { TeamActivityContext } from '~/routes/clubs.$clubId.teams.$teamId.activities_.$activityId/route';
+import TimeSpan from '~/components/timeloc/time-span';
+import LocationBadge from '~/components/timeloc/location-badge';
 
 export default function TeamActivity() {
   const { teamRoles, teamActivity } = useOutletContext<TeamActivityContext>();
@@ -22,8 +24,18 @@ export default function TeamActivity() {
   return (
     <main>
       {contextMenu}
-      <section>
-        <pre>{teamActivity && JSON.stringify(teamActivity, null, 2)}</pre>
+      <section className={'flex justify-center py-1'}>
+        <div className={'flex w-full flex-col justify-center gap-2 rounded-lg border p-2 lg:max-w-2xl'}>
+          <h1 className={'text-center text-xl uppercase'}>Activity</h1>
+          <div className={'flex flex-wrap items-center gap-2'}>
+            <div className={'badge badge-neutral'}>{teamActivity.type}</div>
+            <LocationBadge location={teamActivity.location} />
+            <TimeSpan startTime={teamActivity.startTime} endTime={teamActivity.endTime} />
+          </div>
+          <article className={'prose'}>
+            <p>{teamActivity.description}</p>
+          </article>
+        </div>
       </section>
     </main>
   );

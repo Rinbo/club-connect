@@ -24,7 +24,7 @@ export default function UploadImageModal({ action }: { action: string }) {
 
   return (
     <React.Fragment>
-      <button className="btn btn-primary" onClick={() => modalRef.current?.showModal()}>
+      <button className="btn btn-accent btn-outline" onClick={() => modalRef.current?.showModal()}>
         <BsCardImage />
         Upload Image
       </button>

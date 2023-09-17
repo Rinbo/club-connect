@@ -10,10 +10,10 @@ import type { TeamActivity } from '@prisma/client';
 import ResourceContextMenu, { AddLink } from '~/components/nav/resource-context-menu';
 import TrainingTimeIsland from '~/routes/clubs.$clubId.teams.$teamId._index/training-time-island';
 import React from 'react';
-import { FaLocationDot } from 'react-icons/fa6';
-import { BiSolidTime } from 'react-icons/bi';
-import { formatDate, formatTime } from '~/date-utils';
+import { formatDate } from '~/date-utils';
 import { MdDateRange } from 'react-icons/md';
+import TimeSpan from '~/components/timeloc/time-span';
+import LocationBadge from '~/components/timeloc/location-badge';
 
 export type ClientTeamActivity = Omit<TeamActivity, 'startTime' | 'endTime' | 'createdAt' | 'updatedAt'> & {
   createdAt: string;
@@ -71,9 +71,7 @@ export default function TeamActivitiesLayout() {
               </div>
               <div className={'flex flex-col gap-1'}>
                 {teamActivities.map(teamActivity => (
-                  <Link key={teamActivity.id} to={pathname + '/' + teamActivity.id}>
-                    <ActivityRow teamActivity={teamActivity} />
-                  </Link>
+                  <ActivityRow teamActivity={teamActivity} path={pathname + '/' + teamActivity.id} />
                 ))}
               </div>
             </div>
@@ -84,22 +82,17 @@ export default function TeamActivitiesLayout() {
   );
 }
 
-function ActivityRow({ teamActivity }: { teamActivity: ClientTeamActivity }) {
+function ActivityRow({ teamActivity, path }: { teamActivity: ClientTeamActivity; path: string }) {
   return (
     <div className={'flex flex-col gap-2 rounded-md border p-2 md:flex-row md:items-center'}>
       <div className={'flex flex-1 gap-2'}>
         <div className={'badge badge-ghost badge-sm w-24'}>{teamActivity.type}</div>
-        <div className={'badge badge-sm flex gap-1'}>
-          <FaLocationDot />
-          {teamActivity.location}
-        </div>
+        <LocationBadge location={teamActivity.location} />
       </div>
-      <div className={'badge badge-sm flex'}>
-        <BiSolidTime className={'mr-1'} />
-        <div>{formatTime(teamActivity.startTime)}</div>
-        <div>-</div>
-        <div>{formatTime(teamActivity.endTime)}</div>
-      </div>
+      <TimeSpan startTime={teamActivity.startTime} endTime={teamActivity.endTime} />
+      <Link to={path} className={'btn btn-primary btn-outline btn-xs'}>
+        Details
+      </Link>
     </div>
   );
 }

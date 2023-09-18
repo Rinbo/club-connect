@@ -55,9 +55,9 @@ model ClubUser {
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   club           Club           @relation(fields: [clubId], references: [id], onDelete: Cascade)
   clubRoles      ClubRole[]
-  ClubNews       ClubNews[]
-  TeamUsers      TeamUser[]
-  TeamNews       TeamNews[]
+  clubNews       ClubNews[]
+  teamUsers      TeamUser[]
+  teamNews       TeamNews[]
   teamActivities TeamActivity[]
 
   createdAt DateTime @default(now())
@@ -119,8 +119,8 @@ model Team {
   name           String
   club           Club           @relation(fields: [clubId], references: [id], onDelete: Cascade)
   description    String
-  TeamUsers      TeamUser[]
-  TeamNews       TeamNews[]
+  teamUsers      TeamUser[]
+  teamNews       TeamNews[]
   teamActivities TeamActivity[]
   trainingTimes  TrainingTime[]
   logoUrl        String?

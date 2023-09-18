@@ -1,5 +1,10 @@
 import { prisma } from '~/db.server';
+import type { ClubUser } from '@prisma/client';
 import { ClubRole } from '@prisma/client';
+import type { Clientify } from '~/misc-utils';
+import type { ClientUser } from '~/models/user.server';
+
+export type ClientClubUser = Clientify<ClubUser> & { user: ClientUser };
 
 export async function createClubUser(clubId: string, userId: string) {
   return prisma.clubUser.create({
@@ -30,6 +35,13 @@ export async function findClubUserByClubIdAndUserId(clubId: string, userId: stri
 export async function findClubUsersByClubId(clubId: string) {
   return prisma.clubUser.findMany({
     where: { clubId },
+    include: { user: true }
+  });
+}
+
+export async function findClubUsersByTeamId(teamId: string) {
+  return prisma.clubUser.findMany({
+    where: { teamUsers: { some: { teamId } } },
     include: { user: true }
   });
 }

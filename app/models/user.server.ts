@@ -4,8 +4,11 @@ import bcrypt from 'bcryptjs';
 
 import { prisma } from '~/db.server';
 import type { PromiseType } from '~/loader-utils';
+import type { Clientify } from '~/misc-utils';
 
 export type { User } from '@prisma/client';
+export type ClientUser = Clientify<User>;
+
 export type UserWithRoles =
   | PromiseType<ReturnType<typeof verifyLogin>>
   | PromiseType<ReturnType<typeof createOwner>>

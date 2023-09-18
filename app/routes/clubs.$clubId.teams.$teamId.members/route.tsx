@@ -16,7 +16,7 @@ import { AiOutlineDelete } from 'react-icons/ai';
 import { IoIosRemoveCircleOutline } from 'react-icons/io';
 import type { Flash } from '~/hooks/useCustomToast';
 import useCustomToast from '~/hooks/useCustomToast';
-import { useOutletContext } from 'react-router';
+import { useLocation, useOutletContext } from 'react-router';
 import type { TeamContext } from '~/routes/clubs.$clubId.teams.$teamId/route';
 import { BiEdit } from 'react-icons/bi';
 
@@ -47,8 +47,8 @@ type TeamUser = {
 export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs) => {
   invariant(clubId, 'clubId missing in route');
   invariant(teamId, 'teamId missing in route');
-
   await requireClubUser(request, clubId);
+
   const teamUsers: TeamUser[] = (await getTeamUsersByTeamId(teamId)).map(teamUser => {
     const { id, name, email, imageUrl } = teamUser.clubUser.user;
 
@@ -119,11 +119,11 @@ function isMemberDtoArray(data: any[]): data is TeamMemberModel[] {
 }
 
 export default function TeamMembers() {
-  const { clubId, teamId } = useParams();
+  const { clubId } = useParams();
   const fetcher = useFetcher();
   const { teamUsers: serverUsers } = useLoaderData<{ teamUsers: TeamUser[] }>();
   const { teamRoles } = useOutletContext<TeamContext>();
-  const action = `/clubs/${clubId}/teams/${teamId}/members`;
+  const { pathname: action } = useLocation();
 
   const [allSelected, setAllSelected] = React.useState<boolean>(false);
   const [teamUsers, setTeamUsers] = React.useState<TeamUser[]>(serverUsers);
@@ -357,7 +357,7 @@ function EditTeamRolesModal({ teamUser }: { teamUser: TeamUser }) {
                 <select
                   id={'teamRole'}
                   name={'teamRole'}
-                  defaultValue={teamUser.teamRoles.length > 0 ? teamUser.teamRoles[0] : undefined}
+                  defaultValue={teamUser.teamRoles[0]}
                   className={'select select-bordered select-sm w-full'}
                 >
                   {Object.values(TeamRole).map(option => (

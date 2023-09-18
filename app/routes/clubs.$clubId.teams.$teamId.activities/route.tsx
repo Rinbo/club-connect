@@ -71,7 +71,7 @@ export default function TeamActivitiesLayout() {
               </div>
               <div className={'flex flex-col gap-1'}>
                 {teamActivities.map(teamActivity => (
-                  <ActivityRow teamActivity={teamActivity} path={pathname + '/' + teamActivity.id} />
+                  <ActivityRow key={teamActivity.id} teamActivity={teamActivity} path={pathname + '/' + teamActivity.id} />
                 ))}
               </div>
             </div>

@@ -7,7 +7,7 @@ import TimeSpan from '~/components/timeloc/time-span';
 import LocationBadge from '~/components/timeloc/location-badge';
 
 export default function TeamActivity() {
-  const { teamRoles, teamActivity } = useOutletContext<TeamActivityContext>();
+  const { teamRoles, teamActivity, teamUsers } = useOutletContext<TeamActivityContext>();
   const { pathname } = useLocation();
 
   const contextMenu = (
@@ -25,7 +25,7 @@ export default function TeamActivity() {
     <main>
       {contextMenu}
       <section className={'flex justify-center py-1'}>
-        <div className={'flex w-full flex-col justify-center gap-2 rounded-lg border p-2 lg:max-w-2xl'}>
+        <div className={'flex w-full flex-col justify-center gap-3 rounded-lg border p-2 lg:max-w-2xl'}>
           <h1 className={'text-center text-xl uppercase'}>Activity</h1>
           <div className={'flex flex-wrap items-center gap-2'}>
             <div className={'badge badge-neutral'}>{teamActivity.type}</div>
@@ -35,6 +35,14 @@ export default function TeamActivity() {
           <article className={'prose'}>
             <p>{teamActivity.description}</p>
           </article>
+          <div className={'divider mx-8'}>Members</div>
+          <div className={'flex flex-wrap gap-2'}>
+            {teamUsers.map(teamUser => (
+              <div className={'badge'} key={teamUser.id}>
+                {teamUser.clubUser.user.name}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </main>

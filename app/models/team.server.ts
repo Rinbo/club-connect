@@ -1,6 +1,10 @@
 import { prisma } from '~/db.server';
 import type { TeamMemberModel } from '~/routes/clubs.$clubId.teams.$teamId.members/route';
-import type { TeamRole } from '.prisma/client';
+import type { TeamRole, TeamUser } from '.prisma/client';
+import type { Clientify } from '~/misc-utils';
+import type { ClientClubUser } from '~/models/club-user.server';
+
+export type ClientTeamUser = Clientify<TeamUser> & { clubUser: ClientClubUser };
 
 export async function findTeamsByClubId(clubId: string, skip: number, take: number) {
   return prisma.team.findMany({

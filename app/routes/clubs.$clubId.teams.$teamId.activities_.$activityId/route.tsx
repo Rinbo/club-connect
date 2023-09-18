@@ -10,16 +10,20 @@ import type { TeamUserRoles } from '~/session.server';
 import { requireClubUser, requireTeamWebmaster } from '~/session.server';
 import type { TeamContext } from '~/routes/clubs.$clubId.teams.$teamId/route';
 import { createTeamActivitiesPath } from '~/route-utils';
+import type { ClientTeamUser } from '~/models/team.server';
+import { getTeamUsersByTeamId } from '~/models/team.server';
 
-export type TeamActivityContext = { teamRoles: TeamUserRoles; teamActivity: ClientTeamActivity };
+export type TeamActivityContext = { teamRoles: TeamUserRoles; teamActivity: ClientTeamActivity; teamUsers: ClientTeamUser[] };
 
-export const loader = async ({ request, params: { clubId, activityId } }: LoaderArgs) => {
+export const loader = async ({ request, params: { clubId, teamId, activityId } }: LoaderArgs) => {
   invariant(clubId, 'clubId missing in route');
+  invariant(teamId, 'teamId missing in route');
   invariant(activityId, 'activityId missing in route');
   await requireClubUser(request, clubId);
 
   const teamActivity = await findTeamActivityById(activityId);
-  return json({ teamActivity });
+  const teamUsers = await getTeamUsersByTeamId(teamId);
+  return json({ teamActivity, teamUsers });
 };
 
 export const action = async ({ request, params: { clubId, teamId, activityId } }: ActionArgs) => {
@@ -34,8 +38,8 @@ export const action = async ({ request, params: { clubId, teamId, activityId } }
 };
 
 export default function TeamActivityLayout() {
-  const { teamActivity } = useLoaderData<typeof loader>();
+  const { teamActivity, teamUsers } = useLoaderData<typeof loader>();
   const { teamRoles } = useOutletContext<TeamContext>();
 
-  return <Outlet context={{ teamRoles, teamActivity } satisfies TeamActivityContext} />;
+  return <Outlet context={{ teamRoles, teamActivity, teamUsers } satisfies TeamActivityContext} />;
 }

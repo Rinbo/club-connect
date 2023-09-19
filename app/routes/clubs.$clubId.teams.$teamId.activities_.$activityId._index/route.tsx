@@ -10,6 +10,12 @@ export default function TeamActivity() {
   const { teamRoles, teamActivity, teamUsers } = useOutletContext<TeamActivityContext>();
   const { pathname } = useLocation();
 
+  const prunedTeamUsers = teamUsers.map(teamUser => {
+    const { clubUser } = teamUser;
+    const { user } = clubUser;
+    return { name: user.name };
+  });
+
   const contextMenu = (
     <ResourceContextMenu backButton>
       {teamRoles.isTeamWebmaster && (

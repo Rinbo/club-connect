@@ -51,14 +51,15 @@ enum ClubRole {
 }
 
 model ClubUser {
-  id             String         @id @default(cuid())
-  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  club           Club           @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  clubRoles      ClubRole[]
-  clubNews       ClubNews[]
-  teamUsers      TeamUser[]
-  teamNews       TeamNews[]
-  teamActivities TeamActivity[]
+  id                     String         @id @default(cuid())
+  user                   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  club                   Club           @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubRoles              ClubRole[]
+  clubNews               ClubNews[]
+  teamUsers              TeamUser[]
+  teamNews               TeamNews[]
+  teamActivities         TeamActivity[] @relation(name: "ClubUserToTeamActivityPresence")
+  teamActivitiesIntended TeamActivity[] @relation(name: "ClubUserToTeamActivityIntention")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -167,7 +168,8 @@ model TeamActivity {
   type        TeamActivityType
   startTime   DateTime
   endTime     DateTime
-  present     ClubUser[]
+  present     ClubUser[]       @relation(name: "ClubUserToTeamActivityPresence")
+  coming      ClubUser[]       @relation(name: "ClubUserToTeamActivityIntention")
 
   team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId    String

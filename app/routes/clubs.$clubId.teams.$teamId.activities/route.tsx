@@ -11,15 +11,18 @@ import ResourceContextMenu, { AddLink } from '~/components/nav/resource-context-
 import TrainingTimeIsland from '~/routes/clubs.$clubId.teams.$teamId._index/training-time-island';
 import React from 'react';
 import { formatDate } from '~/date-utils';
-import { MdDateRange } from 'react-icons/md';
+import { MdAddCircleOutline, MdDateRange } from 'react-icons/md';
 import TimeSpan from '~/components/timeloc/time-span';
 import LocationBadge from '~/components/timeloc/location-badge';
+import type { ClientClubUserSlim } from '~/models/club-user.server';
 
 export type ClientTeamActivity = Omit<TeamActivity, 'startTime' | 'endTime' | 'createdAt' | 'updatedAt'> & {
   createdAt: string;
   updatedAt: string;
   startTime: string;
   endTime: string;
+  coming: ClientClubUserSlim[];
+  present: ClientClubUserSlim[];
 };
 
 type LoaderData = { teamActivities: ClientTeamActivity[] };
@@ -76,6 +79,11 @@ export default function TeamActivitiesLayout() {
               </div>
             </div>
           ))}
+          <div className={'flex justify-center'}>
+            <Link to={`${pathname}/new`}>
+              <MdAddCircleOutline size={20} />
+            </Link>
+          </div>
         </section>
       </section>
     </main>

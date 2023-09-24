@@ -5,6 +5,7 @@ import type { Clientify } from '~/misc-utils';
 import type { ClientUser } from '~/models/user.server';
 
 export type ClientClubUser = Clientify<ClubUser> & { user: ClientUser };
+export type ClientClubUserSlim = Clientify<ClubUser>;
 
 export async function createClubUser(clubId: string, userId: string) {
   return prisma.clubUser.create({

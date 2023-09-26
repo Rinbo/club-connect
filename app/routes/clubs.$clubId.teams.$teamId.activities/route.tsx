@@ -14,15 +14,14 @@ import { formatDate } from '~/date-utils';
 import { MdAddCircleOutline, MdDateRange } from 'react-icons/md';
 import TimeSpan from '~/components/timeloc/time-span';
 import LocationBadge from '~/components/timeloc/location-badge';
-import type { ClientClubUserSlim } from '~/models/club-user.server';
 
 export type ClientTeamActivity = Omit<TeamActivity, 'startTime' | 'endTime' | 'createdAt' | 'updatedAt'> & {
   createdAt: string;
   updatedAt: string;
   startTime: string;
   endTime: string;
-  coming: ClientClubUserSlim[];
-  present: ClientClubUserSlim[];
+  coming: { id: string }[];
+  present: { id: string }[];
 };
 
 type LoaderData = { teamActivities: ClientTeamActivity[] };

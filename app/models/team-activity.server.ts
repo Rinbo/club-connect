@@ -15,7 +15,7 @@ export async function findTeamActivities(teamId: string, skip: number, take: num
 export async function findTeamActivityById(id: string) {
   return prisma.teamActivity.findFirstOrThrow({
     where: { id },
-    include: { coming: true, present: true }
+    include: { coming: { select: { id: true } }, present: { select: { id: true } } }
   });
 }
 

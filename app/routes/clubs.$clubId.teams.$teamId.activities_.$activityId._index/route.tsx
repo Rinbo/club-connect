@@ -6,6 +6,24 @@ import type { TeamActivityContext } from '~/routes/clubs.$clubId.teams.$teamId.a
 import TimeSpan from '~/components/timeloc/time-span';
 import LocationBadge from '~/components/timeloc/location-badge';
 
+/**
+ * We need a button for sending request for joining - This means a user or a parent needs a link to which they can
+ * register their intention to join - probably need a different route for that, if user is parent and has a child in team
+ * then he can add the child. Otherwise, if user is a player in team they can also register their intention
+ * As it stands now, if a user says no, there is no way to signal this, so perhaps the present/coming relation should not be
+ * clubUser, but rather some different model that has fields that are more descriptive, ie, leaders should be able to see if
+ * the user rejected the invite or if they simply haven't answered. Why didn't I think of that before? This is a major change
+ * I think.
+ *
+ * Furthermore, we need to have some button that a leader/webmaster can press which triggers a mail to go out to the
+ * team members. This would require some kind of queue to which one adds a job. The job gets picked up by a worker
+ * and sends the emails at a moderate rate. When all emails have been sent, it should mark send job as completed,
+ * and ideally update some field in the ui in real time (polling, revalidation or websocket?)
+ *
+ * Lastly, I need some kind of presence checker. It should be smooth and intuitive, listing at the top the users
+ * that said they were coming (in one color), and the ones that have said they are not coming below. These should be
+ * possible to click on to register presence though (in case they showed up anyway)
+ */
 export default function TeamActivity() {
   const { teamRoles, teamActivity, teamUsers } = useOutletContext<TeamActivityContext>();
   const { pathname } = useLocation();
@@ -21,10 +39,16 @@ export default function TeamActivity() {
   );
 
   const comingClubUserIds = React.useMemo(() => teamActivity.coming.map(e => e.id), [teamActivity]);
+  const presentClubUsersIds = React.useMemo(() => teamActivity.present.map(e => e.id), [teamActivity]);
 
   const comingTeamUsers = React.useMemo(
     () => baseTeamUsers.filter(baseUser => comingClubUserIds.includes(baseUser.clubUserId)),
     [baseTeamUsers, comingClubUserIds]
+  );
+
+  const presentTeamUsers = React.useMemo(
+    () => baseTeamUsers.filter(baseUser => presentClubUsersIds.includes(baseUser.clubUserId)),
+    [baseTeamUsers, presentClubUsersIds]
   );
 
   const contextMenu = (
@@ -60,10 +84,20 @@ export default function TeamActivity() {
               </div>
             ))}
           </div>
+
           <div className={'divider mx-8'}>Coming</div>
           <div className={'flex flex-wrap gap-2'}>
             {comingTeamUsers.map(teamUser => (
               <div className={'badge'} key={teamUser.clubUserId + 'coming'}>
+                {teamUser.name}
+              </div>
+            ))}
+          </div>
+
+          <div className={'divider mx-8'}>Present</div>
+          <div className={'flex flex-wrap gap-2'}>
+            {presentTeamUsers.map(teamUser => (
+              <div className={'badge'} key={teamUser.clubUserId + 'present'}>
                 {teamUser.name}
               </div>
             ))}

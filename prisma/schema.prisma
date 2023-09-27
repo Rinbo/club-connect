@@ -51,15 +51,15 @@ enum ClubRole {
 }
 
 model ClubUser {
-  id                     String         @id @default(cuid())
-  user                   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  club                   Club           @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  clubRoles              ClubRole[]
-  clubNews               ClubNews[]
-  teamUsers              TeamUser[]
-  teamNews               TeamNews[]
-  teamActivities         TeamActivity[] @relation(name: "ClubUserToTeamActivityPresence")
-  teamActivitiesIntended TeamActivity[] @relation(name: "ClubUserToTeamActivityIntention")
+  id                   String                 @id @default(cuid())
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  club                 Club                   @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubRoles            ClubRole[]
+  clubNews             ClubNews[]
+  teamUsers            TeamUser[]
+  teamNews             TeamNews[]
+  userActivityIntent   UserActivityIntent[]
+  userActivityPresence UserActivityPresence[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -161,15 +161,48 @@ enum TeamActivityType {
   TRAINING
 }
 
+model UserActivityPresence {
+  clubUser     ClubUser     @relation(fields: [clubUserId], references: [id], onDelete: Cascade)
+  teamActivity TeamActivity @relation(fields: [teamActivityId], references: [id], onDelete: Cascade)
+
+  clubUserId     String
+  teamActivityId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([clubUserId, teamActivityId])
+}
+
+enum Intent {
+  ACCEPTED
+  DECLINED
+}
+
+model UserActivityIntent {
+  clubUser     ClubUser     @relation(fields: [clubUserId], references: [id], onDelete: Cascade)
+  teamActivity TeamActivity @relation(fields: [teamActivityId], references: [id], onDelete: Cascade)
+  intentType   Intent
+
+  clubUserId     String
+  teamActivityId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([clubUserId, teamActivityId])
+}
+
 model TeamActivity {
-  id          String           @id @default(cuid())
-  location    String
-  description String?
-  type        TeamActivityType
-  startTime   DateTime
-  endTime     DateTime
-  present     ClubUser[]       @relation(name: "ClubUserToTeamActivityPresence")
-  coming      ClubUser[]       @relation(name: "ClubUserToTeamActivityIntention")
+  id                   String                 @id @default(cuid())
+  location             String
+  description          String?
+  type                 TeamActivityType
+  startTime            DateTime
+  endTime              DateTime
+  userActivityPresence UserActivityPresence[]
+  userActivityIntent   UserActivityIntent[]
+  notificationSent     Boolean                @default(false)
 
   team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId    String

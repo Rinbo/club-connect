@@ -38,8 +38,8 @@ export default function TeamActivity() {
     [teamUsers]
   );
 
-  const comingClubUserIds = React.useMemo(() => teamActivity.coming.map(e => e.id), [teamActivity]);
-  const presentClubUsersIds = React.useMemo(() => teamActivity.present.map(e => e.id), [teamActivity]);
+  const comingClubUserIds = React.useMemo(() => teamActivity.userActivityIntent.map(e => e.clubUserId), [teamActivity]);
+  const presentClubUsersIds = React.useMemo(() => teamActivity.userActivityPresence.map(e => e.clubUserId), [teamActivity]);
 
   const comingTeamUsers = React.useMemo(
     () => baseTeamUsers.filter(baseUser => comingClubUserIds.includes(baseUser.clubUserId)),

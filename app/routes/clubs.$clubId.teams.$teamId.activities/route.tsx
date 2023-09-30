@@ -20,8 +20,8 @@ export type ClientTeamActivity = Omit<TeamActivity, 'startTime' | 'endTime' | 'c
   updatedAt: string;
   startTime: string;
   endTime: string;
-  coming: { id: string }[];
-  present: { id: string }[];
+  userActivityIntent: { clubUserId: string }[];
+  userActivityPresence: { clubUserId: string }[];
 };
 
 type LoaderData = { teamActivities: ClientTeamActivity[] };
@@ -35,6 +35,11 @@ export const loader = async ({ request, params: { clubId, teamId } }: LoaderArgs
 
   return json({ teamActivities });
 };
+
+// TODO Figure out a way to handle older entries. Ideally we should sort out older entries and only show
+// TODO the ones that are in the future, starting with the one closes in the future, and pagination going forward (if required)
+// TODO but there also to be a history tab in which we only show the ones that have already occurred
+// TODO with pagination of course
 
 export default function TeamActivitiesLayout() {
   const { pathname } = useLocation();

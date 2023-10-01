@@ -5,6 +5,29 @@ import DeleteResourceModal from '~/components/delete/delete-resource-modal';
 import type { TeamActivityContext } from '~/routes/clubs.$clubId.teams.$teamId.activities_.$activityId/route';
 import TimeSpan from '~/components/timeloc/time-span';
 import LocationBadge from '~/components/timeloc/location-badge';
+import type { ActionArgs } from '@remix-run/node';
+import { json } from '@remix-run/node';
+import { Form } from '@remix-run/react';
+import invariant from 'tiny-invariant';
+import { requireTeamWebmaster } from '~/session.server';
+import { errorFlash } from '~/loader-utils';
+import { sendEmailInvites } from '~/jobs/team-activity.server';
+
+export const action = async ({ request, params: { clubId, teamId } }: ActionArgs) => {
+  invariant(clubId, 'clubId missing form route');
+  invariant(teamId, 'teamId missing form route');
+  await requireTeamWebmaster(request, clubId, teamId);
+
+  const formData = await request.formData();
+  const activityId = formData.get('activityId');
+  if (typeof activityId !== 'string') {
+    return json({ flash: errorFlash('Failed to send email invites') }, { status: 500 });
+  }
+
+  sendEmailInvites(activityId);
+
+  return json({});
+};
 
 /**
  * We need a button for sending request for joining - This means a user or a parent needs a link to which they can
@@ -62,6 +85,15 @@ export default function TeamActivity() {
     </ResourceContextMenu>
   );
 
+  const sendInviteJob = (
+    <Form method={'post'}>
+      <input readOnly hidden name={'activityId'} value={teamActivity.id} />
+      <button type="submit" className={'btn btn-info btn-xs'}>
+        Request attendance
+      </button>
+    </Form>
+  );
+
   return (
     <main>
       {contextMenu}
@@ -76,6 +108,7 @@ export default function TeamActivity() {
           <article className={'prose'}>
             <p>{teamActivity.description}</p>
           </article>
+          <div className={'py-2'}>{sendInviteJob}</div>
           <div className={'divider mx-8'}>Team Members</div>
           <div className={'flex flex-wrap gap-2'}>
             {baseTeamUsers.map(teamUser => (

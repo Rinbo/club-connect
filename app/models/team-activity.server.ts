@@ -1,5 +1,6 @@
 import { prisma } from '~/db.server';
 import { $Enums } from '.prisma/client';
+import { NotificationStatus } from '@prisma/client';
 import TeamActivityType = $Enums.TeamActivityType;
 
 export async function findTeamActivities(teamId: string, skip: number, take: number) {
@@ -36,5 +37,12 @@ export async function updateTeamActivity(id: string, data: TeamActivityData) {
   return prisma.teamActivity.update({
     where: { id },
     data: { ...data }
+  });
+}
+
+export async function updateNotificationStatus(id: string, notificationStatus: NotificationStatus) {
+  return prisma.teamActivity.update({
+    where: { id },
+    data: { notificationStatus }
   });
 }

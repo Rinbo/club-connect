@@ -193,6 +193,13 @@ model UserActivityIntent {
   @@unique([clubUserId, teamActivityId])
 }
 
+enum NotificationStatus {
+  NOT_SENT
+  PENDING
+  SENT
+  FAILED
+}
+
 model TeamActivity {
   id                   String                 @id @default(cuid())
   location             String
@@ -202,7 +209,7 @@ model TeamActivity {
   endTime              DateTime
   userActivityPresence UserActivityPresence[]
   userActivityIntent   UserActivityIntent[]
-  notificationSent     Boolean                @default(false)
+  notificationStatus   NotificationStatus     @default(NOT_SENT)
 
   team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId    String

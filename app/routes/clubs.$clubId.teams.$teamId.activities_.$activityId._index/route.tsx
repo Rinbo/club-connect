@@ -1,4 +1,4 @@
-import { useLocation, useOutletContext } from 'react-router';
+import { useLocation, useOutletContext, useRevalidator } from 'react-router';
 import ResourceContextMenu, { EditLink } from '~/components/nav/resource-context-menu';
 import React from 'react';
 import DeleteResourceModal from '~/components/delete/delete-resource-modal';
@@ -7,11 +7,16 @@ import TimeSpan from '~/components/timeloc/time-span';
 import LocationBadge from '~/components/timeloc/location-badge';
 import type { ActionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
-import { Form } from '@remix-run/react';
+import { Form, useFetcher } from '@remix-run/react';
 import invariant from 'tiny-invariant';
 import { requireTeamWebmaster } from '~/session.server';
 import { errorFlash } from '~/loader-utils';
 import { sendEmailInvites } from '~/jobs/team-activity.server';
+import { updateNotificationStatus } from '~/models/team-activity.server';
+import { $Enums, NotificationStatus } from '@prisma/client';
+import { useInterval } from '~/hooks/useInterval';
+import DropDown from '~/components/form/dropdown';
+import Intent = $Enums.Intent;
 
 export const action = async ({ request, params: { clubId, teamId } }: ActionArgs) => {
   invariant(clubId, 'clubId missing form route');
@@ -25,6 +30,7 @@ export const action = async ({ request, params: { clubId, teamId } }: ActionArgs
   }
 
   sendEmailInvites(activityId);
+  await updateNotificationStatus(activityId, NotificationStatus.PENDING);
 
   return json({});
 };
@@ -50,6 +56,9 @@ export const action = async ({ request, params: { clubId, teamId } }: ActionArgs
 export default function TeamActivity() {
   const { teamRoles, teamActivity, teamUsers } = useOutletContext<TeamActivityContext>();
   const { pathname } = useLocation();
+  const fetcher = useFetcher();
+  const revalidate = useRevalidator();
+  useInterval(() => revalidate.revalidate(), 8000);
 
   const baseTeamUsers = React.useMemo(
     () =>
@@ -85,8 +94,26 @@ export default function TeamActivity() {
     </ResourceContextMenu>
   );
 
+  const emailInvite = () => {
+    switch (teamActivity.notificationStatus) {
+      case 'NOT_SENT':
+        return sendInviteJob;
+      case 'PENDING':
+        return <div className={'badge badge-warning'}>PENDING...</div>;
+      case 'FAILED':
+        return (
+          <div className={'flex items-center gap-3'}>
+            <div className={'rounded-md bg-red-400 px-2 py-1 text-sm'}>Invites failed. Try again</div>
+            {sendInviteJob}
+          </div>
+        );
+      case 'SENT':
+        return <div className={'inline-block rounded-lg bg-green-300 px-2 py-1 text-sm'}>Email invites have been sent</div>;
+    }
+  };
+
   const sendInviteJob = (
-    <Form method={'post'}>
+    <Form replace method={'post'}>
       <input readOnly hidden name={'activityId'} value={teamActivity.id} />
       <button type="submit" className={'btn btn-info btn-xs'}>
         Request attendance
@@ -108,7 +135,7 @@ export default function TeamActivity() {
           <article className={'prose'}>
             <p>{teamActivity.description}</p>
           </article>
-          <div className={'py-2'}>{sendInviteJob}</div>
+          <div className={'py-2'}>{emailInvite()}</div>
           <div className={'divider mx-8'}>Team Members</div>
           <div className={'flex flex-wrap gap-2'}>
             {baseTeamUsers.map(teamUser => (
@@ -117,7 +144,23 @@ export default function TeamActivity() {
               </div>
             ))}
           </div>
-
+          <div className={'divider mx-8'}>Team Members</div>
+          <div className={'flex flex-col gap-2'}>
+            <h4>RSVP</h4>
+            How do I do this? I have to check if user is a leader or player, or a parent with children (treated differently). Then I have to
+            only allow those people to see this and submit it. By submitting, I add the users clubUserId to a hidden field and send to the
+            rsvp endpoint.
+            <fetcher.Form>
+              <DropDown
+                options={Object.values(Intent).map(e => e)}
+                name={'rsvp'}
+                id={'rsvp'}
+                size={'sm'}
+                nonSelectableMessage={'Are you coming?'}
+              />
+            </fetcher.Form>
+          </div>
+          <div className={'divider mx-8'}>Team Members</div>
           <div className={'divider mx-8'}>Coming</div>
           <div className={'flex flex-wrap gap-2'}>
             {comingTeamUsers.map(teamUser => (

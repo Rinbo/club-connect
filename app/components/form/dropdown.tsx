@@ -13,10 +13,11 @@ type Props = {
   label?: string;
   size?: Size;
   defaultValue?: string;
+  nonSelectableMessage?: string;
   errors?: string[] | null | undefined;
 };
 
-export default function DropDown({ options, name, label, id, size, defaultValue, errors }: Props) {
+export default function DropDown({ options, name, label, id, size, defaultValue, nonSelectableMessage, errors }: Props) {
   return (
     <div className={'form-control'}>
       {label && (
@@ -25,6 +26,11 @@ export default function DropDown({ options, name, label, id, size, defaultValue,
         </label>
       )}
       <select id={id} name={name} defaultValue={defaultValue} className={`select select-bordered w-full ${size && SIZE_MAP[size]}`}>
+        {nonSelectableMessage && (
+          <option disabled selected>
+            {nonSelectableMessage}
+          </option>
+        )}
         {options.map(option => (
           <option key={option}>{option}</option>
         ))}

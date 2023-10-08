@@ -1,5 +1,7 @@
 import type { Job } from 'bullmq';
 import { Queue, Worker } from 'bullmq';
+import { updateNotificationStatus } from '~/models/team-activity.server';
+import { NotificationStatus } from '@prisma/client';
 
 type TeamActivity = { activityId: string };
 const connection = { host: process.env.REDIS_HOST, port: Number(process.env.REDIS_PORT) };
@@ -12,6 +14,10 @@ const worker = new Worker(
   QUEUE_NAME,
   async ({ data: { activityId } }: Job<TeamActivity>) => {
     console.log('Processing teamActivity: ' + activityId);
+    setTimeout(() => {
+      console.log('Setting notification status to SENT');
+      updateNotificationStatus(activityId, NotificationStatus.SENT);
+    }, 2000);
     return activityId;
   },
   { connection }

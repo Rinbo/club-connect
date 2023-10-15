@@ -1,6 +1,6 @@
 import { prisma } from '~/db.server';
 import { $Enums } from '.prisma/client';
-import { NotificationStatus } from '@prisma/client';
+import type { NotificationStatus } from '@prisma/client';
 import TeamActivityType = $Enums.TeamActivityType;
 
 export async function findTeamActivities(teamId: string, skip: number, take: number) {
@@ -15,7 +15,10 @@ export async function findTeamActivities(teamId: string, skip: number, take: num
 export async function findTeamActivityById(id: string) {
   return prisma.teamActivity.findFirstOrThrow({
     where: { id },
-    include: { userActivityPresence: { select: { clubUserId: true } }, userActivityIntent: { select: { clubUserId: true } } }
+    include: {
+      userActivityPresence: { select: { clubUserId: true } },
+      userActivityIntent: { select: { clubUserId: true, notified: true } }
+    }
   });
 }
 

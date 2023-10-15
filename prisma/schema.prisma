@@ -186,6 +186,7 @@ model UserActivityIntent {
 
   clubUserId     String
   teamActivityId String
+  notified       Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

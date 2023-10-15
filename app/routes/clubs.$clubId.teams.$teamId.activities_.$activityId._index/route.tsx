@@ -1,4 +1,4 @@
-import { useLocation, useOutletContext, useRevalidator } from 'react-router';
+import { useLocation, useOutletContext } from 'react-router';
 import ResourceContextMenu, { EditLink } from '~/components/nav/resource-context-menu';
 import React from 'react';
 import DeleteResourceModal from '~/components/delete/delete-resource-modal';
@@ -12,11 +12,9 @@ import invariant from 'tiny-invariant';
 import { requireTeamWebmaster } from '~/session.server';
 import { errorFlash } from '~/loader-utils';
 import { sendEmailInvites } from '~/jobs/team-activity.server';
-import { updateNotificationStatus } from '~/models/team-activity.server';
-import { $Enums, NotificationStatus } from '@prisma/client';
-import { useInterval } from '~/hooks/useInterval';
+import { Intent, TeamRole } from '@prisma/client';
+import { getTeamUsersByTeamId } from '~/models/team.server';
 import DropDown from '~/components/form/dropdown';
-import Intent = $Enums.Intent;
 
 export const action = async ({ request, params: { clubId, teamId } }: ActionArgs) => {
   invariant(clubId, 'clubId missing form route');
@@ -25,12 +23,19 @@ export const action = async ({ request, params: { clubId, teamId } }: ActionArgs
 
   const formData = await request.formData();
   const activityId = formData.get('activityId');
+
   if (typeof activityId !== 'string') {
     return json({ flash: errorFlash('Failed to send email invites') }, { status: 500 });
   }
 
-  sendEmailInvites(activityId);
-  await updateNotificationStatus(activityId, NotificationStatus.PENDING);
+  const teamUsers = await getTeamUsersByTeamId(teamId);
+
+  teamUsers
+    .filter(teamUser => teamUser.teamRoles.some(role => [TeamRole.TEAM_PLAYER.valueOf()].includes(role)))
+    .map(teamUser => teamUser.clubUser)
+    .forEach(clubUser => sendEmailInvites({ email: clubUser.user.email, activityId }));
+
+  //await updateNotificationStatus(activityId, NotificationStatus.SENT);
 
   return json({});
 };
@@ -57,8 +62,6 @@ export default function TeamActivity() {
   const { teamRoles, teamActivity, teamUsers } = useOutletContext<TeamActivityContext>();
   const { pathname } = useLocation();
   const fetcher = useFetcher();
-  const revalidate = useRevalidator();
-  useInterval(() => revalidate.revalidate(), 8000);
 
   const baseTeamUsers = React.useMemo(
     () =>

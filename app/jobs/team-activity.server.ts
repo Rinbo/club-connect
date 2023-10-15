@@ -1,32 +1,27 @@
 import type { Job } from 'bullmq';
 import { Queue, Worker } from 'bullmq';
-import { updateNotificationStatus } from '~/models/team-activity.server';
-import { NotificationStatus } from '@prisma/client';
 
-type TeamActivity = { activityId: string };
+type EmailJob = { email: string; activityId: string };
 const connection = { host: process.env.REDIS_HOST, port: Number(process.env.REDIS_PORT) };
-const QUEUE_NAME = 'sendTeamActivityInviteQueue';
+const QUEUE_NAME = 'emailActivityInviteQueue';
 const OPTS = { removeOnComplete: true, removeOnFail: true };
 
-const sendTeamActivityInviteQueue = new Queue(QUEUE_NAME, { connection });
+const emailActivityInviteQueue = new Queue(QUEUE_NAME, { connection });
 
 const worker = new Worker(
   QUEUE_NAME,
-  async ({ data: { activityId } }: Job<TeamActivity>) => {
+  async ({ data: { email, activityId } }: Job<EmailJob>) => {
     console.log('Processing teamActivity: ' + activityId);
-    setTimeout(() => {
-      console.log('Setting notification status to SENT');
-      updateNotificationStatus(activityId, NotificationStatus.SENT);
-    }, 2000);
+    console.log('sending email to ' + email);
     return activityId;
   },
   { connection }
 );
 
-worker.on('completed', (job: Job<TeamActivity>, returnValue: string) => {
+worker.on('completed', (job: Job<EmailJob>, returnValue: string) => {
   console.log('Job completed with return value: ' + returnValue);
 });
 
-export function sendEmailInvites(activityId: string) {
-  sendTeamActivityInviteQueue.add(QUEUE_NAME, { activityId }, OPTS);
+export async function sendEmailInvites(emailJob: EmailJob) {
+  await emailActivityInviteQueue.add(QUEUE_NAME, { ...emailJob }, OPTS);
 }

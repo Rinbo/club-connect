@@ -20,7 +20,7 @@ export type ClientTeamActivity = Omit<TeamActivity, 'startTime' | 'endTime' | 'c
   updatedAt: string;
   startTime: string;
   endTime: string;
-  userActivityIntent: { clubUserId: string }[];
+  userActivityIntent: { clubUserId: string; notified: boolean }[];
   userActivityPresence: { clubUserId: string }[];
 };
 

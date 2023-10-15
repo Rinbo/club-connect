@@ -25,9 +25,14 @@ export default function DropDown({ options, name, label, id, size, defaultValue,
           <span>{label}</span>
         </label>
       )}
-      <select id={id} name={name} defaultValue={defaultValue} className={`select select-bordered w-full ${size && SIZE_MAP[size]}`}>
+      <select
+        id={id}
+        name={name}
+        defaultValue={defaultValue || 'DEFAULT'}
+        className={`select select-bordered w-full ${size && SIZE_MAP[size]}`}
+      >
         {nonSelectableMessage && (
-          <option disabled selected>
+          <option value={'DEFAULT'} disabled>
             {nonSelectableMessage}
           </option>
         )}

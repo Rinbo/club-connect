@@ -5,40 +5,9 @@ import DeleteResourceModal from '~/components/delete/delete-resource-modal';
 import type { TeamActivityContext } from '~/routes/clubs.$clubId.teams.$teamId.activities_.$activityId/route';
 import TimeSpan from '~/components/timeloc/time-span';
 import LocationBadge from '~/components/timeloc/location-badge';
-import type { ActionArgs } from '@remix-run/node';
-import { json } from '@remix-run/node';
-import { Form, useFetcher } from '@remix-run/react';
-import invariant from 'tiny-invariant';
-import { requireTeamWebmaster } from '~/session.server';
-import { errorFlash } from '~/loader-utils';
-import { sendEmailInvites } from '~/jobs/team-activity.server';
-import { Intent, TeamRole } from '@prisma/client';
-import { getTeamUsersByTeamId } from '~/models/team.server';
+import { useFetcher } from '@remix-run/react';
+import { Intent } from '@prisma/client';
 import DropDown from '~/components/form/dropdown';
-
-export const action = async ({ request, params: { clubId, teamId } }: ActionArgs) => {
-  invariant(clubId, 'clubId missing form route');
-  invariant(teamId, 'teamId missing form route');
-  await requireTeamWebmaster(request, clubId, teamId);
-
-  const formData = await request.formData();
-  const activityId = formData.get('activityId');
-
-  if (typeof activityId !== 'string') {
-    return json({ flash: errorFlash('Failed to send email invites') }, { status: 500 });
-  }
-
-  const teamUsers = await getTeamUsersByTeamId(teamId);
-
-  teamUsers
-    .filter(teamUser => teamUser.teamRoles.some(role => [TeamRole.TEAM_PLAYER.valueOf()].includes(role)))
-    .map(teamUser => teamUser.clubUser)
-    .forEach(clubUser => sendEmailInvites({ email: clubUser.user.email, activityId }));
-
-  //await updateNotificationStatus(activityId, NotificationStatus.SENT);
-
-  return json({});
-};
 
 /**
  * We need a button for sending request for joining - This means a user or a parent needs a link to which they can
@@ -116,12 +85,12 @@ export default function TeamActivity() {
   };
 
   const sendInviteJob = (
-    <Form replace method={'post'}>
+    <fetcher.Form replace method={'post'} action={`${pathname}/invite`}>
       <input readOnly hidden name={'activityId'} value={teamActivity.id} />
       <button type="submit" className={'btn btn-info btn-xs'}>
         Request attendance
       </button>
-    </Form>
+    </fetcher.Form>
   );
 
   return (
@@ -153,7 +122,7 @@ export default function TeamActivity() {
             How do I do this? I have to check if user is a leader or player, or a parent with children (treated differently). Then I have to
             only allow those people to see this and submit it. By submitting, I add the users clubUserId to a hidden field and send to the
             rsvp endpoint.
-            <fetcher.Form>
+            <fetcher.Form replace method={'post'} action={`${pathname}/rsvp`}>
               <DropDown
                 options={Object.values(Intent).map(e => e)}
                 name={'rsvp'}

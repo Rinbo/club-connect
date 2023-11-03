@@ -8,24 +8,28 @@ import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import { findClubById } from '~/models/club.server';
 import React, { useRef } from 'react';
-import { requireClubUser } from '~/session.server';
+import { requireClubUser, requireUserId } from '~/session.server';
 import { AiOutlineSchedule } from 'react-icons/ai';
 import { LuLayoutDashboard } from 'react-icons/lu';
 import { FiSettings } from 'react-icons/fi';
 import { getGravatarUrl } from '~/misc-utils';
+import { findClubUserByClubIdAndUserId } from '~/models/club-user.server';
 
 export { ErrorBoundary } from '~/error-boundry';
 
 const ICON_SIZE = 25;
 
-export const loader = async ({ request, params }: LoaderArgs) => {
-  invariant(params.clubId, 'clubId missing on route');
-  const clubUserRoles = await requireClubUser(request, params.clubId);
+export const loader = async ({ request, params: { clubId } }: LoaderArgs) => {
+  invariant(clubId, 'clubId missing on route');
+  const userId = await requireUserId(request);
+  const clubUserRoles = await requireClubUser(request, clubId);
 
-  const club = await findClubById(params.clubId);
+  const clubUser = await findClubUserByClubIdAndUserId(clubId, userId);
+
+  const club = await findClubById(clubId);
   if (!club) throw new Response('Club does not exist', { status: 404 });
 
-  return json({ club, clubUserRoles });
+  return json({ club, clubUserRoles, clubUser });
 };
 
 export default function ClubLayout() {

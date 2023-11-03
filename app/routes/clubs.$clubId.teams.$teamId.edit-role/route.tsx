@@ -23,10 +23,7 @@ export const action = async ({ request, params: { clubId, teamId } }: ActionArgs
   const formData = await request.formData();
   const validation = teamRoleSchema.safeParse(Object.fromEntries(formData));
 
-  if (!validation.success) {
-    console.log(validation.error.flatten().fieldErrors, 'FIELDS');
-    return error;
-  }
+  if (!validation.success) return error;
 
   try {
     const { teamUserId, teamRole } = validation.data;

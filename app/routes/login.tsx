@@ -54,7 +54,6 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (actionData?.errors?.email) {
-      console.log(actionData?.errors?.email);
       emailRef.current?.focus();
     } else if (actionData?.errors?.password) {
       passwordRef.current?.focus();

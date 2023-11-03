@@ -5,9 +5,14 @@ import DeleteResourceModal from '~/components/delete/delete-resource-modal';
 import type { TeamActivityContext } from '~/routes/clubs.$clubId.teams.$teamId.activities_.$activityId/route';
 import TimeSpan from '~/components/timeloc/time-span';
 import LocationBadge from '~/components/timeloc/location-badge';
-import { useFetcher } from '@remix-run/react';
-import { Intent } from '@prisma/client';
+import { useFetcher, useSubmit } from '@remix-run/react';
+import { Intent, TeamRole } from '@prisma/client';
 import DropDown from '~/components/form/dropdown';
+import { useClubUser } from '~/loader-utils';
+import { PRINCIPAL_ID, RSVP_INTENT } from '~/routes/clubs.$clubId.teams.$teamId.activities_.$activityId.rsvp/route';
+import useCustomToast from '~/hooks/useCustomToast';
+
+export const PARTICIPANT_ROLES: TeamRole[] = [TeamRole.TEAM_PLAYER, TeamRole.TEAM_PARENT, TeamRole.TEAM_LEADER];
 
 /**
  * We need a button for sending request for joining - This means a user or a parent needs a link to which they can
@@ -31,15 +36,31 @@ export default function TeamActivity() {
   const { teamRoles, teamActivity, teamUsers } = useOutletContext<TeamActivityContext>();
   const { pathname } = useLocation();
   const fetcher = useFetcher();
+  const submit = useSubmit();
+  const clubUser = useClubUser();
+
+  useCustomToast(fetcher.data?.flash);
 
   const baseTeamUsers = React.useMemo(
     () =>
-      teamUsers.map(teamUser => {
-        const { clubUser } = teamUser;
-        const { user, id } = clubUser;
-        return { clubUserId: id, name: user.name };
-      }),
+      teamUsers
+        .filter(teamUser => teamUser.teamRoles.some(role => PARTICIPANT_ROLES.includes(role)))
+        .map(teamUser => {
+          const { clubUser } = teamUser;
+          const { user, id } = clubUser;
+          return { clubUserId: id, name: user.name, teamRoles: teamUser.teamRoles };
+        }),
     [teamUsers]
+  );
+
+  const showRsvp: boolean = React.useMemo(() => {
+    const isMember = baseTeamUsers.map(member => member.clubUserId).includes(clubUser.id);
+    return isMember && teamRoles.roles.some(role => PARTICIPANT_ROLES.includes(role));
+  }, [baseTeamUsers, clubUser, teamRoles]);
+
+  const principalDefaultIntent = React.useMemo(
+    () => teamActivity.userActivityIntent.find(intentObj => (intentObj.clubUserId = clubUser.id))?.intentType,
+    [clubUser, teamActivity]
   );
 
   const comingClubUserIds = React.useMemo(() => teamActivity.userActivityIntent.map(e => e.clubUserId), [teamActivity]);
@@ -117,21 +138,22 @@ export default function TeamActivity() {
             ))}
           </div>
           <div className={'divider mx-8'}>Team Members</div>
-          <div className={'flex flex-col gap-2'}>
-            <h4>RSVP</h4>
-            How do I do this? I have to check if user is a leader or player, or a parent with children (treated differently). Then I have to
-            only allow those people to see this and submit it. By submitting, I add the users clubUserId to a hidden field and send to the
-            rsvp endpoint.
-            <fetcher.Form replace method={'post'} action={`${pathname}/rsvp`}>
-              <DropDown
-                options={Object.values(Intent).map(e => e)}
-                name={'rsvp'}
-                id={'rsvp'}
-                size={'sm'}
-                nonSelectableMessage={'Are you coming?'}
-              />
-            </fetcher.Form>
-          </div>
+          {showRsvp && (
+            <div className={'flex flex-col gap-2'}>
+              <h4>RSVP</h4>
+              <fetcher.Form method={'post'} action={`${pathname}/rsvp`} onChange={event => fetcher.submit(event.currentTarget)}>
+                <input hidden readOnly name={PRINCIPAL_ID} value={clubUser.id} />
+                <DropDown
+                  options={Object.values(Intent).map(e => e)}
+                  name={RSVP_INTENT}
+                  id={RSVP_INTENT}
+                  size={'sm'}
+                  defaultValue={principalDefaultIntent}
+                  nonSelectableMessage={'Are you coming?'}
+                />
+              </fetcher.Form>
+            </div>
+          )}
           <div className={'divider mx-8'}>Team Members</div>
           <div className={'divider mx-8'}>Coming</div>
           <div className={'flex flex-wrap gap-2'}>

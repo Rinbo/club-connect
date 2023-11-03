@@ -6,7 +6,7 @@ import type { LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import { findTeamActivities } from '~/models/team-activity.server';
-import type { TeamActivity } from '@prisma/client';
+import type { Intent, TeamActivity } from '@prisma/client';
 import ResourceContextMenu, { AddLink } from '~/components/nav/resource-context-menu';
 import TrainingTimeIsland from '~/routes/clubs.$clubId.teams.$teamId._index/training-time-island';
 import React from 'react';
@@ -20,7 +20,7 @@ export type ClientTeamActivity = Omit<TeamActivity, 'startTime' | 'endTime' | 'c
   updatedAt: string;
   startTime: string;
   endTime: string;
-  userActivityIntent: { clubUserId: string; notified: boolean }[];
+  userActivityIntent: { clubUserId: string; notified: boolean; intentType: Intent }[];
   userActivityPresence: { clubUserId: string }[];
 };
 

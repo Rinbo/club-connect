@@ -1,6 +1,40 @@
 import type { ActionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
+import invariant from 'tiny-invariant';
+import { requireTeamUser } from '~/session.server';
+import { z } from 'zod';
+import { Intent } from '@prisma/client';
+import { updateTeamActivityIntent } from '~/models/team-activity.server';
+import { errorFlash, successFlash } from '~/loader-utils';
+import { getMessageOrDefault } from '~/misc-utils';
 
-export const action = ({ request, params }: ActionArgs) => {
-  return json({});
+export const PRINCIPAL_ID = 'principalId';
+export const RSVP_INTENT = 'rsvpIntent';
+
+const FAIL_MESSAGE = 'Failed to save intent';
+
+const rsvpSchema = z.object({
+  principalId: z.string(),
+  rsvpIntent: z.nativeEnum(Intent)
+});
+
+export const action = async ({ request, params: { activityId, clubId, teamId } }: ActionArgs) => {
+  invariant(activityId, 'activityId missing in route');
+  invariant(clubId, 'clubId missing in route');
+  invariant(teamId, 'teamId missing in route');
+  await requireTeamUser(request, clubId, teamId);
+
+  const formData = await request.formData();
+  const validation = rsvpSchema.safeParse(Object.fromEntries(formData));
+
+  if (!validation.success) return json({ flash: errorFlash('Invalid RSVP type') }, { status: 500 });
+
+  const { principalId, rsvpIntent } = validation.data;
+
+  try {
+    await updateTeamActivityIntent(principalId, activityId, rsvpIntent);
+    return json({ flash: successFlash('RSVP status saved') }, { status: 200 });
+  } catch (error) {
+    return json({ flash: errorFlash(getMessageOrDefault(error, FAIL_MESSAGE)) }, { status: 500 });
+  }
 };

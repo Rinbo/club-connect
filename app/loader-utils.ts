@@ -79,7 +79,7 @@ export function useClubs(): Club[] {
 }
 
 export function useClubUser(): ClubUser & { user: User } {
-  const data = useMatchesData('routes/clubs.$clubId.users.$userId');
+  const data = useMatchesData('routes/clubs.$clubId');
 
   if (!data || !isClubUser(data.clubUser)) {
     throw new Error('Clubs data is missing in dashboard root loader');

@@ -5,6 +5,7 @@ import { getUserById } from '~/models/user.server';
 import invariant from 'tiny-invariant';
 import { isClubAdmin, isClubOwner, isClubUser, isClubWebmaster, isTeamLeader, isTeamUser, isTeamWebmaster } from '~/security/role-utils';
 import { getUserRoles, invalidateAuthorizationCache } from '~/security/authorization.server';
+import { TeamRole } from '@prisma/client';
 
 invariant(process.env.SESSION_SECRET, 'SESSION_SECRET must be set');
 const USER_ID_KEY = 'userId';
@@ -26,6 +27,7 @@ export interface ClubUserRoles {
 }
 
 export interface TeamUserRoles {
+  roles: TeamRole[];
   isTeamUser: boolean;
   isTeamWebmaster: boolean;
   isTeamLeader: boolean;
@@ -127,11 +129,20 @@ export async function requireTeamWebmaster(request: Request, clubId: string, tea
   }
 }
 
+export async function requireTeamUser(request: Request, clubId: string, teamId: string) {
+  const teamRoles = await getTeamRoles(request, clubId, teamId);
+
+  if (!teamRoles.isTeamUser) {
+    throw redirect(`/clubs/${clubId}/teams/${teamId}`, { status: 403 });
+  }
+}
+
 export async function getTeamRoles(request: Request, clubId: string, teamId: string): Promise<TeamUserRoles> {
   const userId = await requireUserId(request);
   const userRoles = await getUserRoles(userId);
 
   return {
+    roles: userRoles.teamRoles.get(teamId) ?? [],
     isTeamUser: isTeamUser(userRoles.teamRoles, teamId) || isClubWebmaster(userRoles.clubRoles, clubId),
     isTeamWebmaster: isTeamWebmaster(userRoles.teamRoles, teamId) || isClubWebmaster(userRoles.clubRoles, clubId),
     isTeamLeader: isTeamLeader(userRoles.teamRoles, teamId) || isClubAdmin(userRoles.clubRoles, clubId)

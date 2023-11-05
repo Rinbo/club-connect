@@ -2,6 +2,8 @@ import crypto from 'crypto';
 import type { ClassValue } from 'clsx';
 import { clsx } from 'clsx';
 import { twMerge } from 'tw-merge';
+import { BaseTeamUser } from '~/routes/clubs.$clubId.teams.$teamId.activities_.$activityId._index/route';
+import { TeamRole } from '@prisma/client';
 
 export type Clientify<T> = Omit<T, 'createdAt' | 'updatedAt'> & { createdAt: string; updatedAt: string };
 
@@ -53,4 +55,19 @@ export function cx(...args: any[]) {
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+export function leaderFirst(teamUser1: BaseTeamUser, teamUser2: BaseTeamUser) {
+  const aIsLeader = teamUser1.teamRoles.includes(TeamRole.TEAM_LEADER);
+  const bIsLeader = teamUser2.teamRoles.includes(TeamRole.TEAM_LEADER);
+
+  if (aIsLeader === bIsLeader) {
+    return 0;
+  }
+
+  if (aIsLeader) {
+    return -1;
+  }
+
+  return 1;
 }

@@ -5,38 +5,23 @@ import DeleteResourceModal from '~/components/delete/delete-resource-modal';
 import type { TeamActivityContext } from '~/routes/clubs.$clubId.teams.$teamId.activities_.$activityId/route';
 import TimeSpan from '~/components/timeloc/time-span';
 import LocationBadge from '~/components/timeloc/location-badge';
-import { useFetcher, useSubmit } from '@remix-run/react';
+import { useFetcher } from '@remix-run/react';
 import { Intent, TeamRole } from '@prisma/client';
 import DropDown from '~/components/form/dropdown';
 import { useClubUser } from '~/loader-utils';
 import { PRINCIPAL_ID, RSVP_INTENT } from '~/routes/clubs.$clubId.teams.$teamId.activities_.$activityId.rsvp/route';
 import useCustomToast from '~/hooks/useCustomToast';
+import { leaderFirst } from '~/misc-utils';
+import { RiVipCrownLine } from 'react-icons/ri';
+
+export type BaseTeamUser = { clubUserId: string; name: string; teamRoles: TeamRole[] };
 
 export const PARTICIPANT_ROLES: TeamRole[] = [TeamRole.TEAM_PLAYER, TeamRole.TEAM_PARENT, TeamRole.TEAM_LEADER];
 
-/**
- * We need a button for sending request for joining - This means a user or a parent needs a link to which they can
- * register their intention to join - probably need a different route for that, if user is parent and has a child in team
- * then he can add the child. Otherwise, if user is a player in team they can also register their intention
- * As it stands now, if a user says no, there is no way to signal this, so perhaps the present/coming relation should not be
- * clubUser, but rather some different model that has fields that are more descriptive, ie, leaders should be able to see if
- * the user rejected the invite or if they simply haven't answered. Why didn't I think of that before? This is a major change
- * I think.
- *
- * Furthermore, we need to have some button that a leader/webmaster can press which triggers a mail to go out to the
- * team members. This would require some kind of queue to which one adds a job. The job gets picked up by a worker
- * and sends the emails at a moderate rate. When all emails have been sent, it should mark send job as completed,
- * and ideally update some field in the ui in real time (polling, revalidation or websocket?)
- *
- * Lastly, I need some kind of presence checker. It should be smooth and intuitive, listing at the top the users
- * that said they were coming (in one color), and the ones that have said they are not coming below. These should be
- * possible to click on to register presence though (in case they showed up anyway)
- */
 export default function TeamActivity() {
   const { teamRoles, teamActivity, teamUsers } = useOutletContext<TeamActivityContext>();
   const { pathname } = useLocation();
   const fetcher = useFetcher();
-  const submit = useSubmit();
   const clubUser = useClubUser();
 
   useCustomToast(fetcher.data?.flash);
@@ -48,8 +33,9 @@ export default function TeamActivity() {
         .map(teamUser => {
           const { clubUser } = teamUser;
           const { user, id } = clubUser;
-          return { clubUserId: id, name: user.name, teamRoles: teamUser.teamRoles };
-        }),
+          return { clubUserId: id, name: user.name, teamRoles: teamUser.teamRoles } satisfies BaseTeamUser;
+        })
+        .sort((u1, u2) => leaderFirst(u1, u2)),
     [teamUsers]
   );
 
@@ -59,11 +45,14 @@ export default function TeamActivity() {
   }, [baseTeamUsers, clubUser, teamRoles]);
 
   const principalDefaultIntent = React.useMemo(
-    () => teamActivity.userActivityIntent.find(intentObj => (intentObj.clubUserId = clubUser.id))?.intentType,
+    () => teamActivity.userActivityIntent.find(intentObj => intentObj.clubUserId === clubUser.id)?.intentType,
     [clubUser, teamActivity]
   );
 
-  const comingClubUserIds = React.useMemo(() => teamActivity.userActivityIntent.map(e => e.clubUserId), [teamActivity]);
+  const comingClubUserIds = React.useMemo(
+    () => teamActivity.userActivityIntent.filter(e => e.intentType === 'ACCEPTED').map(e => e.clubUserId),
+    [teamActivity]
+  );
   const presentClubUsersIds = React.useMemo(() => teamActivity.userActivityPresence.map(e => e.clubUserId), [teamActivity]);
 
   const comingTeamUsers = React.useMemo(
@@ -128,13 +117,11 @@ export default function TeamActivity() {
           <article className={'prose'}>
             <p>{teamActivity.description}</p>
           </article>
-          <div className={'py-2'}>{emailInvite()}</div>
+          <div className={'py-2'}>{teamRoles.isTeamWebmaster && emailInvite()}</div>
           <div className={'divider mx-8'}>Team Members</div>
           <div className={'flex flex-wrap gap-2'}>
-            {baseTeamUsers.map(teamUser => (
-              <div className={'badge'} key={teamUser.clubUserId + 'members'}>
-                {teamUser.name}
-              </div>
+            {baseTeamUsers.sort().map(teamUser => (
+              <UserBadge key={teamUser.clubUserId + 'members'} teamUser={teamUser} />
             ))}
           </div>
           <div className={'divider mx-8'}>Team Members</div>
@@ -158,23 +145,28 @@ export default function TeamActivity() {
           <div className={'divider mx-8'}>Coming</div>
           <div className={'flex flex-wrap gap-2'}>
             {comingTeamUsers.map(teamUser => (
-              <div className={'badge'} key={teamUser.clubUserId + 'coming'}>
-                {teamUser.name}
-              </div>
+              <UserBadge key={teamUser.clubUserId + 'coming'} teamUser={teamUser} />
             ))}
           </div>
 
           <div className={'divider mx-8'}>Present</div>
           <div className={'flex flex-wrap gap-2'}>
             {presentTeamUsers.map(teamUser => (
-              <div className={'badge'} key={teamUser.clubUserId + 'present'}>
-                {teamUser.name}
-              </div>
+              <UserBadge key={teamUser.clubUserId + 'present'} teamUser={teamUser} />
             ))}
           </div>
         </div>
         <button></button>
       </section>
     </main>
+  );
+}
+
+function UserBadge(props: { teamUser: BaseTeamUser }) {
+  return (
+    <div className={'badge flex gap-1'}>
+      {props.teamUser.teamRoles.includes(TeamRole.TEAM_LEADER) && <RiVipCrownLine />}
+      {props.teamUser.name}
+    </div>
   );
 }

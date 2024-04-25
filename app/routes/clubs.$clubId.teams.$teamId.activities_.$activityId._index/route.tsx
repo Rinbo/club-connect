@@ -143,6 +143,7 @@ export default function TeamActivity() {
           )}
           <div className={'divider mx-8'}>Team Members</div>
           <div className={'divider mx-8'}>Coming</div>
+          {/*TODO: Add a modal for showing the status of all users (basically UserActivityIntent)*/}
           <div className={'flex flex-wrap gap-2'}>
             {comingTeamUsers.map(teamUser => (
               <UserBadge key={teamUser.clubUserId + 'coming'} teamUser={teamUser} />
